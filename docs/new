@@ -1,0 +1,53 @@
+# Expanded Product Strategy: Reaching a Wider Audience
+
+To capture a much wider range of users while keeping server costs at $0, we need to build "Micro-Tools" that appeal to specific demographics. By using **Client-Side JavaScript and WebAssembly**, we can add powerful features that usually cost money on other sites.
+
+Here is an expanded, high-value feature list categorized by target audience:
+
+## 1. For Students & Academics
+Students have zero budget but high needs. If you capture the student market, word-of-mouth growth is exponential.
+*   **Image to Text (OCR):** Extract text from photos of textbooks or scanned PDFs. *(Tech: Tesseract.js runs entirely in the browser).*
+*   **PDF Summarizer:** Extract text and provide a quick summary. *(Tech: Client-side AI models via WebLLM).*
+*   **Citation Generator:** Quickly generate APA, MLA, or Chicago citations.
+*   **Remove Image Background:** Great for presentations. *(Tech: Client-side background removal models).*
+
+## 2. For Office Workers & Businesses
+These users prioritize privacy and speed. Your "100% Private, Client-Side" hook is perfect for them.
+*   **Sign PDF:** Add a drawn or typed eSignature to a document. *(Tech: pdf-lib).*
+*   **Redact PDF:** Permanently black out sensitive text or account numbers before sharing.
+*   **Remove EXIF Data:** Strip location and camera data from images for privacy before uploading them to the web.
+*   **Invoice Generator:** A simple web form that generates a clean PDF invoice.
+*   **Add Bates Numbering:** A specific tool for legal professionals to stamp page numbers on massive documents.
+
+## 3. For Web Designers & Developers
+Developers constantly search for quick, reliable utility tools.
+*   **SVG Optimizer:** Compress vector graphics for web use.
+*   **Image to Base64:** Convert images into raw code strings for embedding in HTML/CSS.
+*   **Favicon Generator:** Upload a logo and instantly generate all the necessary icon sizes for a website.
+*   **Color Picker:** Upload an image and click anywhere to get the HEX/RGB color code.
+
+## 4. The Core Utilities (For Everyone)
+These are your bread-and-butter tools that everyone searches for daily:
+### PDF Suite
+*   Merge, Split, Compress, Rotate, Delete Pages.
+*   Protect (Add Password), Unlock (Remove Password).
+*   Convert: Word/Excel/PPT to PDF, and PDF to Word/Excel/PPT/JPG.
+
+### Image Suite
+*   Compress: JPG, PNG, WEBP, HEIC.
+*   Convert formats (e.g., Apple's HEIC to standard JPG).
+*   Resize (change dimensions) and Crop.
+*   Meme Generator / Add Text to Image.
+
+---
+
+## How This Expands Your SEO & Traffic
+By adding these highly specific micro-tools, you are expanding your **Keyword Surface Area**. 
+
+Instead of just fighting for the highly competitive *"PDF Converter"* keyword, you will now rank for thousands of less competitive, long-tail searches like:
+*   *"Free client side OCR tool"*
+*   *"Remove location data from image online"*
+*   *"Convert HEIC to JPG no limit"*
+*   *"Add signature to PDF without signup"*
+
+Every micro-tool gets its own dedicated page on your website (e.g., `yourwebsite.com/remove-exif-data`). A user might land on the site just to remove EXIF data, realize the site has 30 other amazing tools with no daily limits, and bookmark the homepage forever.
