@@ -1,0 +1,431 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+
+const howToSteps = [
+  {
+    name: "Upload your PDF files",
+    text: "Click the upload area or drag and drop multiple PDF files. You can add as many files as you need — there is no limit.",
+  },
+  {
+    name: "Reorder if needed",
+    text: "Drag the file cards to rearrange the order before merging. The final PDF will follow exactly the order shown on screen.",
+  },
+  {
+    name: "Merge and Download",
+    text: "Click 'Merge PDFs'. Your browser combines the files instantly — no upload, no waiting. Download the merged PDF directly.",
+  },
+];
+
+const faqs = [
+  {
+    question: "Are my PDF files uploaded to a server?",
+    answer: "No. DocuVerse processes all files entirely in your browser using WebAssembly. Your files never leave your device and are never sent to any server.",
+  },
+  {
+    question: "Is there a file size or page limit?",
+    answer: "There are no artificial limits. The only constraint is your device's available memory. Most modern devices handle PDFs up to several hundred MB without any issue.",
+  },
+  {
+    question: "Can I merge password-protected PDFs?",
+    answer: "If a PDF is password-protected, you will need to unlock it first using our Unlock PDF tool before merging.",
+  },
+  {
+    question: "Will the merged PDF have a watermark?",
+    answer: "Never. DocuVerse adds zero watermarks to any file. What you download is exactly what you created.",
+  },
+  {
+    question: "What order will the pages be in?",
+    answer: "The pages appear in the same order as the files you uploaded, and within each file, in their original page order. You can drag to reorder files before merging.",
+  },
+];
+---
+
+<ToolLayout
+  title="Merge PDF Files Free Online — No Watermark, No Sign-Up"
+  description="Combine multiple PDF files into one document. Free, private, and instant — your files are processed in your browser and never uploaded to a server."
+  canonicalPath="/pdf/merge"
+  toolName="Merge PDF"
+  toolTagline="Combine multiple PDF files into one document — free, instant, 100% private."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="PDF files only · No size limit · Files stay on your device"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+
+  <!-- ── Drop Zone ─────────────────────────────────────────── -->
+  <div slot="drop-zone">
+    <div
+      class="drop-zone"
+      id="drop-zone"
+      role="button"
+      tabindex="0"
+      aria-label="Drop PDF files here or click to browse"
+    >
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <span class="drop-zone__text">Drop PDF files here or click to browse</span>
+      <span class="drop-zone__hint">PDF files only · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" multiple class="sr-only" aria-label="Select PDF files" />
+    </div>
+  </div>
+
+  <!-- ── File List ──────────────────────────────────────────── -->
+  <div slot="file-list">
+    <ul class="pdf-file-list" id="file-list" aria-label="PDF files to merge" aria-live="polite">
+      <!-- Populated by JS -->
+    </ul>
+  </div>
+
+  <!-- ── Actions ───────────────────────────────────────────── -->
+  <div slot="actions" class="merge-actions" id="merge-actions" style="display:none;">
+    <button class="btn btn-primary btn-lg" id="merge-btn" aria-label="Merge PDF files">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Merge PDFs
+    </button>
+    <button class="btn btn-ghost" id="clear-btn" aria-label="Clear all files">Clear all</button>
+  </div>
+
+  <!-- ── Result ─────────────────────────────────────────────── -->
+  <div slot="result">
+    <div class="merge-result" id="merge-result" style="display:none;" aria-live="assertive">
+      <div class="merge-result__icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="merge-result__info">
+        <p class="merge-result__label">Merged PDF ready!</p>
+        <p class="merge-result__size" id="result-size"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn" download="merged.pdf">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Merged PDF
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Merge more files</button>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<style>
+  /* ── File List ───────────────────────────────────────────── */
+  .pdf-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    list-style: none;
+  }
+
+  .pdf-file-list:empty {
+    display: none;
+  }
+
+  .pdf-file-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    cursor: grab;
+    transition: box-shadow var(--duration-fast) var(--ease-out);
+    user-select: none;
+  }
+
+  .pdf-file-item:active { cursor: grabbing; }
+  .pdf-file-item.dragging { box-shadow: var(--shadow-lg); opacity: 0.7; }
+  .pdf-file-item.drag-over { border-color: var(--color-accent-blue); background: var(--color-info-bg); }
+
+  .pdf-file-item__drag-handle {
+    color: var(--color-ink-faint);
+    flex-shrink: 0;
+    cursor: grab;
+  }
+
+  .pdf-file-item__index {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-pill);
+    background: var(--color-canvas-soft);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+    flex-shrink: 0;
+  }
+
+  .pdf-file-item__name {
+    flex: 1;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pdf-file-item__size {
+    font-size: 0.8125rem;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+  }
+
+  .pdf-file-item__remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    color: var(--color-ink-faint);
+    transition: color var(--duration-fast), background-color var(--duration-fast);
+    flex-shrink: 0;
+  }
+
+  .pdf-file-item__remove:hover {
+    color: var(--color-accent-red);
+    background: var(--color-error-bg);
+  }
+
+  /* ── Actions ─────────────────────────────────────────────── */
+  .merge-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  /* ── Result ──────────────────────────────────────────────── */
+  .merge-result {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-6);
+    background: var(--color-success-bg);
+    border: 1px solid rgba(15, 123, 63, 0.2);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+    animation: fade-in-up var(--duration-slow) var(--ease-out);
+  }
+
+  .merge-result__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-green);
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .merge-result__label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent-green);
+  }
+
+  .merge-result__size {
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    margin-top: 2px;
+  }
+
+  .merge-result__info {
+    flex: 1;
+    min-width: 120px;
+  }
+</style>
+
+<script>
+  import { PDFDocument } from 'pdf-lib';
+
+  // ── State ─────────────────────────────────────────────────
+  let files: File[] = [];
+  let dragSrcIndex: number | null = null;
+
+  // ── Elements ──────────────────────────────────────────────
+  const dropZone = document.getElementById('drop-zone') as HTMLDivElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileList = document.getElementById('file-list') as HTMLUListElement;
+  const mergeActions = document.getElementById('merge-actions') as HTMLDivElement;
+  const mergeBtn = document.getElementById('merge-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const mergeResult = document.getElementById('merge-result') as HTMLDivElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const resultSize = document.getElementById('result-size') as HTMLParagraphElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLDivElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLDivElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLParagraphElement;
+
+  // ── Drop Zone ─────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drop-zone--active');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drop-zone--active');
+    const dropped = Array.from(e.dataTransfer?.files || []).filter(f => f.type === 'application/pdf');
+    addFiles(dropped);
+  });
+
+  fileInput.addEventListener('change', () => {
+    const selected = Array.from(fileInput.files || []);
+    addFiles(selected);
+    fileInput.value = '';
+  });
+
+  // ── File Management ───────────────────────────────────────
+  function addFiles(newFiles: File[]) {
+    files = [...files, ...newFiles];
+    render();
+  }
+
+  function removeFile(index: number) {
+    files.splice(index, 1);
+    render();
+  }
+
+  function formatSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function render() {
+    fileList.innerHTML = '';
+
+    files.forEach((file, i) => {
+      const li = document.createElement('li');
+      li.className = 'pdf-file-item';
+      li.draggable = true;
+      li.dataset.index = String(i);
+      li.innerHTML = `
+        <span class="pdf-file-item__drag-handle" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+        </span>
+        <span class="pdf-file-item__index" aria-label="File ${i + 1}">${i + 1}</span>
+        <span class="pdf-file-item__name" title="${file.name}">${file.name}</span>
+        <span class="pdf-file-item__size">${formatSize(file.size)}</span>
+        <button class="pdf-file-item__remove" aria-label="Remove ${file.name}" data-remove="${i}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      `;
+
+      // Remove button
+      li.querySelector<HTMLButtonElement>('[data-remove]')!.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeFile(Number((e.currentTarget as HTMLButtonElement).dataset.remove));
+      });
+
+      // Drag-to-reorder
+      li.addEventListener('dragstart', () => {
+        dragSrcIndex = i;
+        li.classList.add('dragging');
+      });
+      li.addEventListener('dragend', () => li.classList.remove('dragging'));
+      li.addEventListener('dragover', (e) => { e.preventDefault(); li.classList.add('drag-over'); });
+      li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        if (dragSrcIndex !== null && dragSrcIndex !== i) {
+          const moved = files.splice(dragSrcIndex, 1)[0];
+          files.splice(i, 0, moved);
+          dragSrcIndex = null;
+          render();
+        }
+      });
+
+      fileList.appendChild(li);
+    });
+
+    // Show/hide actions
+    mergeActions.style.display = files.length >= 2 ? 'flex' : 'none';
+    mergeResult.style.display = 'none';
+  }
+
+  // ── Merge ─────────────────────────────────────────────────
+  mergeBtn.addEventListener('click', async () => {
+    if (files.length < 2) return;
+
+    mergeBtn.disabled = true;
+    mergeBtn.textContent = 'Merging…';
+    showProgress(0, 'Reading files…');
+
+    try {
+      const mergedPdf = await PDFDocument.create();
+      const total = files.length;
+
+      for (let i = 0; i < total; i++) {
+        showProgress(Math.round((i / total) * 80), `Processing file ${i + 1} of ${total}…`);
+        const arrayBuffer = await files[i].arrayBuffer();
+        const pdf = await PDFDocument.load(arrayBuffer);
+        const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        pages.forEach(page => mergedPdf.addPage(page));
+      }
+
+      showProgress(90, 'Finalizing…');
+      const mergedBytes = await mergedPdf.save();
+      showProgress(100, 'Done!');
+
+      const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      downloadBtn.href = url;
+      downloadBtn.download = `merged-${Date.now()}.pdf`;
+      resultSize.textContent = `Size: ${formatSize(mergedBytes.byteLength)}`;
+
+      hideProgress();
+      mergeResult.style.display = 'flex';
+      mergeActions.style.display = 'none';
+
+    } catch (err) {
+      console.error('Merge failed:', err);
+      hideProgress();
+      alert('Something went wrong while merging. Make sure all files are valid PDFs and try again.');
+    } finally {
+      mergeBtn.disabled = false;
+      mergeBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Merge PDFs`;
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    files = [];
+    render();
+  });
+
+  restartBtn.addEventListener('click', () => {
+    files = [];
+    mergeResult.style.display = 'none';
+    render();
+  });
+
+  // ── Progress helpers ──────────────────────────────────────
+  function showProgress(pct: number, label: string) {
+    progressEl.setAttribute('aria-hidden', 'false');
+    progressFill.style.width = `${pct}%`;
+    progressLabel.textContent = label;
+  }
+
+  function hideProgress() {
+    setTimeout(() => {
+      progressEl.setAttribute('aria-hidden', 'true');
+      progressFill.style.width = '0%';
+    }, 400);
+  }
+</script>
