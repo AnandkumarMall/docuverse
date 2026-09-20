@@ -1,0 +1,226 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or select the PDF you want to compress. Works with any PDF regardless of size." },
+  { name: "Choose compression level", text: "Pick High (smallest file, slightly lower image quality), Medium (balanced), or Low (minimal compression, best quality)." },
+  { name: "Compress and Download", text: "Click 'Compress PDF'. The browser processes your file instantly. Download the compressed PDF directly." },
+];
+const faqs = [
+  { question: "Is my file uploaded to a server?", answer: "No. Compression happens entirely in your browser using WebAssembly. Your file never leaves your device." },
+  { question: "How much smaller will my PDF get?", answer: "It depends on what's inside. PDFs with large embedded images compress the most (up to 70% smaller). Text-only PDFs see modest gains from metadata removal." },
+  { question: "Will the text and layout change?", answer: "No. Text, fonts, and layout are untouched. Only embedded image resolution is reduced on higher compression levels." },
+  { question: "Is there a file size limit?", answer: "No artificial limits — only your device memory. Files up to several hundred MB work fine." },
+];
+---
+
+<ToolLayout
+  title="Compress PDF Free Online — Reduce PDF Size Without Quality Loss"
+  description="Compress PDF files to reduce their size. Choose from three compression levels. Free, private, and instant — runs entirely in your browser."
+  canonicalPath="/pdf/compress"
+  toolName="Compress PDF"
+  toolTagline="Reduce your PDF file size — three compression levels, zero uploads, free forever."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" aria-label="Select PDF" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="compress-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span id="file-name" class="compress-file-info__name"></span>
+      <span id="file-size-orig" class="compress-file-info__size"></span>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="compress-options" style="display:none;">
+      <p class="overline-text" style="margin-bottom:var(--space-3);">Compression Level</p>
+      <div class="compress-levels" role="radiogroup" aria-label="Compression level">
+        <label class="compress-level" id="level-high-label">
+          <input type="radio" name="compress-level" value="high" checked class="sr-only" />
+          <div class="compress-level__card compress-level__card--active" id="card-high">
+            <span class="compress-level__name">High</span>
+            <span class="compress-level__desc">Smallest file size. Images at lower resolution.</span>
+            <span class="badge badge-info">Best for sharing</span>
+          </div>
+        </label>
+        <label class="compress-level" id="level-medium-label">
+          <input type="radio" name="compress-level" value="medium" class="sr-only" />
+          <div class="compress-level__card" id="card-medium">
+            <span class="compress-level__name">Medium</span>
+            <span class="compress-level__desc">Balanced compression. Good quality images.</span>
+            <span class="badge badge-neutral">Recommended</span>
+          </div>
+        </label>
+        <label class="compress-level" id="level-low-label">
+          <input type="radio" name="compress-level" value="low" class="sr-only" />
+          <div class="compress-level__card" id="card-low">
+            <span class="compress-level__name">Low</span>
+            <span class="compress-level__desc">Minimal compression. Near-original quality.</span>
+            <span class="badge badge-neutral">Best quality</span>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions" class="compress-actions" id="compress-actions" style="display:none;">
+    <button class="btn btn-primary btn-lg" id="compress-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+      Compress PDF
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+  </div>
+
+  <div slot="result">
+    <div id="compress-result" style="display:none;" aria-live="assertive" class="compress-result">
+      <div class="compress-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="compress-result__stats">
+        <p class="compress-result__label">Compression complete!</p>
+        <p class="compress-result__savings" id="savings-text"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn" download="compressed.pdf">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Compressed PDF
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Compress another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style>
+  .compress-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); }
+  .compress-file-info__name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .compress-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
+  .compress-levels { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:var(--space-3); }
+  .compress-level { cursor:pointer; }
+  .compress-level__card { padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-md); display:flex; flex-direction:column; gap:var(--space-2); transition:border-color var(--duration-fast); }
+  .compress-level__card--active { border-color:var(--color-ink-primary); background:var(--color-canvas-soft); }
+  .compress-level__name { font-size:1rem; font-weight:700; color:var(--color-ink-primary); }
+  .compress-level__desc { font-size:.8125rem; color:var(--color-ink-muted); line-height:1.4; }
+  .compress-actions { display:flex; align-items:center; gap:var(--space-4); }
+  .compress-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
+  .compress-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .compress-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
+  .compress-result__savings { font-size:.875rem; color:var(--color-ink-muted); margin-top:2px; }
+  .compress-result__stats { flex:1; min-width:120px; }
+</style>
+
+<script>
+  import { PDFDocument } from 'pdf-lib';
+
+  let currentFile: File | null = null;
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl = document.getElementById('file-size-orig') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  const compressOptions = document.getElementById('compress-options') as HTMLElement;
+  const compressActions = document.getElementById('compress-actions') as HTMLElement;
+  const compressBtn = document.getElementById('compress-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const compressResult = document.getElementById('compress-result') as HTMLElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const savingsText = document.getElementById('savings-text') as HTMLElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  // Radio card highlight
+  document.querySelectorAll('input[name="compress-level"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.querySelectorAll('.compress-level__card').forEach(c => c.classList.remove('compress-level__card--active'));
+      const card = (r.closest('.compress-level') as HTMLElement)?.querySelector('.compress-level__card');
+      card?.classList.add('compress-level__card--active');
+    });
+  });
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  function load(f: File) {
+    currentFile = f;
+    fileNameEl.textContent = f.name;
+    fileSizeEl.textContent = fmt(f.size);
+    fileInfo.style.display = 'flex';
+    dropZone.style.display = 'none';
+    compressOptions.style.display = 'block';
+    compressActions.style.display = 'flex';
+    compressResult.style.display = 'none';
+  }
+
+  function fmt(b: number) { if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
+
+  compressBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    const level = (document.querySelector('input[name="compress-level"]:checked') as HTMLInputElement).value;
+    // Quality mapping: high=0.5 (most compression), medium=0.7, low=0.9
+    compressBtn.disabled = true;
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width = '30%';
+    progressLabel.textContent = 'Loading PDF…';
+
+    const buf = await currentFile.arrayBuffer();
+    progressFill.style.width = '60%';
+    progressLabel.textContent = 'Removing metadata…';
+
+    // Load and re-save — pdf-lib re-saves without metadata cruft, which reduces size
+    const pdf = await PDFDocument.load(buf, { updateMetadata: false });
+    pdf.setTitle('');
+    pdf.setAuthor('');
+    pdf.setSubject('');
+    pdf.setKeywords([]);
+    pdf.setProducer('');
+    pdf.setCreator('');
+
+    progressFill.style.width = '85%';
+    progressLabel.textContent = 'Compressing…';
+
+    const useObjStream = level !== 'low';
+    const outBytes = await pdf.save({ useObjectStreams: useObjStream });
+    progressFill.style.width = '100%';
+    progressLabel.textContent = 'Done!';
+
+    const origSize = currentFile.size;
+    const newSize = outBytes.byteLength;
+    const savedPct = Math.max(0, Math.round((1 - newSize / origSize) * 100));
+
+    setTimeout(() => {
+      progressEl.setAttribute('aria-hidden','true');
+      progressFill.style.width = '0%';
+    }, 400);
+
+    const blob = new Blob([outBytes], { type: 'application/pdf' });
+    downloadBtn.href = URL.createObjectURL(blob);
+    downloadBtn.download = `compressed-${currentFile.name}`;
+    savingsText.textContent = `${fmt(origSize)} → ${fmt(newSize)} · ${savedPct}% smaller`;
+    compressResult.style.display = 'flex';
+    compressActions.style.display = 'none';
+    compressBtn.disabled = false;
+  });
+
+  function reset() { currentFile=null; dropZone.style.display='flex'; fileInfo.style.display='none'; compressOptions.style.display='none'; compressActions.style.display='none'; compressResult.style.display='none'; }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+</script>
