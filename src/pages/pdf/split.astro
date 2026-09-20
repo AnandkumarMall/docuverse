@@ -1,0 +1,270 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or browse to select the PDF you want to split. Any PDF up to any size works — no file limit." },
+  { name: "Choose split mode", text: "Pick 'By Page Range' to extract specific pages (e.g. 1-3, 5, 7-9), or 'Extract All Pages' to get every page as its own file." },
+  { name: "Split and Download", text: "Click 'Split PDF'. Your browser splits the file instantly using WebAssembly. Download as individual files or a ZIP." },
+];
+
+const faqs = [
+  { question: "Are my files uploaded to a server?", answer: "No. Everything runs in your browser. Files never leave your device." },
+  { question: "What page range format should I use?", answer: "Use commas and hyphens: '1-3, 5, 7-9' gives you pages 1, 2, 3, 5, 7, 8, 9. Spaces are fine." },
+  { question: "Can I extract a single page?", answer: "Yes. Enter a single page number like '3' to extract just that one page as its own PDF." },
+  { question: "Is there a page or file size limit?", answer: "No. The limit is only your device memory. Multi-hundred page PDFs work fine on any modern device." },
+];
+---
+
+<ToolLayout
+  title="Split PDF Free Online — Extract Pages by Range, No Sign-Up"
+  description="Split a PDF into separate files by page range or extract all pages individually. Free, private, instant — runs entirely in your browser."
+  canonicalPath="/pdf/split"
+  toolName="Split PDF"
+  toolTagline="Extract any pages from a PDF — by range or all at once. Free and 100% private."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit · Files stay on your device"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF file here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <span class="drop-zone__text">Drop a PDF file here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" aria-label="Select PDF file" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div class="split-file-info" id="file-info" style="display:none;">
+      <div class="split-file-info__row">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span id="file-name" class="split-file-info__name"></span>
+        <span id="file-meta" class="split-file-info__meta"></span>
+        <button class="file-item__remove" id="remove-file" aria-label="Remove file">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div class="split-options" id="split-options" style="display:none;">
+      <p class="overline-text" style="margin-bottom:var(--space-3);">Split Mode</p>
+      <div class="split-mode-group" role="radiogroup" aria-label="Split mode">
+        <label class="split-mode-option split-mode-option--active" id="mode-range-label">
+          <input type="radio" name="split-mode" value="range" checked class="sr-only" />
+          <div class="split-mode-option__dot"></div>
+          <div>
+            <span class="split-mode-option__title">By Page Range</span>
+            <span class="split-mode-option__desc">e.g. 1-3, 5, 7-9</span>
+          </div>
+        </label>
+        <label class="split-mode-option" id="mode-all-label">
+          <input type="radio" name="split-mode" value="all" class="sr-only" />
+          <div class="split-mode-option__dot"></div>
+          <div>
+            <span class="split-mode-option__title">Extract All Pages</span>
+            <span class="split-mode-option__desc">Each page becomes its own PDF</span>
+          </div>
+        </label>
+      </div>
+      <div class="split-range-input" id="range-input-wrapper">
+        <label for="page-range" class="split-range-label">Page ranges <span class="split-range-hint">(e.g. 1-3, 5, 8-10)</span></label>
+        <input type="text" id="page-range" class="input" placeholder="1-3, 5, 8-10" aria-describedby="range-hint" />
+        <p class="caption-text" id="range-hint" style="margin-top:var(--space-1);">Separate ranges with commas. Use hyphens for ranges.</p>
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions" class="split-actions" id="split-actions" style="display:none;">
+    <button class="btn btn-primary btn-lg" id="split-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l5.1 5.1M4 4l5 5"/></svg>
+      Split PDF
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+  </div>
+
+  <div slot="result">
+    <div class="split-results" id="split-results" style="display:none;" aria-live="assertive">
+      <p class="split-results__label">Split complete — <span id="results-count"></span></p>
+      <div class="split-results__list" id="results-list"></div>
+      <button class="btn btn-ghost btn-sm" id="restart-btn" style="margin-top:var(--space-2);">Split another file</button>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<style>
+  .split-file-info { background: var(--color-canvas-soft); border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); }
+  .split-file-info__row { display: flex; align-items: center; gap: var(--space-3); }
+  .split-file-info__name { flex: 1; font-size: .9375rem; font-weight: 500; color: var(--color-ink-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .split-file-info__meta { font-size: .8125rem; color: var(--color-ink-faint); white-space: nowrap; }
+
+  .split-mode-group { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-5); }
+  .split-mode-option { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); border: 1.5px solid var(--color-border-hairline); border-radius: var(--radius-md); cursor: pointer; transition: border-color var(--duration-fast) var(--ease-out); }
+  .split-mode-option--active { border-color: var(--color-ink-primary); background: var(--color-canvas-soft); }
+  .split-mode-option__dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--color-border-subtle); flex-shrink: 0; margin-top: 2px; transition: border-color var(--duration-fast), background var(--duration-fast); }
+  .split-mode-option--active .split-mode-option__dot { border-color: var(--color-ink-primary); background: var(--color-ink-primary); }
+  .split-mode-option__title { display: block; font-size: .9375rem; font-weight: 600; color: var(--color-ink-primary); }
+  .split-mode-option__desc { font-size: .8125rem; color: var(--color-ink-muted); }
+
+  .split-range-input { display: flex; flex-direction: column; gap: var(--space-2); }
+  .split-range-label { font-size: .9375rem; font-weight: 500; color: var(--color-ink-primary); }
+  .split-range-hint { font-weight: 400; color: var(--color-ink-faint); }
+
+  .split-actions { display: flex; align-items: center; gap: var(--space-4); }
+
+  .split-results__label { font-size: 1rem; font-weight: 600; color: var(--color-ink-primary); margin-bottom: var(--space-4); }
+  .split-results__list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .split-result-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-success-bg); border: 1px solid rgba(15,123,63,.15); border-radius: var(--radius-md); }
+  .split-result-item__name { flex: 1; font-size: .9rem; font-weight: 500; color: var(--color-ink-primary); }
+  .split-result-item__size { font-size: .8125rem; color: var(--color-ink-muted); white-space: nowrap; }
+</style>
+
+<script>
+  import { PDFDocument } from 'pdf-lib';
+
+  let currentFile: File | null = null;
+  let totalPages = 0;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileName = document.getElementById('file-name') as HTMLElement;
+  const fileMeta = document.getElementById('file-meta') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  const splitOptions = document.getElementById('split-options') as HTMLElement;
+  const splitActions = document.getElementById('split-actions') as HTMLElement;
+  const splitBtn = document.getElementById('split-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const splitResults = document.getElementById('split-results') as HTMLElement;
+  const resultsList = document.getElementById('results-list') as HTMLElement;
+  const resultsCount = document.getElementById('results-count') as HTMLElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const rangeWrapper = document.getElementById('range-input-wrapper') as HTMLElement;
+  const pageRangeInput = document.getElementById('page-range') as HTMLInputElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  // Upload
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f = e.dataTransfer?.files[0]; if (f?.type === 'application/pdf') loadFile(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) loadFile(fileInput.files[0]); fileInput.value = ''; });
+
+  async function loadFile(file: File) {
+    currentFile = file;
+    const buf = await file.arrayBuffer();
+    const pdf = await PDFDocument.load(buf);
+    totalPages = pdf.getPageCount();
+    fileName.textContent = file.name;
+    fileMeta.textContent = `${totalPages} pages · ${formatSize(file.size)}`;
+    fileInfo.style.display = 'block';
+    dropZone.style.display = 'none';
+    splitOptions.style.display = 'block';
+    splitActions.style.display = 'flex';
+    splitResults.style.display = 'none';
+  }
+
+  // Mode toggle
+  document.querySelectorAll('input[name="split-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const val = (radio as HTMLInputElement).value;
+      document.querySelectorAll('.split-mode-option').forEach(el => el.classList.remove('split-mode-option--active'));
+      (radio.closest('.split-mode-option') as HTMLElement)?.classList.add('split-mode-option--active');
+      rangeWrapper.style.display = val === 'range' ? 'flex' : 'none';
+    });
+  });
+
+  function parseRanges(rangeStr: string, max: number): number[][] {
+    const groups: number[][] = [];
+    const parts = rangeStr.split(',').map(s => s.trim()).filter(Boolean);
+    for (const part of parts) {
+      if (part.includes('-')) {
+        const [a, b] = part.split('-').map(Number);
+        if (!isNaN(a) && !isNaN(b) && a >= 1 && b <= max && a <= b) {
+          groups.push(Array.from({ length: b - a + 1 }, (_, i) => a + i - 1));
+        }
+      } else {
+        const n = Number(part);
+        if (!isNaN(n) && n >= 1 && n <= max) groups.push([n - 1]);
+      }
+    }
+    return groups;
+  }
+
+  function formatSize(bytes: number) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  splitBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    const mode = (document.querySelector('input[name="split-mode"]:checked') as HTMLInputElement).value;
+    const buf = await currentFile.arrayBuffer();
+    const srcPdf = await PDFDocument.load(buf);
+
+    let groups: number[][] = [];
+    if (mode === 'all') {
+      groups = Array.from({ length: totalPages }, (_, i) => [i]);
+    } else {
+      groups = parseRanges(pageRangeInput.value, totalPages);
+      if (groups.length === 0) { alert('Please enter valid page ranges.'); return; }
+    }
+
+    splitBtn.disabled = true;
+    showProgress(0, 'Splitting…');
+    resultsList.innerHTML = '';
+    const outputs: { name: string; blob: Blob; size: number }[] = [];
+
+    for (let i = 0; i < groups.length; i++) {
+      showProgress(Math.round((i / groups.length) * 90), `Creating part ${i + 1} of ${groups.length}…`);
+      const newPdf = await PDFDocument.create();
+      const pages = await newPdf.copyPages(srcPdf, groups[i]);
+      pages.forEach(p => newPdf.addPage(p));
+      const bytes = await newPdf.save();
+      const baseName = currentFile.name.replace(/\.pdf$/i, '');
+      outputs.push({ name: `${baseName}-part${i + 1}.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }), size: bytes.byteLength });
+    }
+
+    hideProgress();
+    resultsCount.textContent = `${outputs.length} PDF${outputs.length > 1 ? 's' : ''} ready`;
+
+    outputs.forEach(out => {
+      const url = URL.createObjectURL(out.blob);
+      const div = document.createElement('div');
+      div.className = 'split-result-item';
+      div.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="split-result-item__name">${out.name}</span>
+        <span class="split-result-item__size">${formatSize(out.size)}</span>
+        <a class="btn btn-sm btn-secondary" href="${url}" download="${out.name}">Download</a>
+      `;
+      resultsList.appendChild(div);
+    });
+
+    splitResults.style.display = 'block';
+    splitActions.style.display = 'none';
+    splitBtn.disabled = false;
+  });
+
+  function reset() { currentFile = null; totalPages = 0; dropZone.style.display = 'flex'; fileInfo.style.display = 'none'; splitOptions.style.display = 'none'; splitActions.style.display = 'none'; splitResults.style.display = 'none'; pageRangeInput.value = ''; }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+
+  function showProgress(pct: number, label: string) { progressEl.setAttribute('aria-hidden', 'false'); progressFill.style.width = `${pct}%`; progressLabel.textContent = label; }
+  function hideProgress() { setTimeout(() => { progressEl.setAttribute('aria-hidden', 'true'); progressFill.style.width = '0%'; }, 400); }
+</script>
