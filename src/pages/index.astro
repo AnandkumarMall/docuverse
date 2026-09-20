@@ -1,123 +1,588 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const tools = {
+  pdf: [
+    { name: "Merge PDF", href: "/pdf/merge", desc: "Combine multiple PDFs into one document", icon: "merge" },
+    { name: "Split PDF", href: "/pdf/split", desc: "Split a PDF into separate files", icon: "split" },
+    { name: "Compress PDF", href: "/pdf/compress", desc: "Reduce PDF size without quality loss", icon: "compress" },
+    { name: "PDF Editor", href: "/pdf/editor", desc: "Edit text directly inside any PDF", icon: "edit" },
+    { name: "PDF to Word", href: "/pdf/to-word", desc: "Convert PDF to editable Word document", icon: "word" },
+    { name: "PDF to Image", href: "/pdf/to-image", desc: "Export PDF pages as JPG or PNG", icon: "image" },
+    { name: "Protect PDF", href: "/pdf/protect", desc: "Add password protection to your PDF", icon: "lock" },
+    { name: "Unlock PDF", href: "/pdf/unlock", desc: "Remove password from a PDF file", icon: "unlock" },
+    { name: "Watermark PDF", href: "/pdf/watermark", desc: "Stamp custom text on every PDF page", icon: "watermark" },
+    { name: "Sign PDF", href: "/pdf/sign", desc: "Draw, type, or upload your signature", icon: "sign" },
+    { name: "Organize PDF", href: "/pdf/organize", desc: "Rotate, reorder, and delete pages", icon: "organize" },
+  ],
+  image: [
+    { name: "Crop Image", href: "/image/crop", desc: "Crop with presets: 1:1, 16:9, circular", icon: "crop" },
+    { name: "Compress Image", href: "/image/compress", desc: "Shrink file size while keeping quality", icon: "compress" },
+    { name: "Resize Image", href: "/image/resize", desc: "Change width and height precisely", icon: "resize" },
+    { name: "Convert Format", href: "/image/convert", desc: "Switch between JPG, PNG, WebP, AVIF", icon: "convert" },
+    { name: "Image to PDF", href: "/image/to-pdf", desc: "Combine photos into one PDF document", icon: "pdf" },
+    { name: "Remove EXIF", href: "/image/remove-exif", desc: "Strip GPS and metadata from photos", icon: "privacy" },
+    { name: "Color Picker", href: "/image/color-picker", desc: "Click any pixel to copy HEX/RGB/HSL", icon: "color" },
+  ],
+  utilities: [
+    { name: "Extract Text (OCR)", href: "/tools/ocr", desc: "Pull text from images and scanned docs", icon: "ocr" },
+    { name: "SVG Optimizer", href: "/tools/svg-optimizer", desc: "Clean and minify SVG vector files", icon: "svg" },
+    { name: "Image to Base64", href: "/tools/image-to-base64", desc: "Generate Base64 data URIs for CSS/HTML", icon: "code" },
+    { name: "Favicon Generator", href: "/tools/favicon-generator", desc: "Create a complete icon bundle from one image", icon: "favicon" },
+  ],
+};
+
+// SVG icons map - inline SVGs for zero-JS icon rendering
+const icons: Record<string, string> = {
+  merge: `<path d="M8 6H21M8 12H21M8 18H21M3 6h.01M3 12h.01M3 18h.01"/>`,
+  split: `<path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l5.1 5.1M4 4l5 5"/>`,
+  compress: `<circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/>`,
+  edit: `<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>`,
+  word: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>`,
+  image: `<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>`,
+  lock: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`,
+  unlock: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>`,
+  watermark: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
+  sign: `<path d="M20 19.5v.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8.5L18 5.5"/><path d="m16 14-3.5 3.5-2 .5.5-2L14.5 12"/>`,
+  organize: `<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>`,
+  crop: `<path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/>`,
+  resize: `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`,
+  convert: `<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>`,
+  pdf: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>`,
+  privacy: `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`,
+  color: `<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>`,
+  ocr: `<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>`,
+  svg: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
+  code: `<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>`,
+  favicon: `<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>`,
+};
 ---
 
-<BaseLayout title="DocuVerse" description="Free online PDF & image tools. 100% private — your files never leave your browser.">
+<BaseLayout
+  title="DocuVerse — Free PDF & Image Tools"
+  description="Free online PDF and image tools. Merge, split, compress, crop, resize, and convert — 100% private, all processing happens in your browser."
+>
 
-<div class="container section">
-  <h1 class="display-hero">DocuVerse</h1>
-  <p class="body-large" style="margin-top: var(--space-4); max-width: 520px;">
-    Free online document & image tools. 100% private — your files never leave your browser.
-  </p>
+  <!-- JSON-LD structured data -->
+  <script type="application/ld+json" slot="head" set:text={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "DocuVerse",
+    "url": "https://docuverse.app",
+    "description": "Free online PDF and image tools. 100% private — files never leave your browser.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://docuverse.app/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  })} />
 
-  <div style="margin-top: var(--space-10); display: flex; flex-wrap: wrap; gap: var(--space-3);">
-    <button class="btn btn-primary">Merge PDF</button>
-    <button class="btn btn-secondary">Split PDF</button>
-    <button class="btn btn-accent">Compress Image</button>
-    <button class="btn btn-ghost">Learn More</button>
-  </div>
+  <!-- ── HERO ───────────────────────────────────────────────── -->
+  <section class="hero section-lg">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <div class="hero-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            100% Private · Files Never Leave Your Browser
+          </div>
 
-  <div style="margin-top: var(--space-8); display: flex; flex-wrap: wrap; gap: var(--space-3);">
-    <button class="btn btn-primary btn-sm">Small Primary</button>
-    <button class="btn btn-primary btn-lg">Large Primary</button>
-    <button class="btn btn-primary" disabled>Disabled</button>
-  </div>
+          <h1 class="display-hero hero-title">
+            Every document tool<br />
+            you'll ever need.
+          </h1>
 
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Typography Scale</h2>
-  <p class="body-text" style="margin-top: var(--space-3);">
-    Body text using Inter — crisp, readable, distraction-free.
-  </p>
-  <p class="caption-text" style="margin-top: var(--space-2);">
-    Caption text for metadata, hints, and secondary info.
-  </p>
-  <p class="overline-text" style="margin-top: var(--space-4);">PDF TOOLS</p>
+          <p class="body-large hero-subtitle">
+            Merge, split, compress, crop, resize, convert — all for free. No sign-up, no uploads, no watermarks. Your files stay on your device.
+          </p>
 
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Tool Cards</h2>
-  <div class="tool-grid" style="margin-top: var(--space-6);">
-    <div class="tool-card tool-card--pdf">
-      <div class="tool-card__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          <div class="hero-search-wrapper">
+            <div class="hero-search">
+              <svg class="hero-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input
+                type="search"
+                id="tool-search"
+                class="hero-search-input"
+                placeholder="Search tools — merge, compress, crop..."
+                autocomplete="off"
+                aria-label="Search for a tool"
+              />
+            </div>
+          </div>
+
+          <div class="hero-badges">
+            <span class="hero-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              No sign-up required
+            </span>
+            <span class="hero-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              No watermarks
+            </span>
+            <span class="hero-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              No file size limits
+            </span>
+          </div>
+        </div>
+
+        <!-- Hero illustration: abstract document grid -->
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-card-stack">
+            <div class="hero-doc hero-doc--back">
+              <div class="hero-doc-line"></div>
+              <div class="hero-doc-line hero-doc-line--short"></div>
+              <div class="hero-doc-line"></div>
+              <div class="hero-doc-line hero-doc-line--shorter"></div>
+            </div>
+            <div class="hero-doc hero-doc--mid">
+              <div class="hero-doc-line"></div>
+              <div class="hero-doc-line"></div>
+              <div class="hero-doc-line hero-doc-line--short"></div>
+            </div>
+            <div class="hero-doc hero-doc--front">
+              <div class="hero-doc-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="hero-doc-badge">PDF Merged</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <span class="tool-card__title">Merge PDF</span>
-      <span class="tool-card__description">Combine multiple PDF files into one document. Drag and drop to reorder pages.</span>
     </div>
+  </section>
 
-    <div class="tool-card tool-card--image">
-      <div class="tool-card__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+  <!-- ── TOOL CATEGORIES ───────────────────────────────────── -->
+  <section class="section" id="tools">
+    <div class="container">
+
+      <!-- PDF Tools -->
+      <div class="category-block" id="category-pdf">
+        <div class="category-header">
+          <div class="category-dot category-dot--pdf"></div>
+          <h2 class="heading-section">PDF Tools</h2>
+          <span class="badge badge-neutral">{tools.pdf.length} tools</span>
+        </div>
+        <div class="tool-grid" id="pdf-grid">
+          {tools.pdf.map(tool => (
+            <a href={tool.href} class="tool-card tool-card--pdf" data-name={tool.name.toLowerCase()}>
+              <div class="tool-card__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" set:html={icons[tool.icon] || icons.pdf} />
+              </div>
+              <span class="tool-card__title">{tool.name}</span>
+              <span class="tool-card__description">{tool.desc}</span>
+            </a>
+          ))}
+        </div>
       </div>
-      <span class="tool-card__title">Crop Image</span>
-      <span class="tool-card__description">Interactive crop with presets for Instagram, TikTok, and custom aspect ratios.</span>
-    </div>
 
-    <div class="tool-card tool-card--utility">
-      <div class="tool-card__icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+      <!-- Image Tools -->
+      <div class="category-block" id="category-image" style="margin-top: var(--space-16);">
+        <div class="category-header">
+          <div class="category-dot category-dot--image"></div>
+          <h2 class="heading-section">Image Tools</h2>
+          <span class="badge badge-neutral">{tools.image.length} tools</span>
+        </div>
+        <div class="tool-grid" id="image-grid">
+          {tools.image.map(tool => (
+            <a href={tool.href} class="tool-card tool-card--image" data-name={tool.name.toLowerCase()}>
+              <div class="tool-card__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" set:html={icons[tool.icon] || icons.image} />
+              </div>
+              <span class="tool-card__title">{tool.name}</span>
+              <span class="tool-card__description">{tool.desc}</span>
+            </a>
+          ))}
+        </div>
       </div>
-      <span class="tool-card__title">Extract Text (OCR)</span>
-      <span class="tool-card__description">Pull text from images and scanned documents. Supports English and Hindi.</span>
+
+      <!-- Utilities -->
+      <div class="category-block" id="category-utility" style="margin-top: var(--space-16);">
+        <div class="category-header">
+          <div class="category-dot category-dot--utility"></div>
+          <h2 class="heading-section">Utilities</h2>
+          <span class="badge badge-neutral">{tools.utilities.length} tools</span>
+        </div>
+        <div class="tool-grid" id="utility-grid">
+          {tools.utilities.map(tool => (
+            <a href={tool.href} class="tool-card tool-card--utility" data-name={tool.name.toLowerCase()}>
+              <div class="tool-card__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" set:html={icons[tool.icon] || icons.code} />
+              </div>
+              <span class="tool-card__title">{tool.name}</span>
+              <span class="tool-card__description">{tool.desc}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
     </div>
-  </div>
+  </section>
 
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Drop Zone</h2>
-  <div class="drop-zone" style="margin-top: var(--space-6);">
-    <svg class="drop-zone__icon" xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    <span class="drop-zone__text">Drop your PDF files here or click to browse</span>
-    <span class="drop-zone__hint">Supports PDF, up to 100 MB per file</span>
-  </div>
+  <!-- ── WHY DOCUVERSE ─────────────────────────────────────── -->
+  <section class="section why-section">
+    <div class="container">
+      <div class="why-header">
+        <p class="overline-text">Why DocuVerse</p>
+        <h2 class="heading-section" style="margin-top: var(--space-2);">Built different, on purpose.</h2>
+        <p class="body-large why-subtitle">
+          Most tools secretly upload your files to their servers. DocuVerse runs entirely in your browser using WebAssembly — faster, safer, and free forever.
+        </p>
+      </div>
 
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Badges</h2>
-  <div style="margin-top: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-3);">
-    <span class="badge badge-neutral">PDF</span>
-    <span class="badge badge-success">Complete</span>
-    <span class="badge badge-warning">Processing</span>
-    <span class="badge badge-error">Failed</span>
-    <span class="badge badge-info">New</span>
-  </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="why-card__title">100% Private</h3>
+          <p class="why-card__text">Your files are processed entirely on your device. Nothing is ever sent to a server. Not even metadata.</p>
+        </div>
 
-  <div style="margin-top: var(--space-8);">
-    <span class="trust-badge">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      100% Private — Files never leave your browser
-    </span>
-  </div>
+        <div class="why-card">
+          <div class="why-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3 class="why-card__title">Instant Results</h3>
+          <p class="why-card__text">No upload wait times. Processing starts the moment you drop a file, thanks to native browser WebAssembly engines.</p>
+        </div>
 
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Form Input</h2>
-  <div style="margin-top: var(--space-6); max-width: 400px;">
-    <input class="input input-search" type="text" placeholder="Search tools..." />
-  </div>
+        <div class="why-card">
+          <div class="why-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3 class="why-card__title">Always Free</h3>
+          <p class="why-card__text">No subscriptions, no credits, no paywalls. Every tool is free to use with no watermarks or file limits.</p>
+        </div>
 
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Progress Bar</h2>
-  <div style="margin-top: var(--space-6); max-width: 400px;">
-    <div class="progress-bar">
-      <div class="progress-bar__fill" style="width: 65%;"></div>
+        <div class="why-card">
+          <div class="why-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3 class="why-card__title">Enterprise Quality</h3>
+          <p class="why-card__text">Powered by the same open-source engines trusted by Mozilla and Adobe — pdf-lib, tesseract.js, and pica.</p>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <h2 class="heading-section" style="margin-top: var(--space-16);">File Item</h2>
-  <div style="margin-top: var(--space-6); max-width: 500px; display: flex; flex-direction: column; gap: var(--space-2);">
-    <div class="file-item">
-      <span class="file-item__name">report-q3-2024.pdf</span>
-      <span class="file-item__size">2.4 MB</span>
-      <button class="file-item__remove" aria-label="Remove file">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="file-item">
-      <span class="file-item__name">photo-vacation-beach.jpg</span>
-      <span class="file-item__size">4.1 MB</span>
-      <button class="file-item__remove" aria-label="Remove file">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <h2 class="heading-section" style="margin-top: var(--space-16);">Skeleton Loader</h2>
-  <div style="margin-top: var(--space-6); max-width: 400px; display: flex; flex-direction: column; gap: var(--space-3);">
-    <div class="skeleton" style="height: 20px; width: 60%;"></div>
-    <div class="skeleton" style="height: 16px; width: 100%;"></div>
-    <div class="skeleton" style="height: 16px; width: 80%;"></div>
-  </div>
-</div>
+  </section>
 
 </BaseLayout>
+
+<style>
+  /* ── Hero ────────────────────────────────────────────────── */
+  .hero {
+    background-color: var(--color-canvas-soft);
+    border-bottom: 1px solid var(--color-border-hairline);
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr 420px;
+    }
+  }
+
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-accent-green);
+    background-color: var(--color-success-bg);
+    border-radius: var(--radius-pill);
+    margin-bottom: var(--space-5);
+  }
+
+  .hero-title {
+    margin-bottom: var(--space-4);
+  }
+
+  .hero-subtitle {
+    max-width: 500px;
+    margin-bottom: var(--space-8);
+    color: var(--color-ink-muted);
+  }
+
+  /* Hero Search */
+  .hero-search-wrapper {
+    margin-bottom: var(--space-6);
+    max-width: 480px;
+  }
+
+  .hero-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-search-icon {
+    position: absolute;
+    left: var(--space-4);
+    color: var(--color-ink-faint);
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  .hero-search-input {
+    width: 100%;
+    height: 56px;
+    padding-left: calc(var(--space-4) + 20px + var(--space-3));
+    padding-right: var(--space-5);
+    font-family: var(--font-sans-body);
+    font-size: 1rem;
+    color: var(--color-ink-primary);
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition:
+      border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .hero-search-input:focus {
+    outline: none;
+    border-color: var(--color-accent-blue);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .hero-search-input::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  /* Hero badges */
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+  }
+
+  .hero-badge svg {
+    color: var(--color-accent-green);
+    flex-shrink: 0;
+  }
+
+  /* ── Hero Visual ─────────────────────────────────────────── */
+  .hero-visual {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .hero-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .hero-card-stack {
+    position: relative;
+    width: 280px;
+    height: 320px;
+  }
+
+  .hero-doc {
+    position: absolute;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .hero-doc--back {
+    width: 220px;
+    bottom: 0;
+    right: 0;
+    transform: rotate(6deg);
+    opacity: 0.5;
+  }
+
+  .hero-doc--mid {
+    width: 240px;
+    bottom: 30px;
+    left: 0;
+    transform: rotate(-4deg);
+    opacity: 0.75;
+  }
+
+  .hero-doc--front {
+    width: 200px;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hero-doc-line {
+    height: 10px;
+    background: var(--color-canvas-soft);
+    border-radius: var(--radius-pill);
+  }
+
+  .hero-doc-line--short { width: 70%; }
+  .hero-doc-line--shorter { width: 50%; }
+
+  .hero-doc-icon {
+    color: var(--color-accent-orange);
+  }
+
+  .hero-doc-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-accent-green);
+    background: var(--color-success-bg);
+    border-radius: var(--radius-pill);
+  }
+
+  /* ── Category Blocks ─────────────────────────────────────── */
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .category-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-pill);
+    flex-shrink: 0;
+  }
+
+  .category-dot--pdf { background-color: var(--color-accent-orange); }
+  .category-dot--image { background-color: var(--color-accent-blue); }
+  .category-dot--utility { background-color: var(--color-accent-green); }
+
+  /* ── Why Section ─────────────────────────────────────────── */
+  .why-section {
+    background-color: var(--color-canvas-soft);
+    border-top: 1px solid var(--color-border-hairline);
+  }
+
+  .why-header {
+    max-width: 600px;
+    margin-bottom: var(--space-12);
+  }
+
+  .why-subtitle {
+    margin-top: var(--space-4);
+    color: var(--color-ink-muted);
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .why-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .why-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .why-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .why-card__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    background: var(--color-canvas-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-ink-primary);
+  }
+
+  .why-card__title {
+    font-family: var(--font-sans-body);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-ink-primary);
+  }
+
+  .why-card__text {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Search filtering ────────────────────────────────────── */
+  .tool-card[data-hidden="true"] {
+    display: none;
+  }
+
+  .category-block[data-hidden="true"] {
+    display: none;
+  }
+</style>
+
+<script>
+  // Instant search/filter for tool cards
+  const searchInput = document.getElementById('tool-search') as HTMLInputElement;
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase().trim();
+      const cards = document.querySelectorAll<HTMLElement>('.tool-card[data-name]');
+
+      cards.forEach(card => {
+        const name = card.dataset.name || '';
+        const matches = !query || name.includes(query);
+        card.setAttribute('data-hidden', matches ? 'false' : 'true');
+      });
+
+      // Hide entire category block if all cards are hidden
+      const categories = ['pdf', 'image', 'utility'];
+      categories.forEach(cat => {
+        const grid = document.getElementById(`${cat}-grid`);
+        const block = document.getElementById(`category-${cat}`);
+        if (!grid || !block) return;
+
+        const visibleCards = grid.querySelectorAll('.tool-card:not([data-hidden="true"])');
+        block.setAttribute('data-hidden', visibleCards.length === 0 ? 'true' : 'false');
+      });
+    });
+  }
+</script>
