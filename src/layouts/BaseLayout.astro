@@ -23,6 +23,7 @@ const canonical = canonicalUrl || Astro.url.href;
 import '../styles/global.css';
 import '../styles/components.css';
 import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 ---
 
 <!DOCTYPE html>
@@ -72,6 +73,6 @@ import Header from '../components/Header.astro';
       <slot />
     </main>
 
-    <slot name="footer" />
+    <Footer />
   </body>
 </html>

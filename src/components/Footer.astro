@@ -1,0 +1,231 @@
+---
+const currentYear = new Date().getFullYear();
+
+const footerLinks = {
+  pdf: [
+    { name: "Merge PDF", href: "/pdf/merge" },
+    { name: "Split PDF", href: "/pdf/split" },
+    { name: "Compress PDF", href: "/pdf/compress" },
+    { name: "PDF Editor", href: "/pdf/editor" },
+    { name: "PDF to Word", href: "/pdf/to-word" },
+    { name: "PDF to Image", href: "/pdf/to-image" },
+    { name: "Protect PDF", href: "/pdf/protect" },
+    { name: "Unlock PDF", href: "/pdf/unlock" },
+    { name: "Watermark PDF", href: "/pdf/watermark" },
+    { name: "Sign PDF", href: "/pdf/sign" },
+    { name: "Organize PDF", href: "/pdf/organize" },
+  ],
+  image: [
+    { name: "Crop Image", href: "/image/crop" },
+    { name: "Compress Image", href: "/image/compress" },
+    { name: "Resize Image", href: "/image/resize" },
+    { name: "Convert Format", href: "/image/convert" },
+    { name: "Image to PDF", href: "/image/to-pdf" },
+    { name: "Remove EXIF", href: "/image/remove-exif" },
+    { name: "Color Picker", href: "/image/color-picker" },
+  ],
+  utilities: [
+    { name: "Extract Text (OCR)", href: "/tools/ocr" },
+    { name: "SVG Optimizer", href: "/tools/svg-optimizer" },
+    { name: "Image to Base64", href: "/tools/image-to-base64" },
+    { name: "Favicon Generator", href: "/tools/favicon-generator" },
+  ],
+  company: [
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+  ],
+};
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <!-- Main footer grid -->
+    <div class="footer-grid">
+      <!-- Brand column -->
+      <div class="footer-brand-col">
+        <a href="/" class="footer-brand" aria-label="DocuVerse Home">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="28" height="28" rx="8" fill="var(--color-brand-primary)"/>
+            <path d="M8 8h5.5a4.5 4.5 0 010 9H11v3H8V8zm3 6.5h2.5a1.5 1.5 0 000-3H11v3z" fill="white"/>
+            <circle cx="20" cy="17" r="3" stroke="white" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="footer-wordmark">DocuVerse</span>
+        </a>
+        <p class="footer-tagline">
+          Free online document & image tools.<br />
+          100% private — your files never leave your browser.
+        </p>
+        <div class="footer-trust">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>No server uploads. Zero tracking.</span>
+        </div>
+      </div>
+
+      <!-- Link columns -->
+      <div class="footer-links-col">
+        <p class="footer-col-title">PDF Tools</p>
+        <ul class="footer-link-list">
+          {footerLinks.pdf.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <p class="footer-col-title">Image Tools</p>
+        <ul class="footer-link-list">
+          {footerLinks.image.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <p class="footer-col-title">Utilities</p>
+        <ul class="footer-link-list">
+          {footerLinks.utilities.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+        <p class="footer-col-title" style="margin-top: var(--space-6);">Company</p>
+        <ul class="footer-link-list">
+          {footerLinks.company.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <p class="footer-copyright">
+        © {currentYear} DocuVerse. All rights reserved.
+      </p>
+      <p class="footer-note">
+        Built with care. No data leaves your device.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-canvas-soft);
+    border-top: 1px solid var(--color-border-hairline);
+    padding-block: var(--space-16) var(--space-8);
+    margin-top: var(--space-20);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+  }
+
+  @media (min-width: 640px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .footer-grid {
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    }
+  }
+
+  /* Brand column */
+  .footer-brand-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: var(--color-ink-primary);
+  }
+
+  .footer-wordmark {
+    font-family: var(--font-sans-body);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-tagline {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+    max-width: 280px;
+  }
+
+  .footer-trust {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-accent-green);
+  }
+
+  /* Link columns */
+  .footer-links-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-col-title {
+    font-family: var(--font-sans-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-3);
+  }
+
+  .footer-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .footer-link-list a {
+    display: inline-block;
+    padding-block: var(--space-1);
+    font-size: 0.875rem;
+    color: var(--color-ink-secondary);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .footer-link-list a:hover {
+    color: var(--color-ink-primary);
+  }
+
+  /* Bottom bar */
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: var(--space-12);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border-hairline);
+  }
+
+  .footer-copyright {
+    font-size: 0.8125rem;
+    color: var(--color-ink-faint);
+  }
+
+  .footer-note {
+    font-size: 0.8125rem;
+    color: var(--color-ink-faint);
+  }
+</style>
