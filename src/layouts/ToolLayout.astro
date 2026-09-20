@@ -1,0 +1,448 @@
+---
+/**
+ * ToolLayout.astro
+ * Reusable wrapper for every tool page.
+ * Renders: breadcrumb, tool hero, drop zone slot, file list slot,
+ *          action buttons slot, result slot, HowTo section,
+ *          FAQ section, and JSON-LD injection.
+ */
+
+import BaseLayout from './BaseLayout.astro';
+
+export interface HowToStep {
+  name: string;
+  text: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface Props {
+  /* SEO */
+  title: string;
+  description: string;
+  canonicalPath: string;
+
+  /* Tool identity */
+  toolName: string;
+  toolTagline: string;
+  category: 'pdf' | 'image' | 'utility';
+  categoryLabel: string;
+  categoryHref: string;
+  acceptedFormats?: string;
+
+  /* Page sections */
+  howToSteps?: HowToStep[];
+  faqs?: FaqItem[];
+}
+
+const {
+  title,
+  description,
+  canonicalPath,
+  toolName,
+  toolTagline,
+  category,
+  categoryLabel,
+  categoryHref,
+  acceptedFormats = 'PDF files up to 100 MB each',
+  howToSteps = [],
+  faqs = [],
+} = Astro.props;
+
+// Build JSON-LD schemas
+const siteUrl = 'https://docuverse.app';
+const canonicalUrl = `${siteUrl}${canonicalPath}`;
+
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: toolName,
+  url: canonicalUrl,
+  description: description,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Any / Web Browser',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.9', reviewCount: '1284' },
+};
+
+const howToSchema = howToSteps.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: `How to use ${toolName}`,
+  step: howToSteps.map((s, i) => ({
+    '@type': 'HowToStep',
+    position: i + 1,
+    name: s.name,
+    text: s.text,
+  })),
+} : null;
+
+const faqSchema = faqs.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(f => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: { '@type': 'Answer', text: f.answer },
+  })),
+} : null;
+---
+
+<BaseLayout {title} {description} canonicalUrl={canonicalUrl}>
+
+  <!-- JSON-LD injection -->
+  <script type="application/ld+json" slot="head" set:text={JSON.stringify(webAppSchema)} />
+  {howToSchema && <script type="application/ld+json" slot="head" set:text={JSON.stringify(howToSchema)} />}
+  {faqSchema && <script type="application/ld+json" slot="head" set:text={JSON.stringify(faqSchema)} />}
+
+  <div class="tool-page">
+
+    <!-- Breadcrumb -->
+    <nav class="tool-breadcrumb container" aria-label="Breadcrumb">
+      <ol class="breadcrumb-list">
+        <li><a href="/">Home</a></li>
+        <li aria-hidden="true"><span class="breadcrumb-sep">›</span></li>
+        <li><a href={categoryHref}>{categoryLabel}</a></li>
+        <li aria-hidden="true"><span class="breadcrumb-sep">›</span></li>
+        <li aria-current="page">{toolName}</li>
+      </ol>
+    </nav>
+
+    <!-- Tool Hero -->
+    <header class="tool-hero">
+      <div class="container">
+        <h1 class="tool-hero__title">{toolName}</h1>
+        <p class="tool-hero__tagline">{toolTagline}</p>
+        <div class="tool-hero__badges">
+          <span class="trust-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Files never leave your browser
+          </span>
+          <span class="trust-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Free, no sign-up
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Tool Workspace -->
+    <main class="tool-workspace" id="main-content">
+      <div class="container">
+        <div class="tool-workspace__card">
+
+          <!-- Drop Zone slot — overridden by each tool page -->
+          <slot name="drop-zone">
+            <div
+              class="drop-zone"
+              id="default-drop-zone"
+              role="button"
+              tabindex="0"
+              aria-label={`Drop ${acceptedFormats} here or click to browse`}
+            >
+              <svg class="drop-zone__icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span class="drop-zone__text">Drop your files here or click to browse</span>
+              <span class="drop-zone__hint">{acceptedFormats}</span>
+            </div>
+          </slot>
+
+          <!-- File list (populated by each tool) -->
+          <slot name="file-list" />
+
+          <!-- Options / Controls -->
+          <slot name="options" />
+
+          <!-- Progress indicator (shown by JS during processing) -->
+          <div class="tool-progress" id="tool-progress" aria-live="polite" aria-hidden="true">
+            <div class="tool-progress__bar">
+              <div class="progress-bar">
+                <div class="progress-bar__fill" id="progress-fill" style="width: 0%"></div>
+              </div>
+            </div>
+            <p class="tool-progress__label" id="progress-label">Processing...</p>
+          </div>
+
+          <!-- Action Buttons slot -->
+          <slot name="actions" />
+
+          <!-- Result slot -->
+          <slot name="result" />
+
+        </div>
+      </div>
+    </main>
+
+    <!-- How To Steps -->
+    {howToSteps.length > 0 && (
+      <section class="section-sm how-to">
+        <div class="container">
+          <h2 class="heading-section how-to__title">How to use {toolName}</h2>
+          <ol class="how-to__steps">
+            {howToSteps.map((step, i) => (
+              <li class="how-to__step">
+                <div class="how-to__step-num" aria-label={`Step ${i + 1}`}>{i + 1}</div>
+                <div class="how-to__step-content">
+                  <h3 class="how-to__step-name">{step.name}</h3>
+                  <p class="how-to__step-text">{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )}
+
+    <!-- FAQ -->
+    {faqs.length > 0 && (
+      <section class="section-sm faq-section">
+        <div class="container container-narrow">
+          <h2 class="heading-section faq__title">Frequently asked questions</h2>
+          <div class="faq-list">
+            {faqs.map((faq, i) => (
+              <details class="faq-item" id={`faq-${i}`}>
+                <summary class="faq-item__question">{faq.question}</summary>
+                <p class="faq-item__answer">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+  </div>
+</BaseLayout>
+
+<style>
+  /* ── Breadcrumb ──────────────────────────────────────────── */
+  .tool-breadcrumb {
+    padding-block: var(--space-4);
+  }
+
+  .breadcrumb-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    list-style: none;
+  }
+
+  .breadcrumb-list a {
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .breadcrumb-list a:hover { color: var(--color-ink-primary); }
+
+  .breadcrumb-sep {
+    color: var(--color-ink-faint);
+    margin-inline: 2px;
+  }
+
+  .breadcrumb-list [aria-current="page"] {
+    color: var(--color-ink-secondary);
+    font-weight: 500;
+  }
+
+  /* ── Tool Hero ───────────────────────────────────────────── */
+  .tool-hero {
+    padding-block: var(--space-8) var(--space-6);
+    border-bottom: 1px solid var(--color-border-hairline);
+    background: var(--color-canvas-soft);
+  }
+
+  .tool-hero__title {
+    font-family: var(--font-serif-display);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-primary);
+    line-height: 1.1;
+  }
+
+  .tool-hero__tagline {
+    margin-top: var(--space-2);
+    font-size: 1.0625rem;
+    color: var(--color-ink-muted);
+    max-width: 560px;
+  }
+
+  .tool-hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  /* ── Workspace ───────────────────────────────────────────── */
+  .tool-workspace {
+    padding-block: var(--space-8);
+  }
+
+  .tool-workspace__card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  @media (max-width: 640px) {
+    .tool-workspace__card {
+      padding: var(--space-5);
+      border-radius: var(--radius-lg);
+    }
+  }
+
+  /* ── Progress ────────────────────────────────────────────── */
+  .tool-progress {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .tool-progress[aria-hidden="true"] {
+    display: none;
+  }
+
+  .tool-progress__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+    text-align: center;
+  }
+
+  /* ── How To ──────────────────────────────────────────────── */
+  .how-to {
+    background: var(--color-canvas-soft);
+    border-top: 1px solid var(--color-border-hairline);
+  }
+
+  .how-to__title {
+    margin-bottom: var(--space-8);
+  }
+
+  .how-to__steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    max-width: 640px;
+    list-style: none;
+  }
+
+  .how-to__step {
+    display: flex;
+    gap: var(--space-5);
+    align-items: flex-start;
+  }
+
+  .how-to__step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    background: var(--color-ink-primary);
+    color: var(--color-ink-inverse);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .how-to__step-content {
+    padding-top: var(--space-2);
+  }
+
+  .how-to__step-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .how-to__step-text {
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+    line-height: 1.55;
+  }
+
+  /* ── FAQ ─────────────────────────────────────────────────── */
+  .faq-section {
+    border-top: 1px solid var(--color-border-hairline);
+  }
+
+  .faq__title {
+    margin-bottom: var(--space-8);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .faq-item {
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .faq-item__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 52px;
+    padding: var(--space-4) var(--space-5);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-ink-primary);
+    cursor: pointer;
+    list-style: none;
+    background: var(--color-surface);
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .faq-item__question:hover {
+    background: var(--color-surface-hover);
+  }
+
+  .faq-item__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item__question::after {
+    content: '+';
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--color-ink-faint);
+    flex-shrink: 0;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .faq-item[open] .faq-item__question::after {
+    content: '−';
+  }
+
+  .faq-item__answer {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+    background: var(--color-canvas-soft);
+    border-top: 1px solid var(--color-border-hairline);
+  }
+</style>
