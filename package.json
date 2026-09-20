@@ -12,7 +12,13 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.3.3"
+    "astro": "^7.3.3",
+    "browser-image-compression": "^2.0.2",
+    "cropperjs": "^2.2.0",
+    "docx": "^9.7.1",
+    "pdf-lib": "^1.17.1",
+    "pica": "^10.0.3",
+    "tesseract.js": "^7.0.0"
   },
   "allowScripts": {
     "esbuild": true
