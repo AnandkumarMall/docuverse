@@ -1,0 +1,517 @@
+---
+/* Header with mega-menu navigation */
+
+const pdfTools = [
+  { name: "Merge PDF", href: "/pdf/merge", desc: "Combine multiple PDFs into one" },
+  { name: "Split PDF", href: "/pdf/split", desc: "Split PDF into separate files" },
+  { name: "Compress PDF", href: "/pdf/compress", desc: "Reduce PDF file size" },
+  { name: "PDF Editor", href: "/pdf/editor", desc: "Edit text directly in PDFs" },
+  { name: "PDF to Word", href: "/pdf/to-word", desc: "Convert PDF to Word document" },
+  { name: "PDF to Image", href: "/pdf/to-image", desc: "Convert PDF pages to JPG/PNG" },
+  { name: "Protect PDF", href: "/pdf/protect", desc: "Add password protection" },
+  { name: "Unlock PDF", href: "/pdf/unlock", desc: "Remove PDF password" },
+  { name: "Watermark PDF", href: "/pdf/watermark", desc: "Add text watermark to PDF" },
+  { name: "Sign PDF", href: "/pdf/sign", desc: "Draw or type your signature" },
+  { name: "Organize PDF", href: "/pdf/organize", desc: "Rotate, reorder, delete pages" },
+];
+
+const imageTools = [
+  { name: "Crop Image", href: "/image/crop", desc: "Crop with preset aspect ratios" },
+  { name: "Compress Image", href: "/image/compress", desc: "Reduce image file size" },
+  { name: "Resize Image", href: "/image/resize", desc: "Change image dimensions" },
+  { name: "Convert Format", href: "/image/convert", desc: "JPG, PNG, WebP, AVIF" },
+  { name: "Image to PDF", href: "/image/to-pdf", desc: "Combine images into a PDF" },
+  { name: "Remove EXIF", href: "/image/remove-exif", desc: "Strip metadata from photos" },
+  { name: "Color Picker", href: "/image/color-picker", desc: "Pick colors from any image" },
+];
+
+const utilityTools = [
+  { name: "Extract Text (OCR)", href: "/tools/ocr", desc: "Extract text from images" },
+  { name: "SVG Optimizer", href: "/tools/svg-optimizer", desc: "Clean and minify SVG files" },
+  { name: "Image to Base64", href: "/tools/image-to-base64", desc: "Generate Base64 data URIs" },
+  { name: "Favicon Generator", href: "/tools/favicon-generator", desc: "Create icon bundles" },
+];
+---
+
+<header class="site-header" id="site-header">
+  <div class="header-inner container-wide">
+    <!-- Brand -->
+    <a href="/" class="header-brand" aria-label="DocuVerse Home">
+      <svg class="header-logo" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="28" height="28" rx="8" fill="var(--color-brand-primary)"/>
+        <path d="M8 8h5.5a4.5 4.5 0 010 9H11v3H8V8zm3 6.5h2.5a1.5 1.5 0 000-3H11v3z" fill="white"/>
+        <circle cx="20" cy="17" r="3" stroke="white" stroke-width="1.5" fill="none"/>
+      </svg>
+      <span class="header-wordmark">DocuVerse</span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="header-nav" aria-label="Main navigation">
+      <div class="nav-dropdown">
+        <button class="nav-trigger" aria-expanded="false" aria-haspopup="true" id="nav-pdf-trigger">
+          <span>PDF Tools</span>
+          <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-panel" id="nav-pdf-panel" role="menu">
+          <div class="nav-panel__grid">
+            {pdfTools.map(tool => (
+              <a href={tool.href} class="nav-panel__item" role="menuitem">
+                <span class="nav-panel__name">{tool.name}</span>
+                <span class="nav-panel__desc">{tool.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-dropdown">
+        <button class="nav-trigger" aria-expanded="false" aria-haspopup="true" id="nav-image-trigger">
+          <span>Image Tools</span>
+          <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-panel" id="nav-image-panel" role="menu">
+          <div class="nav-panel__grid">
+            {imageTools.map(tool => (
+              <a href={tool.href} class="nav-panel__item" role="menuitem">
+                <span class="nav-panel__name">{tool.name}</span>
+                <span class="nav-panel__desc">{tool.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-dropdown">
+        <button class="nav-trigger" aria-expanded="false" aria-haspopup="true" id="nav-utility-trigger">
+          <span>Utilities</span>
+          <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-panel" id="nav-utility-panel" role="menu">
+          <div class="nav-panel__grid nav-panel__grid--narrow">
+            {utilityTools.map(tool => (
+              <a href={tool.href} class="nav-panel__item" role="menuitem">
+                <span class="nav-panel__name">{tool.name}</span>
+                <span class="nav-panel__desc">{tool.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Right Actions -->
+    <div class="header-actions">
+      <button class="btn-icon header-search-btn" aria-label="Search tools (Ctrl+K)" id="search-trigger">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <kbd class="header-kbd">⌘K</kbd>
+      </button>
+
+      <!-- Mobile Hamburger -->
+      <button class="btn-icon mobile-menu-btn" aria-label="Open menu" aria-expanded="false" id="mobile-menu-toggle">
+        <svg class="hamburger-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg class="close-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+    <div class="mobile-drawer__inner">
+      <div class="mobile-drawer__section">
+        <p class="overline-text">PDF Tools</p>
+        <div class="mobile-drawer__links">
+          {pdfTools.map(tool => (
+            <a href={tool.href} class="mobile-drawer__link">{tool.name}</a>
+          ))}
+        </div>
+      </div>
+      <hr class="divider" />
+      <div class="mobile-drawer__section">
+        <p class="overline-text">Image Tools</p>
+        <div class="mobile-drawer__links">
+          {imageTools.map(tool => (
+            <a href={tool.href} class="mobile-drawer__link">{tool.name}</a>
+          ))}
+        </div>
+      </div>
+      <hr class="divider" />
+      <div class="mobile-drawer__section">
+        <p class="overline-text">Utilities</p>
+        <div class="mobile-drawer__links">
+          {utilityTools.map(tool => (
+            <a href={tool.href} class="mobile-drawer__link">{tool.name}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  /* ── Floating Header ─────────────────────────────────────── */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--color-border-hairline);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+  }
+
+  /* ── Brand ───────────────────────────────────────────────── */
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: var(--color-ink-primary);
+    flex-shrink: 0;
+  }
+
+  .header-wordmark {
+    font-family: var(--font-sans-body);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Desktop Nav ─────────────────────────────────────────── */
+  .header-nav {
+    display: none;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  @media (min-width: 768px) {
+    .header-nav {
+      display: flex;
+    }
+  }
+
+  .nav-dropdown {
+    position: relative;
+  }
+
+  .nav-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    height: 40px;
+    padding-inline: var(--space-3);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink-secondary);
+    border-radius: var(--radius-sm);
+    transition:
+      color var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .nav-trigger:hover,
+  .nav-trigger[aria-expanded="true"] {
+    color: var(--color-ink-primary);
+    background-color: var(--color-surface-hover);
+  }
+
+  .nav-chevron {
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .nav-trigger[aria-expanded="true"] .nav-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* ── Mega-Menu Panel ─────────────────────────────────────── */
+  .nav-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    min-width: 520px;
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-normal) var(--ease-out),
+      transform var(--duration-normal) var(--ease-out),
+      visibility 0s linear var(--duration-normal);
+  }
+
+  .nav-trigger[aria-expanded="true"] + .nav-panel {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+    transition:
+      opacity var(--duration-normal) var(--ease-out),
+      transform var(--duration-normal) var(--ease-out),
+      visibility 0s linear 0s;
+  }
+
+  .nav-panel__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-1);
+  }
+
+  .nav-panel__grid--narrow {
+    grid-template-columns: 1fr;
+    min-width: 280px;
+  }
+
+  .nav-panel__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .nav-panel__item:hover {
+    background-color: var(--color-surface-hover);
+  }
+
+  .nav-panel__name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink-primary);
+  }
+
+  .nav-panel__desc {
+    font-size: 0.8125rem;
+    color: var(--color-ink-muted);
+    line-height: 1.35;
+  }
+
+  /* ── Right Actions ───────────────────────────────────────── */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .header-search-btn {
+    display: none;
+    position: relative;
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink-muted);
+    transition:
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .header-search-btn:hover {
+    color: var(--color-ink-primary);
+    border-color: var(--color-border-subtle);
+  }
+
+  @media (min-width: 768px) {
+    .header-search-btn {
+      display: flex;
+      width: auto;
+      padding-inline: var(--space-3);
+      gap: var(--space-2);
+    }
+  }
+
+  .header-kbd {
+    display: none;
+    font-family: var(--font-sans-body);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+    background: var(--color-canvas-soft);
+    padding: 2px 6px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--color-border-hairline);
+  }
+
+  @media (min-width: 1024px) {
+    .header-kbd {
+      display: inline-block;
+    }
+  }
+
+  /* ── Mobile Hamburger ────────────────────────────────────── */
+  .mobile-menu-btn {
+    display: flex;
+    color: var(--color-ink-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  .mobile-menu-btn:hover {
+    background-color: var(--color-surface-hover);
+  }
+
+  @media (min-width: 768px) {
+    .mobile-menu-btn {
+      display: none;
+    }
+  }
+
+  .close-icon {
+    display: none;
+  }
+
+  .mobile-menu-btn[aria-expanded="true"] .hamburger-icon {
+    display: none;
+  }
+
+  .mobile-menu-btn[aria-expanded="true"] .close-icon {
+    display: block;
+  }
+
+  /* ── Mobile Drawer ───────────────────────────────────────── */
+  .mobile-drawer {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-canvas);
+    overflow-y: auto;
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform var(--duration-slow) var(--ease-out),
+      opacity var(--duration-slow) var(--ease-out),
+      visibility 0s linear var(--duration-slow);
+    z-index: var(--z-overlay);
+  }
+
+  .mobile-drawer[aria-hidden="false"] {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      transform var(--duration-slow) var(--ease-out),
+      opacity var(--duration-slow) var(--ease-out),
+      visibility 0s linear 0s;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-drawer {
+      display: none !important;
+    }
+  }
+
+  .mobile-drawer__inner {
+    padding: var(--space-6);
+    padding-bottom: var(--space-16);
+  }
+
+  .mobile-drawer__section {
+    padding-block: var(--space-4);
+  }
+
+  .mobile-drawer__links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+  }
+
+  .mobile-drawer__link {
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-ink-secondary);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .mobile-drawer__link:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-ink-primary);
+  }
+</style>
+
+<script>
+  // Desktop dropdown toggle
+  document.querySelectorAll('.nav-trigger').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+      
+      // Close all other dropdowns
+      document.querySelectorAll('.nav-trigger').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+      });
+
+      // Toggle this one
+      if (!isExpanded) {
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.nav-dropdown')) {
+      document.querySelectorAll('.nav-trigger').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+
+  // Close dropdowns on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.nav-trigger').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+      });
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      const mobileToggle = document.getElementById('mobile-menu-toggle');
+      if (mobileDrawer && mobileToggle) {
+        mobileDrawer.setAttribute('aria-hidden', 'true');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+  });
+
+  // Mobile drawer toggle
+  const mobileToggle = document.getElementById('mobile-menu-toggle');
+  const mobileDrawer = document.getElementById('mobile-drawer');
+
+  if (mobileToggle && mobileDrawer) {
+    mobileToggle.addEventListener('click', () => {
+      const isOpen = mobileDrawer.getAttribute('aria-hidden') === 'false';
+      mobileDrawer.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+      mobileToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      document.body.style.overflow = isOpen ? '' : 'hidden';
+    });
+  }
+
+  // Ctrl+K / Cmd+K search shortcut (placeholder for future command palette)
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      // Future: open command palette
+      const searchBtn = document.getElementById('search-trigger');
+      searchBtn?.focus();
+    }
+  });
+</script>
