@@ -6,18 +6,27 @@ const howToSteps = [
   { name: "Apply and Download", text: "Click 'Add Watermark'. The text is embedded on every page in your browser. Download immediately." },
 ];
 const faqs = [
-  { question: "Is the watermark permanent?", answer: "Yes — the text is embedded into each page of the PDF. It cannot easily be removed by standard tools." },
-  { question: "Can I choose where the watermark appears?", answer: "Yes. Choose from diagonal center (classic), bottom-right, or top-left positions." },
-  { question: "Are my files sent to a server?", answer: "No. Watermarking is done entirely in your browser using pdf-lib WebAssembly." },
+  {
+    question: "How to add a Draft or Confidential watermark to a PDF for free?",
+    answer: "Upload your PDF, type your custom watermark text (like 'DRAFT', 'CONFIDENTIAL', or your company name), customize the opacity and position, and click 'Add Watermark'. Every page of your PDF gets the stamp instantly — no server upload."
+  },
+  {
+    question: "PDF se watermark kaise hataye? (How to remove watermark from PDF?)",
+    answer: "DocuVerse's watermark tool adds custom text to your PDF. For removing existing watermarks embedded in scanned PDFs, use our PDF Editor tool which can layer white boxes over watermarks before downloading."
+  },
+  {
+    question: "Can I add image logos as watermarks on PDF pages?",
+    answer: "Currently the tool supports text watermarks. For image/logo watermarks, you can use our PDF Sign tool to embed a transparent PNG signature image on your pages."
+  },
 ];
 ---
 
 <ToolLayout
-  title="Watermark PDF Free Online — Add Text Watermark to Every Page"
-  description="Add a custom text watermark to every page of your PDF. Free, private, instant — runs entirely in your browser."
+  title="Add Watermark to PDF Free Online — Text Watermark on Every Page"
+  description="Add a custom text watermark to every page of your PDF. Type CONFIDENTIAL, DRAFT, your company name — free, private, instant. Runs entirely in your browser."
   canonicalPath="/pdf/watermark"
   toolName="Watermark PDF"
-  toolTagline="Stamp any text watermark onto every page of your PDF — free and private."
+  toolTagline="Stamp DRAFT, CONFIDENTIAL, or any custom text on every PDF page — free, private, instant."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
