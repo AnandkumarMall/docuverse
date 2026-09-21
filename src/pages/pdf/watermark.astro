@@ -1,0 +1,171 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or browse to select the PDF you want to watermark." },
+  { name: "Enter watermark text", text: "Type the text you want stamped on every page — your company name, 'CONFIDENTIAL', 'DRAFT', etc. Adjust opacity and position." },
+  { name: "Apply and Download", text: "Click 'Add Watermark'. The text is embedded on every page in your browser. Download immediately." },
+];
+const faqs = [
+  { question: "Is the watermark permanent?", answer: "Yes — the text is embedded into each page of the PDF. It cannot easily be removed by standard tools." },
+  { question: "Can I choose where the watermark appears?", answer: "Yes. Choose from diagonal center (classic), bottom-right, or top-left positions." },
+  { question: "Are my files sent to a server?", answer: "No. Watermarking is done entirely in your browser using pdf-lib WebAssembly." },
+];
+---
+
+<ToolLayout
+  title="Watermark PDF Free Online — Add Text Watermark to Every Page"
+  description="Add a custom text watermark to every page of your PDF. Free, private, instant — runs entirely in your browser."
+  canonicalPath="/pdf/watermark"
+  toolName="Watermark PDF"
+  toolTagline="Stamp any text watermark onto every page of your PDF — free and private."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="wm-file-info">
+      <span id="file-name" class="wm-file-name"></span>
+      <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+  <div slot="options">
+    <div id="wm-options" style="display:none;" class="wm-options">
+      <div class="wm-row">
+        <label class="wm-label" for="wm-text">Watermark Text</label>
+        <input type="text" id="wm-text" class="input" placeholder="e.g. CONFIDENTIAL" maxlength="50" value="CONFIDENTIAL" />
+      </div>
+      <div class="wm-row">
+        <label class="wm-label" for="wm-opacity">Opacity: <span id="opacity-val">30%</span></label>
+        <input type="range" id="wm-opacity" min="5" max="80" value="30" class="wm-range" />
+      </div>
+      <div class="wm-row">
+        <label class="wm-label" for="wm-pos">Position</label>
+        <select id="wm-pos" class="input" style="max-width:200px;">
+          <option value="center">Diagonal Center</option>
+          <option value="bottom-right">Bottom Right</option>
+          <option value="top-left">Top Left</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div slot="actions" style="display:none;" id="wm-actions" class="wm-actions">
+    <button class="btn btn-primary btn-lg" id="wm-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Add Watermark
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+  </div>
+  <div slot="result">
+    <div id="wm-result" style="display:none;" class="wm-result" aria-live="assertive">
+      <div class="wm-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <p class="wm-result__label">Watermark applied!</p>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Watermarked PDF
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Watermark another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style>
+  .wm-file-info{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-canvas-soft);border:1px solid var(--color-border-hairline);border-radius:var(--radius-md);}
+  .wm-file-name{flex:1;font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .wm-options{display:flex;flex-direction:column;gap:var(--space-5);max-width:480px;}
+  .wm-row{display:flex;flex-direction:column;gap:var(--space-2);}
+  .wm-label{font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);}
+  .wm-range{width:100%;accent-color:var(--color-ink-primary);}
+  .wm-actions{display:flex;align-items:center;gap:var(--space-4);}
+  .wm-result{display:flex;align-items:center;gap:var(--space-5);padding:var(--space-5) var(--space-6);background:var(--color-success-bg);border:1px solid rgba(15,123,63,.2);border-radius:var(--radius-lg);flex-wrap:wrap;animation:fade-in-up var(--duration-slow) var(--ease-out);}
+  .wm-result__icon{width:52px;height:52px;border-radius:var(--radius-pill);background:var(--color-accent-green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .wm-result__label{font-size:1rem;font-weight:600;color:var(--color-accent-green);flex:1;}
+</style>
+
+<script>
+  import { PDFDocument, rgb, StandardFonts, degrees } from 'pdf-lib';
+
+  let currentFile: File | null = null;
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  const wmOptions = document.getElementById('wm-options') as HTMLElement;
+  const wmActions = document.getElementById('wm-actions') as HTMLElement;
+  const wmBtn = document.getElementById('wm-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const wmResult = document.getElementById('wm-result') as HTMLElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const wmText = document.getElementById('wm-text') as HTMLInputElement;
+  const wmOpacity = document.getElementById('wm-opacity') as HTMLInputElement;
+  const opacityVal = document.getElementById('opacity-val') as HTMLElement;
+  const wmPos = document.getElementById('wm-pos') as HTMLSelectElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  wmOpacity.addEventListener('input', () => { opacityVal.textContent = wmOpacity.value + '%'; });
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); fileInput.click(); } });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f = e.dataTransfer?.files[0]; if (f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value = ''; });
+
+  function load(f: File) { currentFile = f; fileNameEl.textContent = f.name; fileInfo.style.display = 'flex'; dropZone.style.display = 'none'; wmOptions.style.display = 'flex'; wmActions.style.display = 'flex'; wmResult.style.display = 'none'; }
+
+  wmBtn.addEventListener('click', async () => {
+    if (!currentFile || !wmText.value.trim()) return;
+    wmBtn.disabled = true;
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width='40%';
+    progressLabel.textContent='Adding watermark…';
+    const buf = await currentFile.arrayBuffer();
+    const pdf = await PDFDocument.load(buf);
+    const font = await pdf.embedFont(StandardFonts.HelveticaBold);
+    const opacity = Number(wmOpacity.value) / 100;
+    const pos = wmPos.value;
+    const text = wmText.value.trim().toUpperCase();
+    const fontSize = 48;
+
+    pdf.getPages().forEach(page => {
+      const { width, height } = page.getSize();
+      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      let x = (width - textWidth) / 2;
+      let y = height / 2;
+      let rotation = degrees(45);
+      if (pos === 'bottom-right') { x = width - textWidth - 20; y = 30; rotation = degrees(0); }
+      if (pos === 'top-left') { x = 20; y = height - fontSize - 20; rotation = degrees(0); }
+      page.drawText(text, { x, y, size: fontSize, font, color: rgb(0.5, 0.5, 0.5), opacity, rotate: rotation });
+    });
+
+    progressFill.style.width='90%';
+    const bytes = await pdf.save();
+    progressFill.style.width='100%';
+    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    downloadBtn.href = URL.createObjectURL(blob);
+    downloadBtn.download = `watermarked-${currentFile.name}`;
+    wmResult.style.display = 'flex';
+    wmActions.style.display = 'none';
+    wmBtn.disabled = false;
+  });
+
+  function reset() { currentFile=null; dropZone.style.display='flex'; fileInfo.style.display='none'; wmOptions.style.display='none'; wmActions.style.display='none'; wmResult.style.display='none'; }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+</script>

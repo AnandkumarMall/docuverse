@@ -1,0 +1,198 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or select the PDF you want to sign." },
+  { name: "Draw or type your signature", text: "Switch between Draw mode (use your mouse or touchscreen) or Type mode (enter your name and pick a style)." },
+  { name: "Place and Download", text: "Click 'Apply Signature'. Your signature is embedded on the last page. Download the signed PDF." },
+];
+const faqs = [
+  { question: "Is this a legally binding signature?", answer: "It depends on your jurisdiction. A drawn signature on a PDF is widely accepted for many document types. For legally binding e-signatures (like DocuSign-level), consult a legal professional." },
+  { question: "Which page does the signature go on?", answer: "The signature is placed on the last page of the PDF by default. Future versions will support page selection." },
+  { question: "Are my files uploaded?", answer: "No. Signing is done entirely in your browser using WebAssembly. Nothing is uploaded." },
+];
+---
+
+<ToolLayout
+  title="Sign PDF Free Online — Draw or Type Your Signature"
+  description="Add your signature to any PDF. Draw with your mouse or touchscreen, or type it. Free, private, instant — your files never leave your browser."
+  canonicalPath="/pdf/sign"
+  toolName="Sign PDF"
+  toolTagline="Add your handwritten or typed signature to any PDF — free and private."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M20 19.5v.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8.5L18 5.5"/><path d="m16 14-3.5 3.5-2 .5.5-2L14.5 12"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="sign-file-info">
+      <span id="file-name" class="sign-file-name"></span>
+      <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+  <div slot="options">
+    <div id="sign-options" style="display:none;">
+      <div class="sign-tabs" role="tablist">
+        <button class="sign-tab sign-tab--active" role="tab" id="tab-draw" aria-selected="true" aria-controls="panel-draw">Draw Signature</button>
+        <button class="sign-tab" role="tab" id="tab-type" aria-selected="false" aria-controls="panel-type">Type Signature</button>
+      </div>
+      <div id="panel-draw" role="tabpanel" aria-labelledby="tab-draw">
+        <div class="sign-canvas-wrap">
+          <canvas id="sig-canvas" width="600" height="180" aria-label="Signature drawing area"></canvas>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="clear-canvas" style="margin-top:var(--space-2);">Clear drawing</button>
+      </div>
+      <div id="panel-type" role="tabpanel" aria-labelledby="tab-type" style="display:none;">
+        <input type="text" id="sig-text" class="input" placeholder="Type your name" style="max-width:400px;font-size:1.25rem;" />
+        <p class="caption-text" style="margin-top:var(--space-2);">Your typed name will appear in a handwriting style.</p>
+      </div>
+    </div>
+  </div>
+  <div slot="actions" style="display:none;" id="sign-actions" class="sign-actions">
+    <button class="btn btn-primary btn-lg" id="sign-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 19.5v.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8.5L18 5.5"/><path d="m16 14-3.5 3.5-2 .5.5-2L14.5 12"/></svg>
+      Apply Signature
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+  </div>
+  <div slot="result">
+    <div id="sign-result" style="display:none;" class="sign-result" aria-live="assertive">
+      <div class="sign-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <p class="sign-result__label">PDF signed!</p>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Signed PDF
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Sign another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style>
+  .sign-file-info{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-canvas-soft);border:1px solid var(--color-border-hairline);border-radius:var(--radius-md);}
+  .sign-file-name{flex:1;font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sign-tabs{display:flex;gap:var(--space-2);margin-bottom:var(--space-5);}
+  .sign-tab{padding:var(--space-2) var(--space-5);border-radius:var(--radius-pill);font-size:.9375rem;font-weight:500;color:var(--color-ink-muted);border:1.5px solid var(--color-border-hairline);transition:all var(--duration-fast);}
+  .sign-tab--active{border-color:var(--color-ink-primary);color:var(--color-ink-primary);background:var(--color-canvas-soft);}
+  .sign-canvas-wrap{border:1.5px solid var(--color-border-subtle);border-radius:var(--radius-md);background:#fff;overflow:hidden;cursor:crosshair;touch-action:none;}
+  #sig-canvas{display:block;max-width:100%;height:auto;}
+  .sign-actions{display:flex;align-items:center;gap:var(--space-4);}
+  .sign-result{display:flex;align-items:center;gap:var(--space-5);padding:var(--space-5) var(--space-6);background:var(--color-success-bg);border:1px solid rgba(15,123,63,.2);border-radius:var(--radius-lg);flex-wrap:wrap;animation:fade-in-up var(--duration-slow) var(--ease-out);}
+  .sign-result__icon{width:52px;height:52px;border-radius:var(--radius-pill);background:var(--color-accent-green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sign-result__label{font-size:1rem;font-weight:600;color:var(--color-accent-green);flex:1;}
+</style>
+
+<script>
+  import { PDFDocument, rgb } from 'pdf-lib';
+
+  let currentFile: File | null = null;
+  let isDrawing = false;
+  let activeTab = 'draw';
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  const signOptions = document.getElementById('sign-options') as HTMLElement;
+  const signActions = document.getElementById('sign-actions') as HTMLElement;
+  const signBtn = document.getElementById('sign-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const signResult = document.getElementById('sign-result') as HTMLElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const canvas = document.getElementById('sig-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const clearCanvas = document.getElementById('clear-canvas') as HTMLButtonElement;
+  const tabDraw = document.getElementById('tab-draw') as HTMLButtonElement;
+  const tabType = document.getElementById('tab-type') as HTMLButtonElement;
+  const panelDraw = document.getElementById('panel-draw') as HTMLElement;
+  const panelType = document.getElementById('panel-type') as HTMLElement;
+  const sigText = document.getElementById('sig-text') as HTMLInputElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  // Canvas drawing
+  ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  function getPos(e: MouseEvent | TouchEvent) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if ('touches' in e) { return { x: (e.touches[0].clientX - rect.left) * scaleX, y: (e.touches[0].clientY - rect.top) * scaleY }; }
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+  }
+  canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+  canvas.addEventListener('touchend', () => isDrawing = false);
+  clearCanvas.addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+
+  // Tabs
+  tabDraw.addEventListener('click', () => { activeTab='draw'; tabDraw.classList.add('sign-tab--active'); tabType.classList.remove('sign-tab--active'); panelDraw.style.display='block'; panelType.style.display='none'; tabDraw.setAttribute('aria-selected','true'); tabType.setAttribute('aria-selected','false'); });
+  tabType.addEventListener('click', () => { activeTab='type'; tabType.classList.add('sign-tab--active'); tabDraw.classList.remove('sign-tab--active'); panelType.style.display='block'; panelDraw.style.display='none'; tabType.setAttribute('aria-selected','true'); tabDraw.setAttribute('aria-selected','false'); });
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  function load(f: File) { currentFile=f; fileNameEl.textContent=f.name; fileInfo.style.display='flex'; dropZone.style.display='none'; signOptions.style.display='block'; signActions.style.display='flex'; signResult.style.display='none'; }
+
+  signBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    signBtn.disabled = true;
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width = '40%';
+    progressLabel.textContent = 'Embedding signature…';
+
+    const buf = await currentFile.arrayBuffer();
+    const pdf = await PDFDocument.load(buf);
+    const pages = pdf.getPages();
+    const lastPage = pages[pages.length - 1];
+    const { width, height } = lastPage.getSize();
+
+    if (activeTab === 'draw') {
+      const dataUrl = canvas.toDataURL('image/png');
+      const imgBytes = await fetch(dataUrl).then(r => r.arrayBuffer());
+      const img = await pdf.embedPng(imgBytes);
+      const sigW = 200, sigH = 60;
+      lastPage.drawImage(img, { x: width - sigW - 40, y: 40, width: sigW, height: sigH });
+    } else {
+      // Typed signature — draw as text
+      const { StandardFonts } = await import('pdf-lib');
+      const font = await pdf.embedFont(StandardFonts.TimesRomanItalic);
+      const text = sigText.value || 'Signature';
+      lastPage.drawText(text, { x: width - 300, y: 50, size: 28, font, color: rgb(0.05, 0.1, 0.5) });
+    }
+
+    progressFill.style.width = '90%';
+    const bytes = await pdf.save();
+    progressFill.style.width = '100%';
+    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    downloadBtn.href = URL.createObjectURL(blob);
+    downloadBtn.download = `signed-${currentFile.name}`;
+    signResult.style.display = 'flex';
+    signActions.style.display = 'none';
+    signBtn.disabled = false;
+  });
+
+  function reset() { currentFile=null; dropZone.style.display='flex'; fileInfo.style.display='none'; signOptions.style.display='none'; signActions.style.display='none'; signResult.style.display='none'; ctx.clearRect(0,0,canvas.width,canvas.height); sigText.value=''; }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+</script>

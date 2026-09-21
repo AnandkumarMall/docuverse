@@ -1,0 +1,192 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or select the PDF whose pages you want to organize." },
+  { name: "Reorder, rotate, or delete pages", text: "Drag page thumbnails to reorder. Click the rotate button to rotate 90°. Click × to delete a page." },
+  { name: "Save and Download", text: "Click 'Save PDF'. The reorganized file downloads immediately with your changes applied." },
+];
+const faqs = [
+  { question: "Can I rotate individual pages?", answer: "Yes — each page has a rotate button that rotates it 90° clockwise. Click multiple times to rotate 180° or 270°." },
+  { question: "Can I undo a deletion?", answer: "Once you click × on a page it is removed from the preview. Click 'Clear' to restart with the original file." },
+  { question: "Are my files uploaded?", answer: "No. All operations run in your browser." },
+];
+---
+
+<ToolLayout
+  title="Organize PDF Pages — Reorder, Rotate, Delete Pages Online Free"
+  description="Reorder, rotate, and delete pages in your PDF. Visual drag-and-drop interface. Free, private, instant — runs in your browser."
+  canonicalPath="/pdf/organize"
+  toolName="Organize PDF"
+  toolTagline="Reorder, rotate, and delete pages with a visual drag-and-drop interface — free."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+  <div slot="file-list">
+    <div id="loading-msg" style="display:none;" class="org-loading">
+      <div class="skeleton" style="height:80px;width:100%;"></div>
+      <p class="caption-text" style="margin-top:var(--space-2);">Rendering page thumbnails…</p>
+    </div>
+    <div id="page-grid" class="org-grid" aria-label="PDF pages — drag to reorder" aria-live="polite"></div>
+  </div>
+  <div slot="actions" style="display:none;" id="org-actions" class="org-actions">
+    <button class="btn btn-primary btn-lg" id="save-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save PDF
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+    <span id="page-count" class="caption-text"></span>
+  </div>
+  <div slot="result">
+    <div id="org-result" style="display:none;" class="org-result" aria-live="assertive">
+      <div class="org-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <p class="org-result__label">PDF organized!</p>
+      <a class="btn btn-accent" id="download-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Organized PDF</a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Organize another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style>
+  .org-loading{display:flex;flex-direction:column;gap:var(--space-2);}
+  .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--space-4);}
+  .org-grid:empty{display:none;}
+  .org-page{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);cursor:grab;user-select:none;}
+  .org-page:active{cursor:grabbing;}
+  .org-page.dragging{opacity:.4;}
+  .org-page.drag-over>.org-thumb{border-color:var(--color-accent-blue);}
+  .org-thumb{width:100%;aspect-ratio:3/4;background:var(--color-canvas-soft);border:1.5px solid var(--color-border-hairline);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color var(--duration-fast);}
+  .org-thumb canvas,.org-thumb img{width:100%;height:100%;object-fit:contain;}
+  .org-thumb-placeholder{font-size:.75rem;color:var(--color-ink-faint);}
+  .org-controls{display:flex;gap:var(--space-1);}
+  .org-ctrl-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);color:var(--color-ink-faint);transition:all var(--duration-fast);font-size:.75rem;}
+  .org-ctrl-btn:hover{background:var(--color-surface-hover);color:var(--color-ink-primary);}
+  .org-ctrl-btn--del:hover{color:var(--color-accent-red);background:var(--color-error-bg);}
+  .org-page-num{font-size:.75rem;font-weight:600;color:var(--color-ink-muted);}
+  .org-actions{display:flex;align-items:center;gap:var(--space-4);flex-wrap:wrap;}
+  .org-result{display:flex;align-items:center;gap:var(--space-5);padding:var(--space-5) var(--space-6);background:var(--color-success-bg);border:1px solid rgba(15,123,63,.2);border-radius:var(--radius-lg);flex-wrap:wrap;animation:fade-in-up var(--duration-slow) var(--ease-out);}
+  .org-result__icon{width:52px;height:52px;border-radius:var(--radius-pill);background:var(--color-accent-green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .org-result__label{font-size:1rem;font-weight:600;color:var(--color-accent-green);flex:1;}
+</style>
+
+<script>
+  import { PDFDocument, degrees } from 'pdf-lib';
+
+  interface PageState { index: number; rotation: number; }
+  let currentFile: File | null = null;
+  let pages: PageState[] = [];
+  let dragSrc: number | null = null;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const loadingMsg = document.getElementById('loading-msg') as HTMLElement;
+  const pageGrid = document.getElementById('page-grid') as HTMLElement;
+  const orgActions = document.getElementById('org-actions') as HTMLElement;
+  const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const pageCount = document.getElementById('page-count') as HTMLElement;
+  const orgResult = document.getElementById('org-result') as HTMLElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e)=>{ e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', ()=>{ if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  async function load(f: File) {
+    currentFile = f;
+    dropZone.style.display = 'none';
+    loadingMsg.style.display = 'flex';
+    const buf = await f.arrayBuffer();
+    const pdf = await PDFDocument.load(buf);
+    pages = pdf.getPageIndices().map(i => ({ index: i, rotation: 0 }));
+    loadingMsg.style.display = 'none';
+    renderGrid();
+    orgActions.style.display = 'flex';
+    orgResult.style.display = 'none';
+  }
+
+  function renderGrid() {
+    pageGrid.innerHTML = '';
+    pageCount.textContent = `${pages.length} page${pages.length !== 1 ? 's' : ''}`;
+    pages.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'org-page';
+      card.draggable = true;
+      card.dataset.i = String(i);
+      card.innerHTML = `
+        <div class="org-thumb">
+          <span class="org-thumb-placeholder">Page ${p.index + 1}</span>
+        </div>
+        <div class="org-controls">
+          <button class="org-ctrl-btn" data-action="rotate" data-i="${i}" aria-label="Rotate page ${p.index+1}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+          </button>
+          <button class="org-ctrl-btn org-ctrl-btn--del" data-action="delete" data-i="${i}" aria-label="Delete page ${p.index+1}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <span class="org-page-num">${p.index + 1}${p.rotation ? ` ↻${p.rotation}°` : ''}</span>
+      `;
+      // Control events
+      card.querySelector('[data-action="rotate"]')?.addEventListener('click', (e) => { e.stopPropagation(); pages[i].rotation = (pages[i].rotation + 90) % 360; renderGrid(); });
+      card.querySelector('[data-action="delete"]')?.addEventListener('click', (e) => { e.stopPropagation(); pages.splice(i, 1); renderGrid(); });
+      // Drag events
+      card.addEventListener('dragstart', () => { dragSrc = i; card.classList.add('dragging'); });
+      card.addEventListener('dragend', () => card.classList.remove('dragging'));
+      card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drag-over'); });
+      card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+      card.addEventListener('drop', (e) => { e.preventDefault(); card.classList.remove('drag-over'); if (dragSrc !== null && dragSrc !== i) { const moved = pages.splice(dragSrc, 1)[0]; pages.splice(i, 0, moved); dragSrc = null; renderGrid(); } });
+      pageGrid.appendChild(card);
+    });
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    saveBtn.disabled = true;
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width = '30%';
+    progressLabel.textContent = 'Loading PDF…';
+    const buf = await currentFile.arrayBuffer();
+    const srcPdf = await PDFDocument.load(buf);
+    const outPdf = await PDFDocument.create();
+    progressFill.style.width = '60%';
+    progressLabel.textContent = 'Reorganizing pages…';
+    for (const p of pages) {
+      const [page] = await outPdf.copyPages(srcPdf, [p.index]);
+      if (p.rotation) page.setRotation(degrees(p.rotation));
+      outPdf.addPage(page);
+    }
+    progressFill.style.width = '95%';
+    const bytes = await outPdf.save();
+    progressFill.style.width = '100%';
+    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
+    const blob = new Blob([bytes],{type:'application/pdf'});
+    downloadBtn.href = URL.createObjectURL(blob);
+    downloadBtn.download = `organized-${currentFile.name}`;
+    orgResult.style.display = 'flex';
+    orgActions.style.display = 'none';
+    saveBtn.disabled = false;
+  });
+
+  function reset(){currentFile=null;pages=[];dropZone.style.display='flex';pageGrid.innerHTML='';orgActions.style.display='none';orgResult.style.display='none';}
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+</script>

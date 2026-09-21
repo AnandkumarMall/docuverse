@@ -1,0 +1,197 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or select the PDF whose pages you want to export as images." },
+  { name: "Choose format and quality", text: "Pick JPG (smaller files, great for photos) or PNG (lossless, best for text/diagrams). Adjust DPI for resolution." },
+  { name: "Convert and Download", text: "Click 'Convert to Images'. Each page is rendered and exported. Download individually or all at once." },
+];
+const faqs = [
+  { question: "Are my files uploaded?", answer: "No. Conversion runs entirely in your browser using the Canvas API." },
+  { question: "What resolution will the images be?", answer: "You can choose 96 DPI (screen), 150 DPI (standard), or 300 DPI (print quality). Higher DPI produces larger, sharper images." },
+  { question: "Can I convert only some pages?", answer: "Currently all pages are converted. Use our Split PDF tool first to extract specific pages before converting." },
+];
+---
+
+<ToolLayout
+  title="PDF to Image — Convert PDF Pages to JPG or PNG Free Online"
+  description="Convert every page of a PDF to JPG or PNG images. Choose resolution (96–300 DPI). Free, private, instant — runs in your browser."
+  canonicalPath="/pdf/to-image"
+  toolName="PDF to Image"
+  toolTagline="Export every PDF page as a JPG or PNG image — free, private, instant."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  faqs={faqs}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="ti-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span id="file-name" class="ti-file-name"></span>
+      <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+  <div slot="options">
+    <div id="ti-options" style="display:none;" class="ti-options">
+      <div class="ti-row">
+        <label class="ti-label" for="ti-format">Output Format</label>
+        <div class="ti-radio-group" role="radiogroup">
+          <label class="ti-radio"><input type="radio" name="ti-format" value="jpeg" checked /> JPG (smaller)</label>
+          <label class="ti-radio"><input type="radio" name="ti-format" value="png" /> PNG (lossless)</label>
+        </div>
+      </div>
+      <div class="ti-row">
+        <label class="ti-label" for="ti-dpi">Resolution</label>
+        <select id="ti-dpi" class="input" style="max-width:200px;">
+          <option value="1">96 DPI — Screen</option>
+          <option value="1.5625" selected>150 DPI — Standard</option>
+          <option value="3.125">300 DPI — Print Quality</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div slot="actions" style="display:none;" id="ti-actions" class="ti-actions">
+    <button class="btn btn-primary btn-lg" id="convert-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Convert to Images
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+  </div>
+  <div slot="result">
+    <div id="ti-result" style="display:none;" aria-live="assertive">
+      <p class="ti-result-title" id="result-title"></p>
+      <div id="image-grid" class="ti-image-grid"></div>
+      <button class="btn btn-ghost btn-sm" id="restart-btn" style="margin-top:var(--space-4);">Convert another PDF</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style>
+  .ti-file-info{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-canvas-soft);border:1px solid var(--color-border-hairline);border-radius:var(--radius-md);}
+  .ti-file-name{flex:1;font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ti-options{display:flex;flex-direction:column;gap:var(--space-5);}
+  .ti-row{display:flex;flex-direction:column;gap:var(--space-2);}
+  .ti-label{font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);}
+  .ti-radio-group{display:flex;gap:var(--space-5);}
+  .ti-radio{display:flex;align-items:center;gap:var(--space-2);font-size:.9375rem;color:var(--color-ink-secondary);cursor:pointer;}
+  .ti-actions{display:flex;align-items:center;gap:var(--space-4);}
+  .ti-result-title{font-size:1rem;font-weight:600;color:var(--color-ink-primary);margin-bottom:var(--space-4);}
+  .ti-image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-4);}
+  .ti-image-card{display:flex;flex-direction:column;gap:var(--space-2);}
+  .ti-image-thumb{border:1px solid var(--color-border-hairline);border-radius:var(--radius-md);overflow:hidden;background:var(--color-canvas-soft);}
+  .ti-image-thumb img{display:block;width:100%;height:auto;}
+  .ti-image-card a{display:block;text-align:center;}
+</style>
+
+<script>
+  // PDF to Image using PDF.js (loaded from CDN) + Canvas API
+  let currentFile: File | null = null;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  const tiOptions = document.getElementById('ti-options') as HTMLElement;
+  const tiActions = document.getElementById('ti-actions') as HTMLElement;
+  const convertBtn = document.getElementById('convert-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const tiResult = document.getElementById('ti-result') as HTMLElement;
+  const imageGrid = document.getElementById('image-grid') as HTMLElement;
+  const resultTitle = document.getElementById('result-title') as HTMLElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const dpiSelect = document.getElementById('ti-dpi') as HTMLSelectElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  function load(f: File) { currentFile=f; fileNameEl.textContent=f.name; fileInfo.style.display='flex'; dropZone.style.display='none'; tiOptions.style.display='flex'; tiActions.style.display='flex'; tiResult.style.display='none'; }
+
+  convertBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    convertBtn.disabled = true;
+    const format = (document.querySelector('input[name="ti-format"]:checked') as HTMLInputElement).value;
+    const scale = parseFloat(dpiSelect.value);
+    const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+    const ext = format === 'png' ? 'png' : 'jpg';
+
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width='20%';
+    progressLabel.textContent='Loading PDF.js…';
+
+    // Dynamically load PDF.js from CDN
+    if (!(window as any).pdfjsLib) {
+      await new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = () => resolve();
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    progressFill.style.width='40%';
+    progressLabel.textContent='Loading PDF…';
+    const pdfjsLib = (window as any).pdfjsLib;
+    const arrayBuffer = await currentFile.arrayBuffer();
+    const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const numPages = pdfDoc.numPages;
+
+    imageGrid.innerHTML = '';
+    const baseName = currentFile.name.replace(/\.pdf$/i,'');
+
+    for (let i = 1; i <= numPages; i++) {
+      progressFill.style.width = `${40 + Math.round((i / numPages) * 55)}%`;
+      progressLabel.textContent = `Rendering page ${i} of ${numPages}…`;
+
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d')!;
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      const dataUrl = canvas.toDataURL(mimeType, 0.92);
+      const filename = `${baseName}-page${i}.${ext}`;
+
+      const card = document.createElement('div');
+      card.className = 'ti-image-card';
+      card.innerHTML = `
+        <div class="ti-image-thumb"><img src="${dataUrl}" alt="Page ${i}" loading="lazy" /></div>
+        <a class="btn btn-sm btn-secondary" href="${dataUrl}" download="${filename}">Download Page ${i}</a>
+      `;
+      imageGrid.appendChild(card);
+    }
+
+    progressFill.style.width='100%';
+    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
+    resultTitle.textContent = `${numPages} image${numPages!==1?'s':''} ready — click to download each page`;
+    tiResult.style.display='block';
+    tiActions.style.display='none';
+    convertBtn.disabled=false;
+  });
+
+  function reset(){currentFile=null;dropZone.style.display='flex';fileInfo.style.display='none';tiOptions.style.display='none';tiActions.style.display='none';tiResult.style.display='none';imageGrid.innerHTML='';}
+  clearBtn.addEventListener('click',reset);
+  restartBtn.addEventListener('click',reset);
+  removeBtn.addEventListener('click',reset);
+</script>
