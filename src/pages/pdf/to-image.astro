@@ -6,18 +6,27 @@ const howToSteps = [
   { name: "Convert and Download", text: "Click 'Convert to Images'. Each page is rendered and exported. Download individually or all at once." },
 ];
 const faqs = [
-  { question: "Are my files uploaded?", answer: "No. Conversion runs entirely in your browser using the Canvas API." },
-  { question: "What resolution will the images be?", answer: "You can choose 96 DPI (screen), 150 DPI (standard), or 300 DPI (print quality). Higher DPI produces larger, sharper images." },
-  { question: "Can I convert only some pages?", answer: "Currently all pages are converted. Use our Split PDF tool first to extract specific pages before converting." },
+  {
+    question: "How to convert PDF pages into high-resolution JPG or PNG images?",
+    answer: "Drop your PDF into the converter, select your preferred format (JPG or PNG) and resolution (300 DPI for print quality), and click 'Convert to Images'. Each page downloads as a separate image file — all processed in your browser."
+  },
+  {
+    question: "How to convert image to PDF on an iPhone or Android device?",
+    answer: "Open this page in your mobile browser, drop your PDF, select JPG or PNG and your quality setting, and download the images directly to your device's gallery. No app download needed."
+  },
+  {
+    question: "What DPI should I choose for the best quality?",
+    answer: "Choose 300 DPI for print-ready quality (ideal for professional documents). 150 DPI is great for standard digital use, and 96 DPI produces the smallest files for screen viewing or web use."
+  },
 ];
 ---
 
 <ToolLayout
-  title="PDF to Image — Convert PDF Pages to JPG or PNG Free Online"
-  description="Convert every page of a PDF to JPG or PNG images. Choose resolution (96–300 DPI). Free, private, instant — runs in your browser."
+  title="PDF to Image Converter — Convert PDF to JPG or PNG Free Online (High Quality)"
+  description="Convert PDF pages to high-quality JPG or PNG images. Choose 300 DPI for print quality. Works on mobile. Free, private, instant — runs in your browser."
   canonicalPath="/pdf/to-image"
   toolName="PDF to Image"
-  toolTagline="Export every PDF page as a JPG or PNG image — free, private, instant."
+  toolTagline="Convert every PDF page to JPG or PNG — up to 300 DPI quality, free, mobile-friendly."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"

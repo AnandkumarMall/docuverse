@@ -7,18 +7,31 @@ const howToSteps = [
   { name: "Protect and Download", text: "Click 'Protect PDF'. Your browser encrypts the file using AES-128. Download the protected PDF — no server involved." },
 ];
 const faqs = [
-  { question: "Is encryption done on a server?", answer: "No. The PDF is encrypted entirely in your browser. Your file and your password never leave your device." },
-  { question: "What encryption standard is used?", answer: "pdf-lib uses AES-128 PDF standard encryption, which is compatible with Adobe Acrobat and all major PDF viewers." },
-  { question: "What if I forget the password?", answer: "There is no recovery option. Make sure you save the password securely. You can use our Unlock PDF tool if you know the password but want to remove it." },
+  {
+    question: "How to password protect a PDF file step by step?",
+    answer: "Upload your PDF document, enter a strong password in the encryption field, confirm the password, and click 'Protect PDF'. Your file is encrypted using AES-128 encryption right in your browser — it is never sent to a server."
+  },
+  {
+    question: "Can I protect a PDF from being edited or copied?",
+    answer: "Yes. Adding a password restricts what others can do with your document. Unauthorized users will not be able to copy text, extract images, or modify pages without the correct password."
+  },
+  {
+    question: "Is it safe to password-protect confidential PDFs on this site?",
+    answer: "100% yes. Encryption happens locally in your web browser via WebAssembly. Your password and your PDF are never transmitted over the internet or stored on any server."
+  },
+  {
+    question: "How to password protect a PDF on Mac or iPhone without Adobe?",
+    answer: "Simply open this page in Safari or Chrome on your Apple device, upload your PDF, set your password, and download the secured file instantly — no paid software needed."
+  },
 ];
 ---
 
 <ToolLayout
-  title="Protect PDF with Password — Free, Private, Online"
-  description="Add AES password protection to any PDF. Free and 100% private — encryption runs in your browser, your file is never uploaded."
+  title="PDF Password Protect — How to Password Protect a PDF File Free"
+  description="Add password protection to any PDF for free. Works on Mac, iPhone, Windows — no Adobe needed. Encryption runs in your browser, your file is never uploaded."
   canonicalPath="/pdf/protect"
   toolName="Protect PDF"
-  toolTagline="Add password encryption to your PDF — free, private, browser-only."
+  toolTagline="Password-protect any PDF in seconds — AES encryption, free, 100% private, no sign-up."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"

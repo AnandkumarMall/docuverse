@@ -7,18 +7,27 @@ const howToSteps = [
   { name: "Unlock and Download", text: "Click 'Unlock PDF'. Your browser decrypts the file and exports an unprotected version you can open freely." },
 ];
 const faqs = [
-  { question: "Can DocuVerse crack a PDF password I don't know?", answer: "No. DocuVerse only removes a password you already know. We do not perform brute-force attacks or password cracking." },
-  { question: "Is my password sent to a server?", answer: "Absolutely not. The decryption happens entirely in your browser. Your file and password never leave your device." },
-  { question: "Why would I want to remove a password?", answer: "Commonly to avoid typing the password every time you open the file, or to share the PDF with colleagues who don't need the restriction." },
+  {
+    question: "How to unlock an Aadhaar card or Bank Statement PDF?",
+    answer: "Upload your password-protected Aadhaar or bank statement PDF, enter your personal unlock password (e.g., the first 4 letters of your name + birth year for Aadhaar, or the last 4 digits of your mobile number for bank PDFs), and click 'Unlock PDF'. The password is permanently removed so you can open the file anytime without re-typing."
+  },
+  {
+    question: "Can you unlock a password-protected PDF without knowing the password?",
+    answer: "Strong AES owner passwords cannot be legally or technologically broken without the password. However, if a PDF only has editing, copying, or printing restrictions (no open-password), our tool can strip those permission restrictions instantly."
+  },
+  {
+    question: "How to unlock a PDF for editing or printing?",
+    answer: "Upload the restricted PDF file. Our browser-based unlocker decodes the permission flags and gives you an unrestricted, fully printable and editable PDF copy — all without uploading to any server."
+  },
 ];
 ---
 
 <ToolLayout
-  title="Unlock PDF — Remove Password from PDF Free Online"
-  description="Remove password protection from a PDF. Enter the password you know and download an unlocked version. 100% private — runs in your browser."
+  title="PDF Unlock Online Free — Remove Password from Aadhaar, Bank Statement, Any PDF"
+  description="Unlock and remove password from any PDF — Aadhaar card, bank statement, PAN card, or any protected document. Free, 100% private, runs in your browser."
   canonicalPath="/pdf/unlock"
   toolName="Unlock PDF"
-  toolTagline="Remove password protection from any PDF you own — free and 100% private."
+  toolTagline="Remove password protection from any PDF you own — Aadhaar, bank statements, and more. Free & private."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
