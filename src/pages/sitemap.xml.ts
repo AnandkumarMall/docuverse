@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
+import { getAssetPath } from '../utils/paths';
 
-const SITE = 'https://docuverse.tools';
 const today = new Date().toISOString().split('T')[0];
 
 const urls = [
@@ -35,11 +35,11 @@ const urls = [
 ];
 
 export const GET: APIRoute = (context) => {
-  const siteUrl = context.site ? context.site.href.replace(/\/$/, '') : 'https://anandkumarmall.github.io/docuverse';
+  const origin = context.site ? context.site.origin : 'https://anandkumarmall.github.io';
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>
-    <loc>${siteUrl}${u.loc === '/' ? '' : u.loc}</loc>
+    <loc>${origin}${getAssetPath(u.loc)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
