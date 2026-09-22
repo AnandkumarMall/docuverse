@@ -34,11 +34,12 @@ const urls = [
   { loc: '/terms',   priority: '0.4', changefreq: 'yearly' },
 ];
 
-export const GET: APIRoute = () => {
+export const GET: APIRoute = (context) => {
+  const siteUrl = context.site ? context.site.href.replace(/\/$/, '') : 'https://anandkumarmall.github.io/docuverse';
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>
-    <loc>${SITE}${u.loc}</loc>
+    <loc>${siteUrl}${u.loc === '/' ? '' : u.loc}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>

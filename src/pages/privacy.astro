@@ -1,21 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-const lastUpdated = 'September 21, 2025';
+import { getAssetPath } from '../utils/paths';
+
 const SITE_NAME = 'DocuVerse';
 const SITE_URL = 'https://docuverse.tools';
 const CONTACT_EMAIL = 'privacy@docuverse.tools';
+const lastUpdated = 'September 21, 2025';
 ---
 
 <BaseLayout
   title="Privacy Policy — DocuVerse"
-  description="DocuVerse Privacy Policy. Learn how we protect your data. All file processing happens 100% in your browser — no files are ever uploaded to our servers."
-  canonicalUrl={`${SITE_URL}/privacy`}
+  description="Read the DocuVerse Privacy Policy. We do not store, process, or transmit your files. All operations are 100% client-side."
+  canonicalUrl="https://docuverse.tools/privacy"
 >
   <div class="legal-page">
     <div class="legal-container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a>
+        <a href={getAssetPath("/")}>Home</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Privacy Policy</span>
       </nav>
@@ -130,9 +132,9 @@ const CONTACT_EMAIL = 'privacy@docuverse.tools';
       </main>
 
       <footer class="legal-footer">
-        <a href="/terms">Terms of Service</a>
+        <a href={getAssetPath("/terms")}>Terms of Service</a>
         <span>·</span>
-        <a href="/">Back to DocuVerse</a>
+        <a href={getAssetPath("/")}>Back to DocuVerse</a>
       </footer>
     </div>
   </div>

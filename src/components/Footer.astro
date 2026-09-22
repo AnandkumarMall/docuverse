@@ -1,38 +1,40 @@
 ---
+import { getAssetPath } from '../utils/paths';
+
 const currentYear = new Date().getFullYear();
 
 const footerLinks = {
   pdf: [
-    { name: "Merge PDF", href: "/pdf/merge" },
-    { name: "Split PDF", href: "/pdf/split" },
-    { name: "Compress PDF", href: "/pdf/compress" },
-    { name: "PDF Editor", href: "/pdf/editor" },
-    { name: "PDF to Word", href: "/pdf/to-word" },
-    { name: "PDF to Image", href: "/pdf/to-image" },
-    { name: "Protect PDF", href: "/pdf/protect" },
-    { name: "Unlock PDF", href: "/pdf/unlock" },
-    { name: "Watermark PDF", href: "/pdf/watermark" },
-    { name: "Sign PDF", href: "/pdf/sign" },
-    { name: "Organize PDF", href: "/pdf/organize" },
+    { name: "Merge PDF", href: getAssetPath("/pdf/merge") },
+    { name: "Split PDF", href: getAssetPath("/pdf/split") },
+    { name: "Compress PDF", href: getAssetPath("/pdf/compress") },
+    { name: "PDF Editor", href: getAssetPath("/pdf/editor") },
+    { name: "PDF to Word", href: getAssetPath("/pdf/to-word") },
+    { name: "PDF to Image", href: getAssetPath("/pdf/to-image") },
+    { name: "Protect PDF", href: getAssetPath("/pdf/protect") },
+    { name: "Unlock PDF", href: getAssetPath("/pdf/unlock") },
+    { name: "Watermark PDF", href: getAssetPath("/pdf/watermark") },
+    { name: "Sign PDF", href: getAssetPath("/pdf/sign") },
+    { name: "Organize PDF", href: getAssetPath("/pdf/organize") },
   ],
   image: [
-    { name: "Crop Image", href: "/image/crop" },
-    { name: "Compress Image", href: "/image/compress" },
-    { name: "Resize Image", href: "/image/resize" },
-    { name: "Convert Format", href: "/image/convert" },
-    { name: "Image to PDF", href: "/image/to-pdf" },
-    { name: "Remove EXIF", href: "/image/remove-exif" },
-    { name: "Color Picker", href: "/image/color-picker" },
+    { name: "Crop Image", href: getAssetPath("/image/crop") },
+    { name: "Compress Image", href: getAssetPath("/image/compress") },
+    { name: "Resize Image", href: getAssetPath("/image/resize") },
+    { name: "Convert Format", href: getAssetPath("/image/convert") },
+    { name: "Image to PDF", href: getAssetPath("/image/to-pdf") },
+    { name: "Remove EXIF", href: getAssetPath("/image/remove-exif") },
+    { name: "Color Picker", href: getAssetPath("/image/color-picker") },
   ],
   utilities: [
-    { name: "Extract Text (OCR)", href: "/tools/ocr" },
-    { name: "SVG Optimizer", href: "/tools/svg-optimizer" },
-    { name: "Image to Base64", href: "/tools/image-to-base64" },
-    { name: "Favicon Generator", href: "/tools/favicon-generator" },
+    { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr") },
+    { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer") },
+    { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64") },
+    { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator") },
   ],
   company: [
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
+    { name: "Privacy Policy", href: getAssetPath("/privacy") },
+    { name: "Terms of Service", href: getAssetPath("/terms") },
   ],
 };
 ---
@@ -43,7 +45,7 @@ const footerLinks = {
     <div class="footer-grid">
       <!-- Brand column -->
       <div class="footer-brand-col">
-        <a href="/" class="footer-brand" aria-label="DocuVerse Home">
+        <a href={getAssetPath("/")} class="footer-brand" aria-label="DocuVerse Home">
           <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="28" height="28" rx="8" fill="var(--color-brand-primary)"/>
             <path d="M8 8h5.5a4.5 4.5 0 010 9H11v3H8V8zm3 6.5h2.5a1.5 1.5 0 000-3H11v3z" fill="white"/>

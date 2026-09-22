@@ -26,6 +26,12 @@ import '../styles/global.css';
 import '../styles/components.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { getAssetPath } from '../utils/paths';
+
+const faviconSvg = getAssetPath('/favicon.svg');
+const faviconIco = getAssetPath('/favicon.ico');
+const appleTouchIcon = getAssetPath('/apple-touch-icon.png');
+const ogImagePath = ogImage.startsWith('http') ? ogImage : `${siteUrl}${getAssetPath(ogImage)}`;
 ---
 
 <!DOCTYPE html>
@@ -43,9 +49,9 @@ import Footer from '../components/Footer.astro';
     <link rel="canonical" href={canonical} />
 
     <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href={faviconSvg} />
+    <link rel="icon" href={faviconIco} sizes="32x32" />
+    <link rel="apple-touch-icon" href={appleTouchIcon} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -53,13 +59,13 @@ import Footer from '../components/Footer.astro';
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    <meta property="og:image" content={ogImagePath} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+    <meta name="twitter:image" content={ogImagePath} />
 
     <!-- Preconnect for Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

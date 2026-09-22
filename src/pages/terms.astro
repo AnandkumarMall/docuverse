@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAssetPath } from '../utils/paths';
 const lastUpdated = 'September 21, 2025';
 const SITE_NAME = 'DocuVerse';
 const SITE_URL = 'https://docuverse.tools';
@@ -15,7 +16,7 @@ const CONTACT_EMAIL = 'legal@docuverse.tools';
     <div class="legal-container">
       <!-- Breadcrumb -->
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a>
+        <a href={getAssetPath("/")}>Home</a>
         <span aria-hidden="true">›</span>
         <span aria-current="page">Terms of Service</span>
       </nav>
@@ -139,9 +140,9 @@ const CONTACT_EMAIL = 'legal@docuverse.tools';
       </main>
 
       <footer class="legal-footer">
-        <a href="/privacy">Privacy Policy</a>
+        <a href={getAssetPath("/privacy")}>Privacy Policy</a>
         <span>·</span>
-        <a href="/">Back to DocuVerse</a>
+        <a href={getAssetPath("/")}>Back to DocuVerse</a>
       </footer>
     </div>
   </div>

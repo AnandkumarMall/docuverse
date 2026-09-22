@@ -1,42 +1,42 @@
 ---
-/* Header with mega-menu navigation */
+import { getAssetPath } from '../utils/paths';
 
 const pdfTools = [
-  { name: "Merge PDF", href: "/pdf/merge", desc: "Combine multiple PDFs into one" },
-  { name: "Split PDF", href: "/pdf/split", desc: "Split PDF into separate files" },
-  { name: "Compress PDF", href: "/pdf/compress", desc: "Reduce PDF file size" },
-  { name: "PDF Editor", href: "/pdf/editor", desc: "Edit text directly in PDFs" },
-  { name: "PDF to Word", href: "/pdf/to-word", desc: "Convert PDF to Word document" },
-  { name: "PDF to Image", href: "/pdf/to-image", desc: "Convert PDF pages to JPG/PNG" },
-  { name: "Protect PDF", href: "/pdf/protect", desc: "Add password protection" },
-  { name: "Unlock PDF", href: "/pdf/unlock", desc: "Remove PDF password" },
-  { name: "Watermark PDF", href: "/pdf/watermark", desc: "Add text watermark to PDF" },
-  { name: "Sign PDF", href: "/pdf/sign", desc: "Draw or type your signature" },
-  { name: "Organize PDF", href: "/pdf/organize", desc: "Rotate, reorder, delete pages" },
+  { name: "Merge PDF", href: getAssetPath("/pdf/merge"), desc: "Combine multiple PDFs into one" },
+  { name: "Split PDF", href: getAssetPath("/pdf/split"), desc: "Split PDF into separate files" },
+  { name: "Compress PDF", href: getAssetPath("/pdf/compress"), desc: "Reduce PDF file size" },
+  { name: "PDF Editor", href: getAssetPath("/pdf/editor"), desc: "Edit text directly in PDFs" },
+  { name: "PDF to Word", href: getAssetPath("/pdf/to-word"), desc: "Convert PDF to Word document" },
+  { name: "PDF to Image", href: getAssetPath("/pdf/to-image"), desc: "Convert PDF pages to JPG/PNG" },
+  { name: "Protect PDF", href: getAssetPath("/pdf/protect"), desc: "Add password protection" },
+  { name: "Unlock PDF", href: getAssetPath("/pdf/unlock"), desc: "Remove PDF password" },
+  { name: "Watermark PDF", href: getAssetPath("/pdf/watermark"), desc: "Add text watermark to PDF" },
+  { name: "Sign PDF", href: getAssetPath("/pdf/sign"), desc: "Draw or type your signature" },
+  { name: "Organize PDF", href: getAssetPath("/pdf/organize"), desc: "Rotate, reorder, delete pages" },
 ];
 
 const imageTools = [
-  { name: "Crop Image", href: "/image/crop", desc: "Crop with preset aspect ratios" },
-  { name: "Compress Image", href: "/image/compress", desc: "Reduce image file size" },
-  { name: "Resize Image", href: "/image/resize", desc: "Change image dimensions" },
-  { name: "Convert Format", href: "/image/convert", desc: "JPG, PNG, WebP, AVIF" },
-  { name: "Image to PDF", href: "/image/to-pdf", desc: "Combine images into a PDF" },
-  { name: "Remove EXIF", href: "/image/remove-exif", desc: "Strip metadata from photos" },
-  { name: "Color Picker", href: "/image/color-picker", desc: "Pick colors from any image" },
+  { name: "Crop Image", href: getAssetPath("/image/crop"), desc: "Crop with preset aspect ratios" },
+  { name: "Compress Image", href: getAssetPath("/image/compress"), desc: "Reduce image file size" },
+  { name: "Resize Image", href: getAssetPath("/image/resize"), desc: "Change image dimensions" },
+  { name: "Convert Format", href: getAssetPath("/image/convert"), desc: "JPG, PNG, WebP, AVIF" },
+  { name: "Image to PDF", href: getAssetPath("/image/to-pdf"), desc: "Combine images into a PDF" },
+  { name: "Remove EXIF", href: getAssetPath("/image/remove-exif"), desc: "Strip metadata from photos" },
+  { name: "Color Picker", href: getAssetPath("/image/color-picker"), desc: "Pick colors from any image" },
 ];
 
 const utilityTools = [
-  { name: "Extract Text (OCR)", href: "/tools/ocr", desc: "Extract text from images" },
-  { name: "SVG Optimizer", href: "/tools/svg-optimizer", desc: "Clean and minify SVG files" },
-  { name: "Image to Base64", href: "/tools/image-to-base64", desc: "Generate Base64 data URIs" },
-  { name: "Favicon Generator", href: "/tools/favicon-generator", desc: "Create icon bundles" },
+  { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr"), desc: "Extract text from images" },
+  { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer"), desc: "Clean and minify SVG files" },
+  { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64"), desc: "Generate Base64 data URIs" },
+  { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator"), desc: "Create icon bundles" },
 ];
 ---
 
 <header class="site-header" id="site-header">
   <div class="header-inner container-wide">
     <!-- Brand -->
-    <a href="/" class="header-brand" aria-label="DocuVerse Home">
+    <a href={getAssetPath("/")} class="header-brand" aria-label="DocuVerse Home">
       <svg class="header-logo" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="28" height="28" rx="8" fill="var(--color-brand-primary)"/>
         <path d="M8 8h5.5a4.5 4.5 0 010 9H11v3H8V8zm3 6.5h2.5a1.5 1.5 0 000-3H11v3z" fill="white"/>

@@ -8,6 +8,7 @@
  */
 
 import BaseLayout from './BaseLayout.astro';
+import { getAssetPath } from '../utils/paths';
 
 export interface HowToStep {
   name: string;
@@ -105,9 +106,9 @@ const faqSchema = faqs.length > 0 ? {
     <!-- Breadcrumb -->
     <nav class="tool-breadcrumb container" aria-label="Breadcrumb">
       <ol class="breadcrumb-list">
-        <li><a href="/">Home</a></li>
+        <li><a href={getAssetPath("/")}>Home</a></li>
         <li aria-hidden="true"><span class="breadcrumb-sep">›</span></li>
-        <li><a href={categoryHref}>{categoryLabel}</a></li>
+        <li><a href={getAssetPath(categoryHref)}>{categoryLabel}</a></li>
         <li aria-hidden="true"><span class="breadcrumb-sep">›</span></li>
         <li aria-current="page">{toolName}</li>
       </ol>
