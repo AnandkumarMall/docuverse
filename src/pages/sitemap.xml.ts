@@ -29,7 +29,8 @@ const urls = [
   { loc: '/tools/svg-optimizer',     priority: '0.7', changefreq: 'monthly' },
   { loc: '/tools/image-to-base64',   priority: '0.7', changefreq: 'monthly' },
   { loc: '/tools/favicon-generator', priority: '0.7', changefreq: 'monthly' },
-  // Legal
+  // Legal & Info
+  { loc: '/about',   priority: '0.6', changefreq: 'monthly' },
   { loc: '/privacy', priority: '0.4', changefreq: 'yearly' },
   { loc: '/terms',   priority: '0.4', changefreq: 'yearly' },
 ];

@@ -1,0 +1,594 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAssetPath } from '../utils/paths';
+
+const pdfTools = [
+  { name: "Direct PDF Text Editor", href: getAssetPath("/pdf/editor"), desc: "Edit text directly inside existing PDFs without re-converting." },
+  { name: "Merge PDF", href: getAssetPath("/pdf/merge"), desc: "Combine multiple PDF documents into a single organized file." },
+  { name: "Split PDF", href: getAssetPath("/pdf/split"), desc: "Extract specific page ranges or burst whole files into separate pages." },
+  { name: "Compress PDF", href: getAssetPath("/pdf/compress"), desc: "Reduce file sizes with target size auto-calculation and live visual previews." },
+  { name: "PDF to Word", href: getAssetPath("/pdf/to-word"), desc: "Extract structured text into clean, editable Microsoft Word .docx files." },
+  { name: "PDF to Image", href: getAssetPath("/pdf/to-image"), desc: "Export crisp pages as high-resolution JPG or PNG images in a ZIP bundle." },
+  { name: "Protect PDF", href: getAssetPath("/pdf/protect"), desc: "Apply strong password encryption directly on your device." },
+  { name: "Unlock PDF", href: getAssetPath("/pdf/unlock"), desc: "Strip password restrictions from PDFs you own." },
+  { name: "Watermark PDF", href: getAssetPath("/pdf/watermark"), desc: "Add custom opacity-controlled text watermarks across all pages." },
+  { name: "Sign PDF", href: getAssetPath("/pdf/sign"), desc: "Draw, type, or upload your signature and place it anywhere." },
+  { name: "Organize PDF", href: getAssetPath("/pdf/organize"), desc: "Rotate, reorder, and remove pages using a drag-and-drop visual grid." },
+];
+
+const imageTools = [
+  { name: "Compress Image", href: getAssetPath("/image/compress"), desc: "Multi-file batch compression with target size estimation and ZIP export." },
+  { name: "Resize Image", href: getAssetPath("/image/resize"), desc: "Change dimensions by px, cm, mm, in, or % with DPI controls for portals." },
+  { name: "Crop Image", href: getAssetPath("/image/crop"), desc: "Interactive crop with popular aspect ratio presets (1:1, 16:9, 4:3, 9:16)." },
+  { name: "Convert Format", href: getAssetPath("/image/convert"), desc: "Lossless and lossy conversion between JPG, PNG, WebP, AVIF, and BMP." },
+  { name: "Image to PDF", href: getAssetPath("/image/to-pdf"), desc: "Compile sets of photos into formatted PDF documents." },
+  { name: "Remove EXIF", href: getAssetPath("/image/remove-exif"), desc: "Strip GPS locations, camera serials, and timestamps from photos." },
+  { name: "Color Picker", href: getAssetPath("/image/color-picker"), desc: "Inspect uploaded images with a magnifying loupe to copy HEX, RGB, or HSL." },
+];
+
+const utilityTools = [
+  { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr"), desc: "WASM-powered OCR to extract text from images, scans, and screenshots." },
+  { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer"), desc: "Clean and minify SVG vectors to reduce file weight for web performance." },
+  { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64"), desc: "Convert images to Base64 data strings and CSS background snippets." },
+  { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator"), desc: "Generate complete favicon bundles (16px to 180px) in one click." },
+];
+---
+
+<BaseLayout
+  title="About DocuVerse — 100% Private, In-Browser Document & Image Suite"
+  description="Learn about DocuVerse, the free document and image suite engineered for total privacy. All processing runs 100% inside your browser with WebAssembly."
+  canonicalUrl="https://anandkumarmall.github.io/docuverse/about/"
+>
+  <div class="about-page">
+    <div class="about-container">
+
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href={getAssetPath("/")}>Home</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">About</span>
+      </nav>
+
+      <!-- Hero Header -->
+      <header class="about-hero">
+        <div class="about-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          The Zero-Upload Revolution
+        </div>
+        <h1 class="about-title">Built for privacy.<br />Engineered for speed.</h1>
+        <p class="about-subtitle">
+          DocuVerse is a comprehensive suite of 22 document, image, and developer utilities. Every single tool runs <strong>100% locally inside your browser</strong> using WebAssembly and modern browser APIs. Your files never touch a remote server.
+        </p>
+      </header>
+
+      <!-- The Story / Problem Section -->
+      <section class="about-section">
+        <div class="about-card about-card--highlight">
+          <h2 class="section-title">The Problem With Modern Document Tools</h2>
+          <p>
+            Every day, millions of people upload sensitive tax forms, employee contracts, confidential financial statements, and personal identification to popular online document converters.
+          </p>
+          <p>
+            Nearly all mainstream services secretly upload these files to remote cloud servers. Once uploaded, your sensitive data is exposed to network interception, remote database caching, server logs, and questionable retention policies. On top of that, users face aggressive subscription paywalls, daily usage quotas, artificial file size limits, and forced watermarks.
+          </p>
+          <p class="about-emphasis">
+            We built DocuVerse to prove that a document suite can be enterprise-grade, blazing-fast, and completely free — while keeping your files strictly on your device.
+          </p>
+        </div>
+      </section>
+
+      <!-- 4 Core Pillars Grid -->
+      <section class="about-section">
+        <h2 class="section-title text-center">Our 4 Core Principles</h2>
+        <div class="pillars-grid">
+          
+          <div class="pillar-card">
+            <div class="pillar-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">100% Client-Side Privacy</h3>
+            <p class="pillar-text">
+              Zero server uploads. Not a single byte of your file is ever transmitted over the network. Everything processes in temporary browser memory.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Native WebAssembly Speed</h3>
+            <p class="pillar-text">
+              No upload waiting times or queuing delays. Powered by compiled WebAssembly, operations start immediately the moment you drop a file.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Zero Paywalls or Limits</h3>
+            <p class="pillar-text">
+              No daily conversion caps, no forced registrations, no email harvesting, and no watermarks on your final downloads. Ever.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <h3 class="pillar-title">Offline Capable</h3>
+            <p class="pillar-text">
+              Because all computational engines run in client JavaScript and WebAssembly, core features continue working even when your internet drops.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- How It Works Architecture -->
+      <section class="about-section">
+        <h2 class="section-title">How It Works: Under the Hood</h2>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-number">1</div>
+            <div class="flow-content">
+              <h4>Local File Drop</h4>
+              <p>When you select or drop a file, the browser reads it directly into temporary memory using the HTML5 File API (<code>ArrayBuffer</code> / <code>Blob</code>).</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-number">2</div>
+            <div class="flow-content">
+              <h4>In-Browser Engine Processing</h4>
+              <p>WebAssembly modules and Web Workers execute the transformation: <code>pdf-lib</code> parses the document object model, <code>tesseract.js</code> runs neural OCR, and <code>pica</code> resamples pixels on the canvas.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-number">3</div>
+            <div class="flow-content">
+              <h4>Direct Browser Download</h4>
+              <p>The modified result is synthesized into a downloadable <code>Blob</code> directly in your tab. The moment you close the tab, the memory is purged.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feature Catalog Section -->
+      <section class="about-section">
+        <h2 class="section-title">The Complete DocuVerse Suite (22 Tools)</h2>
+
+        <!-- PDF Tools -->
+        <div class="tool-category-group">
+          <div class="category-badge category-badge--pdf">
+            <span class="category-badge__dot"></span>
+            <h3>PDF Tools (11 Tools)</h3>
+          </div>
+          <div class="tools-compact-grid">
+            {pdfTools.map(tool => (
+              <a href={tool.href} class="tool-compact-card">
+                <span class="tool-compact-card__name">{tool.name}</span>
+                <span class="tool-compact-card__desc">{tool.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Image Tools -->
+        <div class="tool-category-group">
+          <div class="category-badge category-badge--image">
+            <span class="category-badge__dot"></span>
+            <h3>Image Tools (7 Tools)</h3>
+          </div>
+          <div class="tools-compact-grid">
+            {imageTools.map(tool => (
+              <a href={tool.href} class="tool-compact-card">
+                <span class="tool-compact-card__name">{tool.name}</span>
+                <span class="tool-compact-card__desc">{tool.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Utility Tools -->
+        <div class="tool-category-group">
+          <div class="category-badge category-badge--utility">
+            <span class="category-badge__dot"></span>
+            <h3>Utilities & Developer Tools (4 Tools)</h3>
+          </div>
+          <div class="tools-compact-grid">
+            {utilityTools.map(tool => (
+              <a href={tool.href} class="tool-compact-card">
+                <span class="tool-compact-card__name">{tool.name}</span>
+                <span class="tool-compact-card__desc">{tool.desc}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Open Source & Stack -->
+      <section class="about-section">
+        <div class="about-card">
+          <h2 class="section-title">Powered by Open Source</h2>
+          <p>
+            DocuVerse is built upon high-performance open-source projects trusted by millions of developers worldwide:
+          </p>
+          <ul class="about-tech-list">
+            <li><strong>Astro 7</strong> — Lightning-fast Multi-Page Architecture with minimal client-side overhead.</li>
+            <li><strong>pdf-lib</strong> — Pure TypeScript/JavaScript PDF manipulation engine.</li>
+            <li><strong>Tesseract.js</strong> — Pure WebAssembly port of the renowned Tesseract OCR engine.</li>
+            <li><strong>Pica</strong> — High-quality Lanczos3 resampler for pixel-perfect image reductions.</li>
+            <li><strong>Browser-Image-Compression</strong> — Multi-threaded Web Worker image compression.</li>
+            <li><strong>docx</strong> — Pure JavaScript Microsoft Word document generator.</li>
+            <li><strong>fflate</strong> — Fastest in-browser ZIP archiver and decompressor.</li>
+            <li><strong>exifr</strong> — High-speed EXIF, GPS, and camera metadata parser.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Bottom CTA Banner -->
+      <section class="about-cta">
+        <h2 class="cta-title">Ready to work with complete privacy?</h2>
+        <p class="cta-subtitle">Explore the tools today — no sign-up, no downloads required.</p>
+        <div class="cta-actions">
+          <a href={getAssetPath("/#tools")} class="btn btn-primary btn-lg">
+            Explore All Tools
+          </a>
+          <a href="https://github.com/AnandkumarMall/docuverse" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
+            View on GitHub
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    min-height: 100vh;
+    background: var(--color-canvas);
+    padding: var(--space-8) var(--space-5) var(--space-20);
+  }
+
+  .about-container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-8);
+  }
+  .breadcrumb a {
+    color: var(--color-accent-orange);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .about-hero {
+    text-align: center;
+    margin-bottom: var(--space-16);
+    padding-bottom: var(--space-12);
+    border-bottom: 1px solid var(--color-border-hairline);
+  }
+
+  .about-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-4);
+    background: rgba(207, 69, 0, 0.08);
+    border: 1px solid rgba(207, 69, 0, 0.2);
+    border-radius: var(--radius-pill);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-accent-orange);
+    margin-bottom: var(--space-6);
+  }
+
+  .about-title {
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .about-subtitle {
+    font-size: clamp(1.0625rem, 2vw, 1.25rem);
+    line-height: 1.65;
+    color: var(--color-ink-secondary);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ── Section & Cards ─────────────────────────────────────── */
+  .about-section {
+    margin-bottom: var(--space-16);
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-8);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .about-card {
+    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8) var(--space-8);
+  }
+
+  .about-card--highlight {
+    background: radial-gradient(circle at top left, rgba(207, 69, 0, 0.04) 0%, var(--color-canvas-soft) 100%);
+    border-color: rgba(207, 69, 0, 0.15);
+  }
+
+  .about-card p {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--color-ink-secondary);
+    margin-bottom: var(--space-4);
+  }
+
+  .about-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .about-emphasis {
+    font-weight: 600;
+    color: var(--color-ink-primary) !important;
+    border-left: 3px solid var(--color-accent-orange);
+    padding-left: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  /* ── Pillars Grid ────────────────────────────────────────── */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-5);
+  }
+
+  .pillar-card {
+    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .pillar-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .pillar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(207, 69, 0, 0.08);
+    color: var(--color-accent-orange);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+  }
+
+  .pillar-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .pillar-text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-ink-secondary);
+  }
+
+  /* ── How It Works Steps ──────────────────────────────────── */
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .flow-step {
+    display: flex;
+    gap: var(--space-5);
+    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    align-items: flex-start;
+  }
+
+  .flow-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: var(--color-brand-primary);
+    color: #fff;
+    font-weight: 800;
+    border-radius: var(--radius-pill);
+    font-size: 1rem;
+  }
+
+  .flow-content h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .flow-content p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-ink-secondary);
+    margin: 0;
+  }
+
+  .flow-content code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-family: monospace;
+  }
+
+  /* ── Compact Tool Grid ───────────────────────────────────── */
+  .tool-category-group {
+    margin-bottom: var(--space-10);
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .category-badge h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-ink-primary);
+    margin: 0;
+  }
+
+  .category-badge__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-pill);
+  }
+
+  .category-badge--pdf .category-badge__dot { background: var(--color-accent-orange); }
+  .category-badge--image .category-badge__dot { background: #3b82f6; }
+  .category-badge--utility .category-badge__dot { background: #10b981; }
+
+  .tools-compact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .tool-compact-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+
+  .tool-compact-card:hover {
+    border-color: var(--color-accent-orange);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tool-compact-card__name {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .tool-compact-card__desc {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Tech List ───────────────────────────────────────────── */
+  .about-tech-list {
+    margin-top: var(--space-4);
+    padding-left: var(--space-5);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .about-tech-list li {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-ink-secondary);
+  }
+
+  /* ── Bottom CTA ──────────────────────────────────────────── */
+  .about-cta {
+    text-align: center;
+    background: linear-gradient(135deg, var(--color-canvas-soft) 0%, var(--color-canvas-base) 100%);
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-xl);
+    padding: var(--space-12) var(--space-6);
+  }
+
+  .cta-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .cta-subtitle {
+    font-size: 1.0625rem;
+    color: var(--color-ink-secondary);
+    margin-bottom: var(--space-8);
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    .about-page {
+      padding-block: var(--space-4) var(--space-12);
+    }
+    .flow-step {
+      flex-direction: column;
+    }
+    .about-tech-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

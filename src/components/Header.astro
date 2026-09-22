@@ -97,6 +97,10 @@ const utilityTools = [
           </div>
         </div>
       </div>
+
+      <a href={getAssetPath("/about")} class="nav-trigger" style="text-decoration: none;">
+        <span>About</span>
+      </a>
     </nav>
 
     <!-- Right Actions -->
@@ -142,6 +146,10 @@ const utilityTools = [
             <a href={tool.href} class="mobile-drawer__link">{tool.name}</a>
           ))}
         </div>
+      </div>
+      <hr class="divider" />
+      <div class="mobile-drawer__section">
+        <a href={getAssetPath("/about")} class="mobile-drawer__link" style="font-weight: 700; color: var(--color-ink-primary);">About DocuVerse</a>
       </div>
     </div>
   </div>
