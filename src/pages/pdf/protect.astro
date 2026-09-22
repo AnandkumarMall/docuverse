@@ -1,28 +1,11 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
   { name: "Upload your PDF", text: "Drop or select the PDF you want to password-protect." },
   { name: "Set a password", text: "Enter the password twice to confirm. Choose something strong — you'll need this password to open the file." },
   { name: "Protect and Download", text: "Click 'Protect PDF'. Your browser encrypts the file using AES-128. Download the protected PDF — no server involved." },
-];
-const faqs = [
-  {
-    question: "How to password protect a PDF file step by step?",
-    answer: "Upload your PDF document, enter a strong password in the encryption field, confirm the password, and click 'Protect PDF'. Your file is encrypted using AES-128 encryption right in your browser — it is never sent to a server."
-  },
-  {
-    question: "Can I protect a PDF from being edited or copied?",
-    answer: "Yes. Adding a password restricts what others can do with your document. Unauthorized users will not be able to copy text, extract images, or modify pages without the correct password."
-  },
-  {
-    question: "Is it safe to password-protect confidential PDFs on this site?",
-    answer: "100% yes. Encryption happens locally in your web browser via WebAssembly. Your password and your PDF are never transmitted over the internet or stored on any server."
-  },
-  {
-    question: "How to password protect a PDF on Mac or iPhone without Adobe?",
-    answer: "Simply open this page in Safari or Chrome on your Apple device, upload your PDF, set your password, and download the secured file instantly — no paid software needed."
-  },
 ];
 ---
 
@@ -37,7 +20,8 @@ const faqs = [
   categoryHref="/#category-pdf"
   acceptedFormats="One PDF file · No size limit"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf["protect"].keywords}
+  faqs={seoDataPdf["protect"].faqs}
 >
 
   <div slot="drop-zone">
@@ -103,8 +87,8 @@ const faqs = [
   </div>
 </ToolLayout>
 
-<style>
-  .prot-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); }
+<style is:global>
+  .prot-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207, 69, 0, 0.04); border:1px solid rgba(207, 69, 0, 0.15); border-radius:var(--radius-md); }
   .prot-file-info__name { flex:1; font-size:.9375rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--color-ink-primary); }
   .prot-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
   .prot-options { display:flex; flex-direction:column; gap:var(--space-5); max-width:420px; }

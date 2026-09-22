@@ -1,31 +1,27 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
-  { name: "Upload your PDF", text: "Drop or select the PDF you want to compress. Works with any PDF regardless of size." },
-  { name: "Choose compression level", text: "Pick High (smallest file, slightly lower image quality), Medium (balanced), or Low (minimal compression, best quality)." },
-  { name: "Compress and Download", text: "Click 'Compress PDF'. The browser processes your file instantly. Download the compressed PDF directly." },
-];
-const faqs = [
-  { question: "Is my file uploaded to a server?", answer: "No. Compression happens entirely in your browser using WebAssembly. Your file never leaves your device." },
-  { question: "How much smaller will my PDF get?", answer: "It depends on what's inside. PDFs with large embedded images compress the most (up to 70% smaller). Text-only PDFs see modest gains from metadata removal." },
-  { question: "Will the text and layout change?", answer: "No. Text, fonts, and layout are untouched. Only embedded image resolution is reduced on higher compression levels." },
-  { question: "Is there a file size limit?", answer: "No artificial limits — only your device memory. Files up to several hundred MB work fine." },
+  { name: "Upload your PDF", text: "Drop or select the PDF you want to compress. The original file size is shown instantly." },
+  { name: "Set compression strength", text: "Drag the slider to choose how aggressively to compress. The estimated output size updates in real-time so you can hit your target." },
+  { name: "Compress and Download", text: "Click 'Compress PDF'. Your browser processes the file instantly. Download the smaller PDF immediately." },
 ];
 ---
 
 <ToolLayout
-  title="Compress PDF Free Online — Reduce PDF Size Without Quality Loss"
-  description="Compress PDF files to reduce their size. Choose from three compression levels. Free, private, and instant — runs entirely in your browser."
+  title="Compress PDF Free Online — Reduce PDF File Size Instantly"
+  description="Compress PDF files online for free. Drag a slider to set compression strength and see the estimated output size in real-time. No uploads, runs 100% in your browser."
   canonicalPath="/pdf/compress"
   toolName="Compress PDF"
-  toolTagline="Reduce your PDF file size — three compression levels, zero uploads, free forever."
+  toolTagline="Reduce your PDF file size — drag to choose compression strength, see size estimates in real-time."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
   acceptedFormats="One PDF file · No size limit"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf["compress"].keywords}
+  faqs={seoDataPdf["compress"].faqs}
 >
 
   <div slot="drop-zone">
@@ -40,41 +36,85 @@ const faqs = [
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="compress-file-info">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <span id="file-name" class="compress-file-info__name"></span>
-      <span id="file-size-orig" class="compress-file-info__size"></span>
+      <div class="compress-file-info__text">
+        <span id="file-name" class="compress-file-info__name"></span>
+        <span id="file-size-orig" class="compress-file-info__size"></span>
+      </div>
       <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
   </div>
 
   <div slot="options">
-    <div id="compress-options" style="display:none;">
-      <p class="overline-text" style="margin-bottom:var(--space-3);">Compression Level</p>
-      <div class="compress-levels" role="radiogroup" aria-label="Compression level">
-        <label class="compress-level" id="level-high-label">
-          <input type="radio" name="compress-level" value="high" checked class="sr-only" />
-          <div class="compress-level__card compress-level__card--active" id="card-high">
-            <span class="compress-level__name">High</span>
-            <span class="compress-level__desc">Smallest file size. Images at lower resolution.</span>
-            <span class="badge badge-info">Best for sharing</span>
+    <div id="compress-options" style="display:none;" class="compress-options-panel">
+
+      <div class="compress-target-section" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-wrap:wrap; align-items:flex-end; gap:var(--space-4); margin-bottom:var(--space-5);">
+        <div style="flex:1; min-width:200px;">
+          <label class="compress-slider-label" for="target-size-input" style="display:block; margin-bottom:var(--space-2);">Target File Size (Optional)</label>
+          <div style="display:flex; align-items:center; gap:var(--space-2);">
+            <div style="position:relative; max-width:120px;">
+              <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" min="1" step="1" style="width:100%; padding-right:40px;" />
+              <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:.875rem; color:var(--color-ink-muted);">KB</span>
+            </div>
+            <button class="btn btn-secondary" id="auto-compress-btn">Auto-Calculate</button>
           </div>
-        </label>
-        <label class="compress-level" id="level-medium-label">
-          <input type="radio" name="compress-level" value="medium" class="sr-only" />
-          <div class="compress-level__card" id="card-medium">
-            <span class="compress-level__name">Medium</span>
-            <span class="compress-level__desc">Balanced compression. Good quality images.</span>
-            <span class="badge badge-neutral">Recommended</span>
-          </div>
-        </label>
-        <label class="compress-level" id="level-low-label">
-          <input type="radio" name="compress-level" value="low" class="sr-only" />
-          <div class="compress-level__card" id="card-low">
-            <span class="compress-level__name">Low</span>
-            <span class="compress-level__desc">Minimal compression. Near-original quality.</span>
-            <span class="badge badge-neutral">Best quality</span>
-          </div>
-        </label>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <p style="font-size: 0.8125rem; color: var(--color-ink-faint); margin: 0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Unused objects, hidden layers, and EXIF metadata are stripped first.
+          </p>
+        </div>
       </div>
+
+      <div class="compress-slider-section">
+        <div class="compress-slider-header">
+          <label class="compress-slider-label" for="compress-slider">Compression Strength</label>
+          <span class="compress-slider-pct" id="compress-pct-label">70%</span>
+        </div>
+        <div class="compress-slider-track-wrap">
+          <input type="range" id="compress-slider" min="0" max="100" value="70" step="1" class="compress-slider" aria-label="Compression strength percentage" />
+          <div class="compress-slider-marks">
+            <span>Light</span>
+            <span>Medium</span>
+            <span>Aggressive (Rasterized)</span>
+            <span>Extreme</span>
+          </div>
+        </div>
+        <p style="font-size: 0.8125rem; color: var(--color-ink-faint); margin-top: 4px;">
+          * Compression > 40% will rasterize pages into images for maximum file size reduction, removing text searchability.
+        </p>
+      </div>
+
+      <!-- Live size estimate panel -->
+      <div class="compress-preview-grid">
+        <div class="compress-preview-card">
+          <p class="compress-preview-label">Original (First Page)</p>
+          <div class="compress-preview-img-wrap">
+            <canvas id="orig-canvas" class="compress-preview-canvas"></canvas>
+          </div>
+          <div class="compress-preview-meta">
+            <span class="compress-estimate-card__size" id="original-size-display">—</span>
+          </div>
+        </div>
+        <div class="compress-preview-card">
+          <p class="compress-preview-label" style="color:var(--color-accent-green)">Compressed Preview</p>
+          <div class="compress-preview-img-wrap">
+            <canvas id="compressed-canvas" class="compress-preview-canvas"></canvas>
+          </div>
+          <div class="compress-preview-meta">
+            <span class="compress-estimate-card__size" id="estimated-size-display" style="color:var(--color-accent-green)">
+              <span class="compress-spinner" id="spinner" style="display:none;"></span>
+              <span id="est-size-text">—</span>
+            </span>
+            <span class="compress-estimate-card__savings" id="estimated-savings-display"></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="compress-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Estimates are calculated in real-time. Actual compression may vary.
+      </p>
     </div>
   </div>
 
@@ -102,16 +142,45 @@ const faqs = [
   </div>
 </ToolLayout>
 
-<style>
-  .compress-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); }
-  .compress-file-info__name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .compress-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
-  .compress-levels { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:var(--space-3); }
-  .compress-level { cursor:pointer; }
-  .compress-level__card { padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-md); display:flex; flex-direction:column; gap:var(--space-2); transition:border-color var(--duration-fast); }
-  .compress-level__card--active { border-color:var(--color-ink-primary); background:var(--color-canvas-soft); }
-  .compress-level__name { font-size:1rem; font-weight:700; color:var(--color-ink-primary); }
-  .compress-level__desc { font-size:.8125rem; color:var(--color-ink-muted); line-height:1.4; }
+<style is:global>
+  .compress-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .compress-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .compress-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .compress-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
+
+  .compress-options-panel { display:flex; flex-direction:column; gap:var(--space-5); }
+
+  .compress-slider-section { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+  .compress-slider-header { display:flex; align-items:center; justify-content:space-between; }
+  .compress-slider-label { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); }
+  .compress-slider-pct { font-size:1.5rem; font-weight:800; color:var(--color-accent-orange); font-variant-numeric:tabular-nums; min-width:4ch; text-align:right; }
+  .compress-slider-track-wrap { display:flex; flex-direction:column; gap:var(--space-2); }
+  .compress-slider { width:100%; height:6px; accent-color:var(--color-accent-orange); cursor:pointer; }
+  .compress-slider-marks { display:flex; justify-content:space-between; }
+  .compress-slider-marks span { font-size:.6875rem; color:var(--color-ink-faint); font-weight:500; }
+
+  .compress-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  @media (max-width: 600px) { .compress-preview-grid { grid-template-columns: 1fr; } }
+  .compress-preview-card { display: flex; flex-direction: column; gap: var(--space-2); padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-md); background:var(--color-canvas-soft); }
+  .compress-preview-label { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-muted); }
+  .compress-preview-img-wrap {
+    background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px;
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    height: 320px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .compress-preview-canvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow:0 0 8px rgba(0,0,0,0.1); }
+  .compress-preview-meta { display:flex; flex-direction:column; gap:2px; margin-top:var(--space-2); }
+  .compress-estimate-card__size { font-size:1.5rem; font-weight:800; color:var(--color-ink-primary); display:flex; align-items:center; gap:var(--space-2); font-variant-numeric:tabular-nums; }
+  .compress-estimate-card__savings { font-size:.8125rem; font-weight:600; color:var(--color-accent-green); }
+
+  .compress-spinner { width:20px; height:20px; border:2px solid rgba(15,123,63,0.2); border-top-color:var(--color-accent-green); border-radius:50%; animation:compress-spin 0.8s linear infinite; display:inline-block; }
+  @keyframes compress-spin { to { transform:rotate(360deg); } }
+
+  .compress-note { font-size:.8125rem; color:var(--color-ink-faint); display:flex; align-items:center; gap:var(--space-2); }
+
   .compress-actions { display:flex; align-items:center; gap:var(--space-4); }
   .compress-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
   .compress-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -122,35 +191,51 @@ const faqs = [
 
 <script>
   import { PDFDocument } from 'pdf-lib';
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
 
   let currentFile: File | null = null;
-  const dropZone = document.getElementById('drop-zone') as HTMLElement;
-  const fileInput = document.getElementById('file-input') as HTMLInputElement;
-  const fileInfo = document.getElementById('file-info') as HTMLElement;
-  const fileNameEl = document.getElementById('file-name') as HTMLElement;
-  const fileSizeEl = document.getElementById('file-size-orig') as HTMLElement;
-  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  let originalBuf: ArrayBuffer | null = null;
+  let estimateTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const dropZone        = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput       = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo        = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl      = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl      = document.getElementById('file-size-orig') as HTMLElement;
+  const removeBtn       = document.getElementById('remove-file') as HTMLButtonElement;
   const compressOptions = document.getElementById('compress-options') as HTMLElement;
   const compressActions = document.getElementById('compress-actions') as HTMLElement;
-  const compressBtn = document.getElementById('compress-btn') as HTMLButtonElement;
-  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-  const compressResult = document.getElementById('compress-result') as HTMLElement;
-  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
-  const savingsText = document.getElementById('savings-text') as HTMLElement;
-  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
-  const progressEl = document.getElementById('tool-progress') as HTMLElement;
-  const progressFill = document.getElementById('progress-fill') as HTMLElement;
-  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+  const compressBtn     = document.getElementById('compress-btn') as HTMLButtonElement;
+  const clearBtn        = document.getElementById('clear-btn') as HTMLButtonElement;
+  const compressResult  = document.getElementById('compress-result') as HTMLElement;
+  const downloadBtn     = document.getElementById('download-btn') as HTMLAnchorElement;
+  const savingsText     = document.getElementById('savings-text') as HTMLElement;
+  const restartBtn      = document.getElementById('restart-btn') as HTMLButtonElement;
+  const progressEl      = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill    = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel   = document.getElementById('progress-label') as HTMLElement;
 
-  // Radio card highlight
-  document.querySelectorAll('input[name="compress-level"]').forEach(r => {
-    r.addEventListener('change', () => {
-      document.querySelectorAll('.compress-level__card').forEach(c => c.classList.remove('compress-level__card--active'));
-      const card = (r.closest('.compress-level') as HTMLElement)?.querySelector('.compress-level__card');
-      card?.classList.add('compress-level__card--active');
-    });
-  });
+  const slider          = document.getElementById('compress-slider') as HTMLInputElement;
+  const pctLabel        = document.getElementById('compress-pct-label') as HTMLElement;
+  const origSizeDisplay = document.getElementById('original-size-display') as HTMLElement;
+  const estSizeText     = document.getElementById('est-size-text') as HTMLElement;
+  const estSavingsDisplay= document.getElementById('estimated-savings-display') as HTMLElement;
+  const spinner         = document.getElementById('spinner') as HTMLElement;
 
+  const targetSizeInput = document.getElementById('target-size-input') as HTMLInputElement;
+  const autoCompressBtn = document.getElementById('auto-compress-btn') as HTMLButtonElement;
+
+  const origCanvas      = document.getElementById('orig-canvas') as HTMLCanvasElement;
+  const compCanvas      = document.getElementById('compressed-canvas') as HTMLCanvasElement;
+  let pdfJsDocGlobal: any = null;
+
+  function fmt(b: number) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+
+  // ── Upload ───────────────────────────────────────────────
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
@@ -158,68 +243,306 @@ const faqs = [
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
   fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
 
-  function load(f: File) {
+  async function load(f: File) {
     currentFile = f;
     fileNameEl.textContent = f.name;
     fileSizeEl.textContent = fmt(f.size);
     fileInfo.style.display = 'flex';
     dropZone.style.display = 'none';
-    compressOptions.style.display = 'block';
+    compressOptions.style.display = 'flex';
     compressActions.style.display = 'flex';
     compressResult.style.display = 'none';
+    origSizeDisplay.textContent = fmt(f.size);
+    showSpinner();
+    originalBuf = await f.arrayBuffer();
+    
+    // Render first page to origCanvas
+    try {
+      const pdfjs = await loadPdfJs();
+      pdfJsDocGlobal = await getPdfDoc(pdfjs, originalBuf);
+      const { canvas } = await renderPageToCanvas(pdfJsDocGlobal, 1, 1.5);
+      origCanvas.width = canvas.width;
+      origCanvas.height = canvas.height;
+      origCanvas.getContext('2d')!.drawImage(canvas, 0, 0);
+    } catch(e) { console.error("Error rendering original preview", e); }
+    
+    runEstimate();
   }
 
-  function fmt(b: number) { if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
-
-  compressBtn.addEventListener('click', async () => {
-    if (!currentFile) return;
-    const level = (document.querySelector('input[name="compress-level"]:checked') as HTMLInputElement).value;
-    // Quality mapping: high=0.5 (most compression), medium=0.7, low=0.9
-    compressBtn.disabled = true;
-    progressEl.setAttribute('aria-hidden','false');
-    progressFill.style.width = '30%';
-    progressLabel.textContent = 'Loading PDF…';
-
-    const buf = await currentFile.arrayBuffer();
-    progressFill.style.width = '60%';
-    progressLabel.textContent = 'Removing metadata…';
-
-    // Load and re-save — pdf-lib re-saves without metadata cruft, which reduces size
-    const pdf = await PDFDocument.load(buf, { updateMetadata: false });
-    pdf.setTitle('');
-    pdf.setAuthor('');
-    pdf.setSubject('');
-    pdf.setKeywords([]);
-    pdf.setProducer('');
-    pdf.setCreator('');
-
-    progressFill.style.width = '85%';
-    progressLabel.textContent = 'Compressing…';
-
-    const useObjStream = level !== 'low';
-    const outBytes = await pdf.save({ useObjectStreams: useObjStream });
-    progressFill.style.width = '100%';
-    progressLabel.textContent = 'Done!';
-
-    const origSize = currentFile.size;
-    const newSize = outBytes.byteLength;
-    const savedPct = Math.max(0, Math.round((1 - newSize / origSize) * 100));
-
-    setTimeout(() => {
-      progressEl.setAttribute('aria-hidden','true');
-      progressFill.style.width = '0%';
-    }, 400);
-
-    const blob = new Blob([outBytes], { type: 'application/pdf' });
-    downloadBtn.href = URL.createObjectURL(blob);
-    downloadBtn.download = `compressed-${currentFile.name}`;
-    savingsText.textContent = `${fmt(origSize)} → ${fmt(newSize)} · ${savedPct}% smaller`;
-    compressResult.style.display = 'flex';
-    compressActions.style.display = 'none';
-    compressBtn.disabled = false;
+  // ── Slider ───────────────────────────────────────────────
+  slider.addEventListener('input', () => {
+    const v = slider.value;
+    pctLabel.textContent = v + '%';
+    showSpinner();
+    if (estimateTimer) clearTimeout(estimateTimer);
+    estimateTimer = setTimeout(runEstimate, 300);
   });
 
-  function reset() { currentFile=null; dropZone.style.display='flex'; fileInfo.style.display='none'; compressOptions.style.display='none'; compressActions.style.display='none'; compressResult.style.display='none'; }
+  function showSpinner() {
+    spinner.style.display = 'inline-block';
+    estSizeText.textContent = '...';
+    estSavingsDisplay.textContent = '';
+  }
+
+  // Helper to calculate params based on strength 0-100
+  // Strength > 40 means rasterize
+  function getCompressionParams(strength: number) {
+    let rasterize = strength > 40;
+    let scale = 1.5;
+    let quality = 0.8;
+    
+    if (rasterize) {
+        if (strength > 90) {
+            // Extreme compression
+            const factor = (strength - 90) / 10; // 0 to 1
+            scale = 0.8 - (factor * 0.4); // drops down to 0.4
+            quality = 0.3 - (factor * 0.2); // drops down to 0.1
+        } else {
+            // Map 41-90 to scale (1.5 -> 0.8) and quality (0.7 -> 0.3)
+            const factor = (strength - 40) / 50; // 0 to 1
+            scale = 1.5 - (factor * 0.7); // min 0.8 scale (~57 DPI)
+            quality = 0.7 - (factor * 0.4); // min 0.3 quality
+        }
+    }
+    
+    return { rasterize, scale, quality };
+  }
+
+  async function runEstimate() {
+    if (!originalBuf || !currentFile) return;
+    const strength = Number(slider.value); 
+    const params = getCompressionParams(strength);
+
+    try {
+      let newSize = 0;
+      
+      if (!params.rasterize) {
+        // Lossless logic (like before)
+        const buf = originalBuf.slice(0);
+        const useObjectStreams = true;
+        const pdf = await PDFDocument.load(buf, { updateMetadata: false });
+        pdf.setTitle(''); pdf.setAuthor(''); pdf.setSubject(''); pdf.setKeywords([]); pdf.setProducer(''); pdf.setCreator('');
+        const outBytes = await pdf.save({ useObjectStreams });
+        newSize = outBytes.byteLength;
+        
+        // Draw lossless preview (identical to orig)
+        compCanvas.width = origCanvas.width;
+        compCanvas.height = origCanvas.height;
+        compCanvas.getContext('2d')!.drawImage(origCanvas, 0, 0);
+        
+      } else {
+        // Rasterization estimate: render page 1, multiply by numPages
+        if (!pdfJsDocGlobal) {
+          const pdfjs = await loadPdfJs();
+          pdfJsDocGlobal = await getPdfDoc(pdfjs, originalBuf);
+        }
+        const numPages = pdfJsDocGlobal.numPages;
+        
+        const { canvas } = await renderPageToCanvas(pdfJsDocGlobal, 1, params.scale);
+        const dataUrl = canvas.toDataURL('image/jpeg', params.quality);
+        const base64Len = dataUrl.length - dataUrl.indexOf(',') - 1;
+        const byteLen = Math.ceil(base64Len * 0.75);
+        
+        newSize = byteLen * numPages;
+        newSize += numPages * 500 + 1024;
+        
+        // Draw degraded preview
+        const img = new Image();
+        img.onload = () => {
+          compCanvas.width = img.width;
+          compCanvas.height = img.height;
+          compCanvas.getContext('2d')!.drawImage(img, 0, 0);
+        };
+        img.src = dataUrl;
+      }
+      
+      const origSize = currentFile.size;
+      const savedPct = Math.max(0, Math.round((1 - newSize / origSize) * 100));
+
+      spinner.style.display = 'none';
+      estSizeText.textContent = fmt(newSize);
+      if (savedPct > 0) {
+        estSavingsDisplay.textContent = `${savedPct}% smaller`;
+        estSavingsDisplay.style.color = 'var(--color-accent-green)';
+      } else if (newSize > origSize) {
+        const pctBigger = Math.round((newSize / origSize - 1) * 100);
+        estSavingsDisplay.textContent = `${pctBigger}% larger`;
+        estSavingsDisplay.style.color = 'var(--color-ink-faint)';
+      } else {
+        estSavingsDisplay.textContent = 'Minimal reduction';
+        estSavingsDisplay.style.color = 'var(--color-ink-faint)';
+      }
+    } catch(e) {
+      spinner.style.display = 'none';
+      estSizeText.textContent = '—';
+      estSavingsDisplay.textContent = 'Estimate unavailable';
+    }
+  }
+  
+  // ── Auto Calculate ───────────────────────────────────────
+  autoCompressBtn.addEventListener('click', async () => {
+    if (!currentFile || !originalBuf) return;
+    const targetKB = Number(targetSizeInput.value);
+    if (!targetKB || targetKB <= 0) return;
+    
+    autoCompressBtn.disabled = true;
+    const originalText = autoCompressBtn.textContent;
+    autoCompressBtn.textContent = 'Calculating...';
+    
+    const targetBytes = targetKB * 1024;
+    const origSize = currentFile.size;
+    
+    if (origSize <= targetBytes) {
+      slider.value = "0"; // Lightest compression
+      pctLabel.textContent = '0%';
+      runEstimate();
+      autoCompressBtn.textContent = originalText;
+      autoCompressBtn.disabled = false;
+      return;
+    }
+    
+    // Quick test points
+    const testPoints = [0, 40, 60, 80, 95, 100];
+    let bestStrength = 100;
+    
+    // Simple linear scan of key points for speed, rather than full rendering binary search (which is slow for PDF)
+    // In a real app we'd just estimate mathematically based on the first page, which is what runEstimate does!
+    // So we can just use the same logic as runEstimate without the canvas drawing part to find the strength.
+    
+    if (!pdfJsDocGlobal) {
+       const pdfjs = await loadPdfJs();
+       pdfJsDocGlobal = await getPdfDoc(pdfjs, originalBuf);
+    }
+    
+    let found = false;
+    for (let strength = 45; strength <= 100; strength += 5) {
+       const params = getCompressionParams(strength);
+       const { canvas } = await renderPageToCanvas(pdfJsDocGlobal, 1, params.scale);
+       const dataUrl = canvas.toDataURL('image/jpeg', params.quality);
+       const base64Len = dataUrl.length - dataUrl.indexOf(',') - 1;
+       const byteLen = Math.ceil(base64Len * 0.75);
+       const estSize = (byteLen * pdfJsDocGlobal.numPages) + (pdfJsDocGlobal.numPages * 500) + 1024;
+       
+       if (estSize <= targetBytes) {
+         bestStrength = strength;
+         found = true;
+         break;
+       }
+    }
+    
+    slider.value = String(bestStrength);
+    pctLabel.textContent = bestStrength + '%';
+    
+    if (!found) {
+       (window as any).showToast('Target size could not be reached. Showing lowest possible size.', 'error');
+    }
+    
+    runEstimate(); // update preview
+    autoCompressBtn.textContent = originalText;
+    autoCompressBtn.disabled = false;
+  });
+
+  // ── Compress ─────────────────────────────────────────────
+  compressBtn.addEventListener('click', async () => {
+    if (!currentFile || !originalBuf) return;
+    const strength = Number(slider.value);
+    const params = getCompressionParams(strength);
+
+    compressBtn.disabled = true;
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width = '10%';
+    progressLabel.textContent = 'Preparing…';
+
+    try {
+      let outBytes: Uint8Array;
+      
+      if (!params.rasterize) {
+          progressFill.style.width = '60%';
+          progressLabel.textContent = 'Compressing lossless…';
+          const buf = originalBuf.slice(0);
+          const pdf = await PDFDocument.load(buf, { updateMetadata: false });
+          pdf.setTitle(''); pdf.setAuthor(''); pdf.setSubject(''); pdf.setKeywords([]); pdf.setProducer(''); pdf.setCreator('');
+          outBytes = await pdf.save({ useObjectStreams: true });
+      } else {
+          // Full Rasterization compression
+          progressLabel.textContent = 'Loading PDF.js…';
+          const pdfjs = await loadPdfJs();
+          const pdfJsDoc = await getPdfDoc(pdfjs, originalBuf);
+          const numPages = pdfJsDoc.numPages;
+          
+          const newPdf = await PDFDocument.create();
+          
+          for(let i=1; i<=numPages; i++) {
+              progressFill.style.width = `${10 + Math.round((i/numPages)*80)}%`;
+              progressLabel.textContent = `Compressing page ${i} of ${numPages}…`;
+              
+              const { canvas } = await renderPageToCanvas(pdfJsDoc, i, params.scale);
+              const dataUrl = canvas.toDataURL('image/jpeg', params.quality);
+              
+              const imgBytes = Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0));
+              const img = await newPdf.embedJpg(imgBytes);
+              
+              // Original page dimensions from PDF.js
+              const page = await pdfJsDoc.getPage(i);
+              const vp = page.getViewport({ scale: 1 });
+              
+              const newPage = newPdf.addPage([vp.width, vp.height]);
+              newPage.drawImage(img, {
+                  x: 0,
+                  y: 0,
+                  width: vp.width,
+                  height: vp.height
+              });
+          }
+          
+          progressFill.style.width = '95%';
+          progressLabel.textContent = 'Saving PDF…';
+          outBytes = await newPdf.save();
+      }
+
+      progressFill.style.width = '100%';
+      progressLabel.textContent = 'Done!';
+
+      setTimeout(() => { progressEl.setAttribute('aria-hidden','true'); progressFill.style.width = '0%'; }, 400);
+
+      const origSize = currentFile.size;
+      const newSize = outBytes.byteLength;
+      const savedPct = Math.max(0, Math.round((1 - newSize / origSize) * 100));
+
+      const blob = new Blob([outBytes], { type: 'application/pdf' });
+      downloadBtn.href = URL.createObjectURL(blob);
+      downloadBtn.download = `compressed-${currentFile.name}`;
+      savingsText.textContent = `${fmt(origSize)} → ${fmt(newSize)} · ${savedPct > 0 ? savedPct + '% smaller' : 'no reduction'}`;
+      compressResult.style.display = 'flex';
+      compressActions.style.display = 'none';
+      compressBtn.disabled = false;
+    } catch(e) {
+      console.error(e);
+      (window as any).showToast('Error during compression.', 'error');
+      compressBtn.disabled = false;
+      progressEl.setAttribute('aria-hidden','true');
+    }
+  });
+
+  function reset() {
+    currentFile = null;
+    originalBuf = null;
+    dropZone.style.display = 'flex';
+    fileInfo.style.display = 'none';
+    compressOptions.style.display = 'none';
+    compressActions.style.display = 'none';
+    compressResult.style.display = 'none';
+    slider.value = '70';
+    pctLabel.textContent = '70%';
+    origSizeDisplay.textContent = '—';
+    spinner.style.display = 'inline-block';
+    estSizeText.textContent = '...';
+    estSavingsDisplay.textContent = '';
+    
+    // clear canvases
+    origCanvas.getContext('2d')?.clearRect(0,0,origCanvas.width,origCanvas.height);
+    compCanvas.getContext('2d')?.clearRect(0,0,compCanvas.width,compCanvas.height);
+  }
   clearBtn.addEventListener('click', reset);
   restartBtn.addEventListener('click', reset);
   removeBtn.addEventListener('click', reset);

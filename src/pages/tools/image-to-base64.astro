@@ -1,0 +1,156 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataTools } from '../../data/seo-tools';
+
+const howToSteps = [
+  { name: "Upload your image", text: "Drop or click to select any JPG, PNG, SVG, WebP, or GIF image." },
+  { name: "Copy the Base64 string", text: "The Data URI is generated instantly. Click any section to copy it to your clipboard." },
+  { name: "Use in your HTML or CSS", text: "Paste the Data URI string directly into an <img src> tag or CSS background-image url()." },
+];
+---
+
+<ToolLayout
+  title="Image to Base64 Online Free — Generate Data URI for HTML & CSS"
+  description="Convert any image to a Base64 Data URI string for embedding in HTML or CSS. Free, private, instant — processed entirely in your browser."
+  canonicalPath="/tools/image-to-base64"
+  toolName="Image to Base64"
+  toolTagline="Generate Base64 Data URIs for embedding images in HTML and CSS. Free, private, instant."
+  category="utility"
+  categoryLabel="Smart Utilities"
+  categoryHref="/#category-tools"
+  acceptedFormats="JPG, PNG, WebP, SVG, GIF · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataTools["image-to-base64"].keywords}
+  faqs={seoDataTools["image-to-base64"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an image here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span class="drop-zone__text">Drop an image here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP, SVG, GIF · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/*" class="sr-only" aria-label="Select image" />
+    </div>
+  </div>
+
+  <div slot="result">
+    <div id="b64-result" style="display:none;">
+      <!-- Preview -->
+      <div class="b64-preview-row">
+        <div class="b64-thumb-wrap">
+          <img id="b64-preview" alt="Uploaded image preview" class="b64-thumb" />
+        </div>
+        <div class="b64-file-meta" id="b64-file-meta"></div>
+      </div>
+
+      <!-- Code output -->
+      <div class="b64-code-section">
+        <div class="b64-code-header">
+          <p class="overline-text">Base64 Data URI</p>
+          <div style="display:flex;gap:var(--space-2);">
+            <button class="btn btn-ghost btn-sm" id="copy-full">Copy Full URI</button>
+            <button class="btn btn-ghost btn-sm" id="copy-raw">Copy Raw Base64</button>
+          </div>
+        </div>
+        <textarea id="b64-output" class="svg-textarea svg-textarea--output" readonly rows="6" aria-label="Base64 Data URI"></textarea>
+      </div>
+
+      <!-- Usage snippets -->
+      <div class="b64-snippets">
+        <p class="overline-text" style="margin-bottom:var(--space-3);">Usage Examples</p>
+        <div class="b64-snippet-tabs">
+          <button class="ratio-btn ratio-btn--active" id="tab-html" data-tab="html">HTML img</button>
+          <button class="ratio-btn" id="tab-css" data-tab="css">CSS background</button>
+        </div>
+        <div class="b64-snippet-code">
+          <pre id="snippet-html" class="b64-pre"><code id="snippet-html-code"></code></pre>
+          <pre id="snippet-css" class="b64-pre" style="display:none;"><code id="snippet-css-code"></code></pre>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="copy-snippet">Copy Snippet</button>
+      </div>
+
+      <button class="btn btn-ghost btn-sm" id="reset-btn" style="margin-top:var(--space-4);">Convert another image</button>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<style is:global>
+  .b64-preview-row { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; margin-bottom: var(--space-5); }
+  .b64-thumb-wrap { flex-shrink: 0; background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border-hairline); overflow: hidden; }
+  .b64-thumb { display: block; width: 100px; height: 100px; object-fit: contain; }
+  .b64-file-meta { font-size: 0.875rem; color: var(--color-ink-muted); display: flex; flex-direction: column; gap: 4px; }
+  .b64-code-section { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-5); }
+  .b64-code-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); }
+  .b64-snippets { display: flex; flex-direction: column; gap: var(--space-3); }
+  .b64-snippet-tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .b64-pre { background: var(--color-canvas-soft); border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); padding: var(--space-4); overflow-x: auto; margin: 0; }
+  .b64-pre code { font-size: 0.8125rem; font-family: var(--font-mono, monospace); color: var(--color-ink-secondary); white-space: pre-wrap; word-break: break-all; }
+</style>
+
+<script>
+  let dataUri = '';
+  let rawBase64 = '';
+
+  const dropZone = document.getElementById('drop-zone') as HTMLDivElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const result = document.getElementById('b64-result') as HTMLDivElement;
+  const preview = document.getElementById('b64-preview') as HTMLImageElement;
+  const fileMeta = document.getElementById('b64-file-meta') as HTMLDivElement;
+  const output = document.getElementById('b64-output') as HTMLTextAreaElement;
+  const htmlCode = document.getElementById('snippet-html-code') as HTMLElement;
+  const cssCode = document.getElementById('snippet-css-code') as HTMLElement;
+  const copySnippetBtn = document.getElementById('copy-snippet') as HTMLButtonElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f = e.dataTransfer?.files[0]; if (f && f.type.startsWith('image/')) loadFile(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) loadFile(fileInput.files[0]); fileInput.value = ''; });
+
+  function loadFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      dataUri = e.target?.result as string;
+      rawBase64 = dataUri.split(',')[1] || '';
+      preview.src = dataUri;
+      fileMeta.innerHTML = `<strong>${file.name}</strong><span>${(file.size / 1024).toFixed(1)} KB original</span><span>${(dataUri.length / 1024).toFixed(1)} KB as Base64</span>`;
+      output.value = dataUri;
+      htmlCode.textContent = `<img src="${dataUri.substring(0, 80)}..." alt="Image" />`;
+      cssCode.textContent = `.element {\n  background-image: url("${dataUri.substring(0, 60)}...");\n}`;
+      result.style.display = 'block';
+      dropZone.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function copy(text: string, btn: HTMLButtonElement) {
+    await navigator.clipboard.writeText(text);
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }
+
+  document.getElementById('copy-full')!.addEventListener('click', () => copy(dataUri, document.getElementById('copy-full') as HTMLButtonElement));
+  document.getElementById('copy-raw')!.addEventListener('click', () => copy(rawBase64, document.getElementById('copy-raw') as HTMLButtonElement));
+
+  // Tabs
+  let activeTab = 'html';
+  document.getElementById('tab-html')!.addEventListener('click', () => switchTab('html'));
+  document.getElementById('tab-css')!.addEventListener('click', () => switchTab('css'));
+  function switchTab(tab: string) {
+    activeTab = tab;
+    document.getElementById('tab-html')!.classList.toggle('ratio-btn--active', tab === 'html');
+    document.getElementById('tab-css')!.classList.toggle('ratio-btn--active', tab === 'css');
+    document.getElementById('snippet-html')!.style.display = tab === 'html' ? 'block' : 'none';
+    document.getElementById('snippet-css')!.style.display = tab === 'css' ? 'block' : 'none';
+  }
+
+  copySnippetBtn.addEventListener('click', () => {
+    const code = activeTab === 'html' ? `<img src="${dataUri}" alt="Image" />` : `.element {\n  background-image: url("${dataUri}");\n}`;
+    copy(code, copySnippetBtn);
+  });
+
+  document.getElementById('reset-btn')!.addEventListener('click', () => { result.style.display = 'none'; dropZone.style.display = ''; dataUri = ''; rawBase64 = ''; });
+</script>

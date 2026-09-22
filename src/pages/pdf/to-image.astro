@@ -1,38 +1,26 @@
----
+﻿---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 const howToSteps = [
   { name: "Upload your PDF", text: "Drop or select the PDF whose pages you want to export as images." },
   { name: "Choose format and quality", text: "Pick JPG (smaller files, great for photos) or PNG (lossless, best for text/diagrams). Adjust DPI for resolution." },
-  { name: "Convert and Download", text: "Click 'Convert to Images'. Each page is rendered and exported. Download individually or all at once." },
-];
-const faqs = [
-  {
-    question: "How to convert PDF pages into high-resolution JPG or PNG images?",
-    answer: "Drop your PDF into the converter, select your preferred format (JPG or PNG) and resolution (300 DPI for print quality), and click 'Convert to Images'. Each page downloads as a separate image file — all processed in your browser."
-  },
-  {
-    question: "How to convert image to PDF on an iPhone or Android device?",
-    answer: "Open this page in your mobile browser, drop your PDF, select JPG or PNG and your quality setting, and download the images directly to your device's gallery. No app download needed."
-  },
-  {
-    question: "What DPI should I choose for the best quality?",
-    answer: "Choose 300 DPI for print-ready quality (ideal for professional documents). 150 DPI is great for standard digital use, and 96 DPI produces the smallest files for screen viewing or web use."
-  },
+  { name: "Convert and Download", text: "Pages appear in real-time as they convert. Download each page individually or all as a ZIP." },
 ];
 ---
 
 <ToolLayout
   title="PDF to Image Converter — Convert PDF to JPG or PNG Free Online (High Quality)"
-  description="Convert PDF pages to high-quality JPG or PNG images. Choose 300 DPI for print quality. Works on mobile. Free, private, instant — runs in your browser."
+  description="Convert PDF pages to high-quality JPG or PNG images. Pages appear live as they render. Choose 300 DPI for print quality. Free, private, instant — runs in your browser."
   canonicalPath="/pdf/to-image"
   toolName="PDF to Image"
-  toolTagline="Convert every PDF page to JPG or PNG — up to 300 DPI quality, free, mobile-friendly."
+  toolTagline="Convert every PDF page to JPG or PNG — pages appear live as they render, up to 300 DPI, free."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
   acceptedFormats="One PDF file · No size limit"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf['to-image'].keywords}
+  faqs={seoDataPdf['to-image'].faqs}
 >
   <div slot="drop-zone">
     <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
@@ -42,25 +30,28 @@ const faqs = [
       <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
     </div>
   </div>
+
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="ti-file-info">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span id="file-name" class="ti-file-name"></span>
+      <span id="file-meta" class="ti-file-meta"></span>
       <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
   </div>
+
   <div slot="options">
     <div id="ti-options" style="display:none;" class="ti-options">
       <div class="ti-row">
-        <label class="ti-label" for="ti-format">Output Format</label>
+        <label class="ti-label">Output Format</label>
         <div class="ti-radio-group" role="radiogroup">
-          <label class="ti-radio"><input type="radio" name="ti-format" value="jpeg" checked /> JPG (smaller)</label>
+          <label class="ti-radio"><input type="radio" name="ti-format" value="jpeg" checked /> JPG (smaller file)</label>
           <label class="ti-radio"><input type="radio" name="ti-format" value="png" /> PNG (lossless)</label>
         </div>
       </div>
       <div class="ti-row">
-        <label class="ti-label" for="ti-dpi">Resolution</label>
-        <select id="ti-dpi" class="input" style="max-width:200px;">
+        <label class="ti-label" for="ti-dpi">Resolution / Quality</label>
+        <select id="ti-dpi" class="input" style="max-width:220px;">
           <option value="1">96 DPI — Screen</option>
           <option value="1.5625" selected>150 DPI — Standard</option>
           <option value="3.125">300 DPI — Print Quality</option>
@@ -68,6 +59,7 @@ const faqs = [
       </div>
     </div>
   </div>
+
   <div slot="actions" style="display:none;" id="ti-actions" class="ti-actions">
     <button class="btn btn-primary btn-lg" id="convert-btn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -75,53 +67,70 @@ const faqs = [
     </button>
     <button class="btn btn-ghost" id="clear-btn">Clear</button>
   </div>
+
   <div slot="result">
-    <div id="ti-result" style="display:none;" aria-live="assertive">
-      <p class="ti-result-title" id="result-title"></p>
+    <div id="ti-result" style="display:none;" aria-live="polite">
+      <div class="ti-result-header">
+        <p class="ti-result-title" id="result-title"></p>
+        <a id="download-all-btn" class="btn btn-accent btn-sm" style="display:none;" download>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download All (ZIP)
+        </a>
+      </div>
       <div id="image-grid" class="ti-image-grid"></div>
-      <button class="btn btn-ghost btn-sm" id="restart-btn" style="margin-top:var(--space-4);">Convert another PDF</button>
+      <button class="btn btn-ghost btn-sm" id="restart-btn" style="margin-top:var(--space-5);">Convert another PDF</button>
     </div>
   </div>
 </ToolLayout>
 
-<style>
-  .ti-file-info{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-canvas-soft);border:1px solid var(--color-border-hairline);border-radius:var(--radius-md);}
-  .ti-file-name{flex:1;font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .ti-options{display:flex;flex-direction:column;gap:var(--space-5);}
-  .ti-row{display:flex;flex-direction:column;gap:var(--space-2);}
-  .ti-label{font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);}
-  .ti-radio-group{display:flex;gap:var(--space-5);}
-  .ti-radio{display:flex;align-items:center;gap:var(--space-2);font-size:.9375rem;color:var(--color-ink-secondary);cursor:pointer;}
-  .ti-actions{display:flex;align-items:center;gap:var(--space-4);}
-  .ti-result-title{font-size:1rem;font-weight:600;color:var(--color-ink-primary);margin-bottom:var(--space-4);}
-  .ti-image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-4);}
-  .ti-image-card{display:flex;flex-direction:column;gap:var(--space-2);}
-  .ti-image-thumb{border:1px solid var(--color-border-hairline);border-radius:var(--radius-md);overflow:hidden;background:var(--color-canvas-soft);}
-  .ti-image-thumb img{display:block;width:100%;height:auto;}
-  .ti-image-card a{display:block;text-align:center;}
+<style is:global>
+  .ti-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .ti-file-name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ti-file-meta { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
+  .ti-options { display:flex; flex-direction:column; gap:var(--space-5); }
+  .ti-row { display:flex; flex-direction:column; gap:var(--space-2); }
+  .ti-label { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); }
+  .ti-radio-group { display:flex; gap:var(--space-5); flex-wrap:wrap; }
+  .ti-radio { display:flex; align-items:center; gap:var(--space-2); font-size:.9375rem; color:var(--color-ink-secondary); cursor:pointer; }
+  .ti-actions { display:flex; align-items:center; gap:var(--space-4); }
+  .ti-result-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3); margin-bottom:var(--space-5); }
+  .ti-result-title { font-size:1rem; font-weight:600; color:var(--color-ink-primary); }
+  .ti-image-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:var(--space-5); }
+  .ti-image-card { display:flex; flex-direction:column; gap:0; background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); overflow:hidden; transition:box-shadow var(--duration-fast),transform var(--duration-fast); }
+  .ti-image-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+  .ti-image-thumb { background:#fff; overflow:hidden; position:relative; }
+  .ti-image-thumb img { display:block; width:100%; height:auto; }
+  .ti-image-card-footer { display:flex; align-items:center; justify-content:space-between; padding:var(--space-3) var(--space-4); background:var(--color-canvas-base); border-top:1px solid var(--color-border-hairline); }
+  .ti-page-label { font-size:.8125rem; font-weight:600; color:var(--color-ink-muted); }
+  /* Skeleton loading card */
+  .ti-image-card--loading .ti-image-thumb { aspect-ratio:1/1.414; display:flex; align-items:center; justify-content:center; }
+  .ti-card-spinner { width:28px; height:28px; border:3px solid rgba(207,69,0,0.15); border-top-color:var(--color-accent-orange); border-radius:50%; animation:ti-spin 0.8s linear infinite; }
+  @keyframes ti-spin { to { transform:rotate(360deg); } }
 </style>
 
 <script>
-  // PDF to Image using PDF.js (loaded from CDN) + Canvas API
   let currentFile: File | null = null;
+  let allDataUrls: { url: string; filename: string }[] = [];
 
-  const dropZone = document.getElementById('drop-zone') as HTMLElement;
-  const fileInput = document.getElementById('file-input') as HTMLInputElement;
-  const fileInfo = document.getElementById('file-info') as HTMLElement;
-  const fileNameEl = document.getElementById('file-name') as HTMLElement;
-  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
-  const tiOptions = document.getElementById('ti-options') as HTMLElement;
-  const tiActions = document.getElementById('ti-actions') as HTMLElement;
-  const convertBtn = document.getElementById('convert-btn') as HTMLButtonElement;
-  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-  const tiResult = document.getElementById('ti-result') as HTMLElement;
-  const imageGrid = document.getElementById('image-grid') as HTMLElement;
+  const dropZone    = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput   = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo    = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl  = document.getElementById('file-name') as HTMLElement;
+  const fileMetaEl  = document.getElementById('file-meta') as HTMLElement;
+  const removeBtn   = document.getElementById('remove-file') as HTMLButtonElement;
+  const tiOptions   = document.getElementById('ti-options') as HTMLElement;
+  const tiActions   = document.getElementById('ti-actions') as HTMLElement;
+  const convertBtn  = document.getElementById('convert-btn') as HTMLButtonElement;
+  const clearBtn    = document.getElementById('clear-btn') as HTMLButtonElement;
+  const tiResult    = document.getElementById('ti-result') as HTMLElement;
+  const imageGrid   = document.getElementById('image-grid') as HTMLElement;
   const resultTitle = document.getElementById('result-title') as HTMLElement;
-  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
-  const dpiSelect = document.getElementById('ti-dpi') as HTMLSelectElement;
-  const progressEl = document.getElementById('tool-progress') as HTMLElement;
-  const progressFill = document.getElementById('progress-fill') as HTMLElement;
-  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+  const restartBtn  = document.getElementById('restart-btn') as HTMLButtonElement;
+  const dlAllBtn    = document.getElementById('download-all-btn') as HTMLAnchorElement;
+  const dpiSelect   = document.getElementById('ti-dpi') as HTMLSelectElement;
+  const progressEl  = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill= document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel= document.getElementById('progress-label') as HTMLElement;
 
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
@@ -130,19 +139,33 @@ const faqs = [
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
   fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
 
-  function load(f: File) { currentFile=f; fileNameEl.textContent=f.name; fileInfo.style.display='flex'; dropZone.style.display='none'; tiOptions.style.display='flex'; tiActions.style.display='flex'; tiResult.style.display='none'; }
+  function fmtSize(b: number) { if(b<1024) return b+' B'; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+
+  function load(f: File) {
+    currentFile = f;
+    fileNameEl.textContent = f.name;
+    fileMetaEl.textContent = fmtSize(f.size);
+    fileInfo.style.display = 'flex';
+    dropZone.style.display = 'none';
+    tiOptions.style.display = 'flex';
+    tiActions.style.display = 'flex';
+    tiResult.style.display = 'none';
+    allDataUrls = [];
+    imageGrid.innerHTML = '';
+  }
 
   convertBtn.addEventListener('click', async () => {
     if (!currentFile) return;
     convertBtn.disabled = true;
+    allDataUrls = [];
     const format = (document.querySelector('input[name="ti-format"]:checked') as HTMLInputElement).value;
     const scale = parseFloat(dpiSelect.value);
     const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
     const ext = format === 'png' ? 'png' : 'jpg';
 
     progressEl.setAttribute('aria-hidden','false');
-    progressFill.style.width='20%';
-    progressLabel.textContent='Loading PDF.js…';
+    progressFill.style.width = '15%';
+    progressLabel.textContent = 'Loading PDF.js…';
 
     // Dynamically load PDF.js from CDN
     if (!(window as any).pdfjsLib) {
@@ -157,18 +180,43 @@ const faqs = [
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
 
-    progressFill.style.width='40%';
-    progressLabel.textContent='Loading PDF…';
+    progressFill.style.width = '30%';
+    progressLabel.textContent = 'Loading PDF…';
     const pdfjsLib = (window as any).pdfjsLib;
     const arrayBuffer = await currentFile.arrayBuffer();
     const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const numPages = pdfDoc.numPages;
+    const baseName = currentFile.name.replace(/\.pdf$/i, '');
 
+    // Show result section immediately with skeleton cards
     imageGrid.innerHTML = '';
-    const baseName = currentFile.name.replace(/\.pdf$/i,'');
+    resultTitle.textContent = `Converting ${numPages} page${numPages!==1?'s':''}…`;
+    tiResult.style.display = 'block';
+    tiActions.style.display = 'none';
+    dlAllBtn.style.display = 'none';
 
+    // Pre-build skeleton cards for all pages
+    const cardEls: HTMLElement[] = [];
     for (let i = 1; i <= numPages; i++) {
-      progressFill.style.width = `${40 + Math.round((i / numPages) * 55)}%`;
+      const card = document.createElement('div');
+      card.className = 'ti-image-card ti-image-card--loading';
+      card.id = `ti-card-${i}`;
+      card.innerHTML = `
+        <div class="ti-image-thumb">
+          <div class="ti-card-spinner"></div>
+        </div>
+        <div class="ti-image-card-footer">
+          <span class="ti-page-label">Page ${i} — rendering…</span>
+        </div>
+      `;
+      imageGrid.appendChild(card);
+      cardEls.push(card);
+    }
+
+    // Convert pages one by one — each appears as it completes
+    for (let i = 1; i <= numPages; i++) {
+      const pct = 30 + Math.round((i / numPages) * 65);
+      progressFill.style.width = `${pct}%`;
       progressLabel.textContent = `Rendering page ${i} of ${numPages}…`;
 
       const page = await pdfDoc.getPage(i);
@@ -181,26 +229,80 @@ const faqs = [
 
       const dataUrl = canvas.toDataURL(mimeType, 0.92);
       const filename = `${baseName}-page${i}.${ext}`;
+      allDataUrls.push({ url: dataUrl, filename });
 
-      const card = document.createElement('div');
-      card.className = 'ti-image-card';
+      // Replace skeleton with real image
+      const card = cardEls[i - 1];
+      card.classList.remove('ti-image-card--loading');
       card.innerHTML = `
         <div class="ti-image-thumb"><img src="${dataUrl}" alt="Page ${i}" loading="lazy" /></div>
-        <a class="btn btn-sm btn-secondary" href="${dataUrl}" download="${filename}">Download Page ${i}</a>
+        <div class="ti-image-card-footer">
+          <span class="ti-page-label">Page ${i}</span>
+          <a class="btn btn-sm btn-secondary" href="${dataUrl}" download="${filename}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download
+          </a>
+        </div>
       `;
-      imageGrid.appendChild(card);
+      // Smooth entrance animation
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(8px)';
+      requestAnimationFrame(() => {
+        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      });
+
+      // Update title count
+      resultTitle.textContent = `${i} of ${numPages} page${numPages!==1?'s':''} converted`;
     }
 
-    progressFill.style.width='100%';
-    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
-    resultTitle.textContent = `${numPages} image${numPages!==1?'s':''} ready — click to download each page`;
-    tiResult.style.display='block';
-    tiActions.style.display='none';
-    convertBtn.disabled=false;
+    progressFill.style.width = '100%';
+    setTimeout(() => { progressEl.setAttribute('aria-hidden','true'); progressFill.style.width='0%'; }, 400);
+
+    resultTitle.textContent = `${numPages} image${numPages!==1?'s':''} ready — download each page below`;
+
+    // Build Download All ZIP using JSZip if available, else skip
+    if (numPages > 1) {
+      try {
+        if (!(window as any).JSZip) {
+          await new Promise<void>((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            s.onload = () => resolve();
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+        const zip = new (window as any).JSZip();
+        for (const item of allDataUrls) {
+          const base64 = item.url.split(',')[1];
+          zip.file(item.filename, base64, { base64: true });
+        }
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        dlAllBtn.href = URL.createObjectURL(zipBlob);
+        dlAllBtn.download = `${baseName}-images.zip`;
+        dlAllBtn.style.display = 'flex';
+      } catch(e) {
+        // ZIP failed silently — individual downloads still work
+      }
+    }
+
+    convertBtn.disabled = false;
   });
 
-  function reset(){currentFile=null;dropZone.style.display='flex';fileInfo.style.display='none';tiOptions.style.display='none';tiActions.style.display='none';tiResult.style.display='none';imageGrid.innerHTML='';}
-  clearBtn.addEventListener('click',reset);
-  restartBtn.addEventListener('click',reset);
-  removeBtn.addEventListener('click',reset);
+  function reset() {
+    currentFile = null;
+    allDataUrls = [];
+    dropZone.style.display = 'flex';
+    fileInfo.style.display = 'none';
+    tiOptions.style.display = 'none';
+    tiActions.style.display = 'none';
+    tiResult.style.display = 'none';
+    imageGrid.innerHTML = '';
+    dlAllBtn.style.display = 'none';
+  }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
 </script>

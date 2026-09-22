@@ -1,0 +1,195 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataTools } from '../../data/seo-tools';
+
+const howToSteps = [
+  { name: "Upload your image or screenshot", text: "Drop or click to select any JPG, PNG, or WebP image containing text you want to extract." },
+  { name: "Select language", text: "Choose English, Hindi, or both. The OCR engine will scan for text in the selected language." },
+  { name: "Copy or download the text", text: "Once extraction is complete, edit the text in the output box, then copy it or download as a .txt file." },
+];
+---
+
+<ToolLayout
+  title="Image to Text OCR Online Free — English & Hindi Text Extractor"
+  description="Extract text from images and screenshots using OCR. Supports English and Hindi. Download as .txt file. Free, private, runs in your browser — no upload required."
+  canonicalPath="/tools/ocr"
+  toolName="Extract Text (OCR)"
+  toolTagline="Pull text from images and scanned documents — English & Hindi support. Free, private, instant."
+  category="utility"
+  categoryLabel="Smart Utilities"
+  categoryHref="/#category-tools"
+  acceptedFormats="JPG, PNG, WebP · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataTools["ocr"].keywords}
+  faqs={seoDataTools["ocr"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an image here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span class="drop-zone__text">Drop an image here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP · Best results with clear, high-contrast images</span>
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-label="Select image" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="ocr-file-info" style="display:none;" class="compress-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span id="ocr-file-name" class="compress-file-info__name"></span>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="ocr-options" style="display:none;">
+      <div class="ocr-options-row">
+        <div>
+          <p class="overline-text" style="margin-bottom:var(--space-2);">Language</p>
+          <div class="format-btns" role="radiogroup" aria-label="OCR language">
+            <label class="format-btn"><input type="radio" name="ocrlang" value="eng" checked class="sr-only" /><span class="format-btn__card format-btn__card--active"><span class="format-btn__name">English</span></span></label>
+            <label class="format-btn"><input type="radio" name="ocrlang" value="hin" class="sr-only" /><span class="format-btn__card"><span class="format-btn__name">Hindi</span></span></label>
+            <label class="format-btn"><input type="radio" name="ocrlang" value="eng+hin" class="sr-only" /><span class="format-btn__card"><span class="format-btn__name">Both</span></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="ocr-actions" style="display:none;" class="convert-actions">
+      <button class="btn btn-primary btn-lg" id="extract-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        Extract Text
+      </button>
+      <button class="btn btn-ghost" id="reset-btn">New image</button>
+    </div>
+  </div>
+
+  <div slot="result">
+    <div id="ocr-result" style="display:none;">
+      <div class="ocr-result-header">
+        <p class="overline-text">Extracted Text</p>
+        <div class="ocr-result-btns">
+          <button class="btn btn-ghost btn-sm" id="copy-btn">Copy</button>
+          <a class="btn btn-accent btn-sm" id="download-txt" download="extracted-text.txt">Download .txt</a>
+        </div>
+      </div>
+      <textarea id="ocr-output" class="ocr-textarea" aria-label="Extracted text" rows="12" spellcheck="false"></textarea>
+      <button class="btn btn-ghost btn-sm" id="extract-again-btn" style="margin-top: var(--space-3);">Extract another image</button>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<style is:global>
+  .ocr-options-row { display: flex; flex-direction: column; gap: var(--space-4); }
+  .ocr-result-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-3); }
+  .ocr-result-btns { display: flex; gap: var(--space-2); }
+  .ocr-textarea {
+    width: 100%;
+    min-height: 280px;
+    padding: var(--space-4);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-canvas-soft);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-ink-primary);
+    font-family: var(--font-mono, monospace);
+    resize: vertical;
+    transition: border-color var(--duration-fast);
+  }
+  .ocr-textarea:focus { outline: none; border-color: var(--color-accent-orange); }
+</style>
+
+<script>
+  const dropZone = document.getElementById('drop-zone') as HTMLDivElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('ocr-file-info') as HTMLDivElement;
+  const fileNameEl = document.getElementById('ocr-file-name') as HTMLSpanElement;
+  const options = document.getElementById('ocr-options') as HTMLDivElement;
+  const actions = document.getElementById('ocr-actions') as HTMLDivElement;
+  const result = document.getElementById('ocr-result') as HTMLDivElement;
+  const output = document.getElementById('ocr-output') as HTMLTextAreaElement;
+  const downloadTxt = document.getElementById('download-txt') as HTMLAnchorElement;
+  const progressEl = document.getElementById('tool-progress') as HTMLDivElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLDivElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLParagraphElement;
+
+  let currentFile: File | null = null;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f = e.dataTransfer?.files[0]; if (f && f.type.startsWith('image/')) loadFile(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) loadFile(fileInput.files[0]); fileInput.value = ''; });
+
+  document.querySelectorAll<HTMLInputElement>('input[name="ocrlang"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.querySelectorAll<HTMLInputElement>('input[name="ocrlang"]').forEach(s => {
+        s.nextElementSibling?.classList.toggle('format-btn__card--active', s === r);
+      });
+    });
+  });
+
+  function loadFile(file: File) {
+    currentFile = file;
+    fileNameEl.textContent = file.name;
+    fileInfo.style.display = 'flex';
+    options.style.display = 'block';
+    actions.style.display = 'flex';
+    result.style.display = 'none';
+    dropZone.style.display = 'none';
+  }
+
+  (document.getElementById('extract-btn') as HTMLButtonElement).addEventListener('click', async () => {
+    if (!currentFile) return;
+    const lang = (document.querySelector<HTMLInputElement>('input[name="ocrlang"]:checked'))?.value || 'eng';
+    showProgress(0, 'Loading OCR engine…');
+
+    try {
+      // Dynamically import Tesseract
+      const { createWorker } = await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js' as any);
+      showProgress(20, 'Loading language data…');
+      const worker = await createWorker(lang, 1, {
+        logger: (m: any) => {
+          if (m.status === 'recognizing text') showProgress(20 + Math.round(m.progress * 70), 'Recognizing text…');
+        }
+      });
+      showProgress(90, 'Finalizing…');
+      const { data: { text } } = await worker.recognize(currentFile);
+      await worker.terminate();
+      showProgress(100, 'Done!');
+      setTimeout(hideProgress, 400);
+
+      output.value = text.trim() || '(No text detected. Try a clearer, higher-contrast image.)';
+      const blob = new Blob([output.value], { type: 'text/plain' });
+      downloadTxt.href = URL.createObjectURL(blob);
+      result.style.display = 'block';
+      actions.style.display = 'none';
+    } catch (err) {
+      hideProgress();
+      (window as any).showToast('OCR failed. This may be a network issue loading the OCR engine. Please try again.', 'error');
+    }
+  });
+
+  (document.getElementById('copy-btn') as HTMLButtonElement).addEventListener('click', async () => {
+    await navigator.clipboard.writeText(output.value);
+    const btn = document.getElementById('copy-btn') as HTMLButtonElement;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+
+  document.getElementById('remove-file')!.addEventListener('click', reset);
+  document.getElementById('reset-btn')!.addEventListener('click', reset);
+  document.getElementById('extract-again-btn')!.addEventListener('click', reset);
+  function reset() { currentFile = null; fileInfo.style.display = 'none'; options.style.display = 'none'; actions.style.display = 'none'; result.style.display = 'none'; dropZone.style.display = ''; }
+
+  function showProgress(pct: number, label: string) { progressEl.setAttribute('aria-hidden', 'false'); progressFill.style.width = `${pct}%`; progressLabel.textContent = label; }
+  function hideProgress() { progressEl.setAttribute('aria-hidden', 'true'); progressFill.style.width = '0%'; }
+</script>

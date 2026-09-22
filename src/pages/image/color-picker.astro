@@ -1,0 +1,417 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataImage } from '../../data/seo-image';
+
+const howToSteps = [
+  { name: "Upload your image", text: "Drop or click to select any image to extract colors from." },
+  { name: "Click anywhere on the image", text: "Hover over the image and click any pixel to grab its exact color value." },
+  { name: "Copy HEX or RGB", text: "Your picked colors are saved in a palette. Click any color to instantly copy its HEX code." },
+];
+---
+
+<ToolLayout
+  title="Image Color Picker Online — Extract HEX, RGB, HSL"
+  description="Extract exact colors from any image online. Click on a photo to get HEX, RGB, and HSL codes instantly. Free, private, and runs in your browser."
+  canonicalPath="/image/color-picker"
+  toolName="Image Color Picker"
+  toolTagline="Click anywhere on an image to instantly extract its exact HEX, RGB, and HSL codes."
+  category="image"
+  categoryLabel="Image Tools"
+  categoryHref="/#category-image"
+  acceptedFormats="JPG, PNG, WebP, AVIF · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataImage["color-picker"].keywords}
+  faqs={seoDataImage["color-picker"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an image here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span class="drop-zone__text">Drop an image here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP, AVIF · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/*" class="sr-only" aria-label="Select image" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="color-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <div class="color-file-info__text">
+        <span id="file-name" class="color-file-info__name"></span>
+        <span id="file-size-orig" class="color-file-info__size"></span>
+      </div>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="color-workspace" style="display:none;" class="color-workspace">
+      
+      <div class="color-layout">
+        
+        <!-- Canvas Area -->
+        <div class="color-preview-area">
+          <div class="color-preview-card">
+            <div class="color-preview-header">
+              <span class="color-preview-label">Click anywhere to pick color</span>
+            </div>
+            <div class="color-preview-img-wrap" id="canvas-container">
+              <canvas id="color-canvas" class="color-preview-canvas"></canvas>
+              <!-- Magnifier -->
+              <div class="color-magnifier" id="magnifier">
+                <canvas id="mag-canvas" width="60" height="60"></canvas>
+                <div class="color-magnifier-crosshair"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palette Panel -->
+        <div class="color-panel">
+          
+          <div class="color-current">
+            <p class="color-overline">Current Selection</p>
+            <div class="color-current-display">
+              <div class="color-swatch-large" id="current-swatch"></div>
+              <div class="color-codes">
+                <div class="color-code-row">
+                  <span class="color-code-label">HEX</span>
+                  <span class="color-code-val" id="val-hex">#000000</span>
+                  <button class="copy-btn" data-target="val-hex" title="Copy HEX"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                </div>
+                <div class="color-code-row">
+                  <span class="color-code-label">RGB</span>
+                  <span class="color-code-val" id="val-rgb">rgb(0, 0, 0)</span>
+                  <button class="copy-btn" data-target="val-rgb" title="Copy RGB"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                </div>
+                <div class="color-code-row">
+                  <span class="color-code-label">HSL</span>
+                  <span class="color-code-val" id="val-hsl">hsl(0, 0%, 0%)</span>
+                  <button class="copy-btn" data-target="val-hsl" title="Copy HSL"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="color-palette-section">
+            <div class="color-palette-header">
+              <p class="color-overline">Palette History</p>
+              <button class="btn btn-ghost btn-sm" id="clear-palette-btn">Clear</button>
+            </div>
+            <div class="color-palette-grid" id="palette-grid">
+              <!-- history items injected here -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions"></div>
+  <div slot="result"></div>
+</ToolLayout>
+
+<style is:global>
+  .color-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .color-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .color-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .color-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
+
+  .color-workspace { display:flex; flex-direction:column; gap:var(--space-4); }
+
+  .color-layout { display: grid; grid-template-columns: 1fr 340px; gap: var(--space-5); }
+  @media (max-width: 800px) { .color-layout { grid-template-columns: 1fr; } }
+
+  .color-preview-area { flex: 1; display: flex; flex-direction: column; }
+  .color-preview-card { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-lg); background:var(--color-canvas-soft); }
+  .color-preview-header { display: flex; justify-content: space-between; align-items: center; }
+  .color-preview-label { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-muted); }
+  .color-preview-img-wrap {
+    background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px;
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    flex: 1; min-height: 400px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: crosshair;
+  }
+  .color-preview-canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  .color-magnifier { position: absolute; width: 60px; height: 60px; border: 2px solid #fff; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: none; pointer-events: none; z-index: 10; background: #fff; }
+  .color-magnifier-crosshair { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: transparent; border: 1px solid red; transform: translate(-50%, -50%); border-radius: 50%; }
+
+  .color-panel { display: flex; flex-direction: column; gap: var(--space-4); }
+  .color-overline { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
+  
+  .color-current { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+  .color-current-display { display: flex; gap: var(--space-4); align-items: flex-start; }
+  .color-swatch-large { width: 64px; height: 64px; border-radius: var(--radius-md); border: 1.5px solid var(--color-border-hairline); background: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  
+  .color-codes { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); }
+  .color-code-row { display: flex; align-items: center; gap: var(--space-2); background: var(--color-canvas-base); border: 1.5px solid var(--color-border-hairline); padding: 4px 8px; border-radius: var(--radius-sm); }
+  .color-code-label { font-size: 0.6875rem; font-weight: 700; color: var(--color-ink-faint); width: 28px; }
+  .color-code-val { font-size: 0.8125rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: var(--color-ink-primary); flex: 1; user-select: all; }
+  .copy-btn { background: none; border: none; color: var(--color-ink-muted); cursor: pointer; padding: 4px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast); }
+  .copy-btn:hover { background: rgba(0,0,0,0.05); color: var(--color-ink-primary); }
+
+  .color-palette-section { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); flex: 1; }
+  .color-palette-header { display: flex; justify-content: space-between; align-items: center; }
+  .color-palette-grid { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .palette-swatch-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+  .palette-swatch { width: 40px; height: 40px; border-radius: var(--radius-sm); border: 1px solid var(--color-border-hairline); transition: transform var(--duration-fast); }
+  .palette-swatch:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .palette-label { font-size: 0.625rem; font-family: ui-monospace, SFMono-Regular, monospace; color: var(--color-ink-muted); text-transform: uppercase; }
+</style>
+
+<script>
+  let currentFile: File | null = null;
+  let currentImg: HTMLImageElement | null = null;
+  let canvasCtx: CanvasRenderingContext2D | null = null;
+  let magCtx: CanvasRenderingContext2D | null = null;
+  
+  let paletteHistory: string[] = [];
+  
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl = document.getElementById('file-size-orig') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  
+  const workspace = document.getElementById('color-workspace') as HTMLElement;
+  
+  const canvasContainer = document.getElementById('canvas-container') as HTMLElement;
+  const canvas = document.getElementById('color-canvas') as HTMLCanvasElement;
+  const magnifier = document.getElementById('magnifier') as HTMLElement;
+  const magCanvas = document.getElementById('mag-canvas') as HTMLCanvasElement;
+  
+  const currentSwatch = document.getElementById('current-swatch') as HTMLElement;
+  const valHex = document.getElementById('val-hex') as HTMLElement;
+  const valRgb = document.getElementById('val-rgb') as HTMLElement;
+  const valHsl = document.getElementById('val-hsl') as HTMLElement;
+  const copyBtns = document.querySelectorAll('.copy-btn');
+  
+  const paletteGrid = document.getElementById('palette-grid') as HTMLElement;
+  const clearPaletteBtn = document.getElementById('clear-palette-btn') as HTMLButtonElement;
+
+  function fmt(b: number) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+
+  // ── Upload ───────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f&&f.type.startsWith('image/')) load(f); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  function load(f: File) {
+    currentFile = f;
+    fileNameEl.textContent = f.name;
+    fileSizeEl.textContent = fmt(f.size);
+    
+    fileInfo.style.display = 'flex';
+    dropZone.style.display = 'none';
+    workspace.style.display = 'flex';
+
+    const url = URL.createObjectURL(f);
+    currentImg = new Image();
+    currentImg.onload = () => {
+      initCanvas();
+    };
+    currentImg.src = url;
+  }
+
+  function initCanvas() {
+    if(!currentImg) return;
+    
+    // Scale image down if it's massive to avoid max canvas size limits
+    const MAX_DIM = 2000;
+    let w = currentImg.width;
+    let h = currentImg.height;
+    if(w > MAX_DIM || h > MAX_DIM) {
+      const r = Math.min(MAX_DIM/w, MAX_DIM/h);
+      w = w * r; h = h * r;
+    }
+    
+    canvas.width = w;
+    canvas.height = h;
+    canvasCtx = canvas.getContext('2d', { willReadFrequently: true });
+    canvasCtx!.drawImage(currentImg, 0, 0, w, h);
+    
+    magCtx = magCanvas.getContext('2d');
+    magCtx!.imageSmoothingEnabled = false; // pixelated look for magnifier
+  }
+
+  // ── Color Picker Logic ────────────────────────────────────
+  function getEventPos(e: MouseEvent | TouchEvent) {
+    const rect = canvas.getBoundingClientRect();
+    let cx = e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
+    let cy = e instanceof MouseEvent ? e.clientY : e.touches[0].clientY;
+    
+    // map to actual canvas coords
+    const sx = canvas.width / rect.width;
+    const sy = canvas.height / rect.height;
+    
+    return {
+      x: (cx - rect.left) * sx,
+      y: (cy - rect.top) * sy,
+      clientX: cx,
+      clientY: cy,
+      rectLeft: rect.left,
+      rectTop: rect.top
+    };
+  }
+
+  function rgbToHex(r: number, g: number, b: number) {
+    return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase();
+  }
+
+  function rgbToHsl(r: number, g: number, b: number) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+  }
+
+  function updateColorPanel(r: number, g: number, b: number) {
+    const hex = rgbToHex(r, g, b);
+    const rgbStr = `rgb(${r}, ${g}, ${b})`;
+    const hslStr = rgbToHsl(r, g, b);
+    
+    currentSwatch.style.backgroundColor = hex;
+    valHex.textContent = hex;
+    valRgb.textContent = rgbStr;
+    valHsl.textContent = hslStr;
+    return hex;
+  }
+
+  canvasContainer.addEventListener('mousemove', (e) => {
+    if(!canvasCtx || !magCtx) return;
+    
+    const pos = getEventPos(e);
+    if(pos.x < 0 || pos.x >= canvas.width || pos.y < 0 || pos.y >= canvas.height) {
+      magnifier.style.display = 'none';
+      return;
+    }
+    
+    magnifier.style.display = 'block';
+    
+    // Position magnifier offset from cursor
+    const magSize = 60;
+    let mx = e.clientX - canvasContainer.getBoundingClientRect().left + 15;
+    let my = e.clientY - canvasContainer.getBoundingClientRect().top + 15;
+    
+    // Flip if near edges
+    if(mx + magSize > canvasContainer.clientWidth) mx -= magSize + 30;
+    if(my + magSize > canvasContainer.clientHeight) my -= magSize + 30;
+    
+    magnifier.style.left = `${mx}px`;
+    magnifier.style.top = `${my}px`;
+    
+    // Draw zoomed pixels
+    const zoom = 5;
+    const sSize = magSize / zoom; // 12
+    magCtx.clearRect(0, 0, magSize, magSize);
+    magCtx.drawImage(
+      canvas, 
+      pos.x - sSize/2, pos.y - sSize/2, sSize, sSize,
+      0, 0, magSize, magSize
+    );
+    
+    // Get center pixel
+    const pixel = canvasCtx.getImageData(Math.floor(pos.x), Math.floor(pos.y), 1, 1).data;
+    updateColorPanel(pixel[0], pixel[1], pixel[2]);
+  });
+
+  canvasContainer.addEventListener('mouseleave', () => {
+    magnifier.style.display = 'none';
+  });
+
+  canvasContainer.addEventListener('click', (e) => {
+    if(!canvasCtx) return;
+    const pos = getEventPos(e);
+    if(pos.x < 0 || pos.x >= canvas.width || pos.y < 0 || pos.y >= canvas.height) return;
+    
+    const pixel = canvasCtx.getImageData(Math.floor(pos.x), Math.floor(pos.y), 1, 1).data;
+    const hex = updateColorPanel(pixel[0], pixel[1], pixel[2]);
+    addToPalette(hex);
+  });
+  
+  function addToPalette(hex: string) {
+    if(!paletteHistory.includes(hex)) {
+      paletteHistory.unshift(hex);
+      if(paletteHistory.length > 20) paletteHistory.pop();
+      renderPalette();
+    }
+  }
+  
+  function renderPalette() {
+    paletteGrid.innerHTML = '';
+    paletteHistory.forEach(hex => {
+      const div = document.createElement('div');
+      div.className = 'palette-swatch-wrap';
+      div.title = 'Click to copy';
+      div.innerHTML = `
+        <div class="palette-swatch" style="background-color: ${hex}"></div>
+        <span class="palette-label">${hex}</span>
+      `;
+      div.addEventListener('click', () => {
+        navigator.clipboard.writeText(hex);
+        const lbl = div.querySelector('.palette-label')!;
+        const old = lbl.textContent;
+        lbl.textContent = 'COPIED';
+        setTimeout(() => lbl.textContent = old, 1000);
+      });
+      paletteGrid.appendChild(div);
+    });
+  }
+
+  // ── Copy buttons ──────────────────────────────────────────
+  copyBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = (btn as HTMLElement).dataset.target;
+      const text = document.getElementById(targetId!)?.textContent;
+      if(text) {
+        navigator.clipboard.writeText(text);
+        const icon = btn.innerHTML;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-green)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+        setTimeout(() => { btn.innerHTML = icon; }, 1000);
+      }
+    });
+  });
+
+  clearPaletteBtn.addEventListener('click', () => {
+    paletteHistory = [];
+    renderPalette();
+  });
+
+  function reset() {
+    currentFile = null;
+    currentImg = null;
+    paletteHistory = [];
+    renderPalette();
+    dropZone.style.display = 'flex';
+    fileInfo.style.display = 'none';
+    workspace.style.display = 'none';
+  }
+  
+  removeBtn.addEventListener('click', reset);
+
+</script>

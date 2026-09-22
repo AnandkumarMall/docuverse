@@ -1,0 +1,325 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataImage } from '../../data/seo-image';
+
+const howToSteps = [
+  { name: "Upload your images", text: "Drop or click to select multiple JPG, PNG, WebP, or AVIF images." },
+  { name: "Reorder", text: "Drag and drop the image thumbnails to reorder them exactly how you want them in the PDF." },
+  { name: "Download PDF", text: "Click 'Convert to PDF' to instantly merge all your images into a single high-quality PDF document." },
+];
+---
+
+<ToolLayout
+  title="Image to PDF Converter Online Free — JPG/PNG to PDF"
+  description="Convert multiple JPG, PNG, and WebP images into a single PDF document. Drag and drop to reorder. Free, instant, and entirely private."
+  canonicalPath="/image/to-pdf"
+  toolName="Image to PDF"
+  toolTagline="Convert and merge multiple images into a single PDF document instantly."
+  category="image"
+  categoryLabel="Image Tools"
+  categoryHref="/#category-image"
+  acceptedFormats="JPG, PNG, WebP, AVIF · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataImage["to-pdf"].keywords}
+  faqs={seoDataImage["to-pdf"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop images here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      <span class="drop-zone__text">Drop images here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP, AVIF · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/*" multiple class="sr-only" aria-label="Select images" />
+    </div>
+  </div>
+
+  <div slot="file-list"></div>
+
+  <div slot="options">
+    <div id="topdf-workspace" style="display:none;" class="topdf-workspace">
+      
+      <div class="topdf-header">
+        <div class="topdf-header-text">
+          <p class="topdf-overline">Reorder Images</p>
+          <p class="topdf-sub">Drag to reorder pages. Each image will be its own page in the PDF.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" id="add-more-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add More
+        </button>
+      </div>
+
+      <div class="topdf-grid" id="topdf-grid">
+        <!-- Image cards injected here -->
+      </div>
+
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="topdf-actions" style="display:none;" class="topdf-actions">
+      <button class="btn btn-primary btn-lg" id="convert-btn" aria-label="Convert to PDF">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Convert to PDF
+      </button>
+      <button class="btn btn-ghost" id="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div slot="result">
+    <div class="topdf-result" id="topdf-result" style="display:none;" aria-live="assertive">
+      <div class="topdf-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="topdf-result__meta">
+        <p class="topdf-result__label">PDF created successfully!</p>
+        <p class="topdf-result__size" id="topdf-result-size"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Create another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .topdf-workspace { display:flex; flex-direction:column; gap:var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); }
+  
+  .topdf-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--color-border-hairline); padding-bottom: var(--space-4); margin-bottom: var(--space-2); }
+  .topdf-header-text { display: flex; flex-direction: column; gap: 4px; }
+  .topdf-overline { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
+  .topdf-sub { font-size: 0.875rem; color: var(--color-ink-secondary); }
+
+  .topdf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-4); }
+  
+  .topdf-card { position: relative; display: flex; flex-direction: column; background: var(--color-canvas-base); border: 2px solid var(--color-border-hairline); border-radius: var(--radius-md); overflow: hidden; cursor: grab; transition: transform var(--duration-fast), border-color var(--duration-fast); }
+  .topdf-card:hover { border-color: rgba(207,69,0,0.3); }
+  .topdf-card:active { cursor: grabbing; transform: scale(0.98); }
+  .topdf-card.dragging { opacity: 0.5; }
+
+  .topdf-card__img-wrap { width: 100%; aspect-ratio: 1; background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px; display: flex; align-items: center; justify-content: center; }
+  .topdf-card__img { width: 100%; height: 100%; object-fit: cover; }
+  
+  .topdf-card__meta { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(0,0,0,0.02); border-top: 1px solid var(--color-border-hairline); }
+  .topdf-card__idx { font-size: 0.75rem; font-weight: 700; color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+  
+  .topdf-card__remove { background: none; border: none; color: var(--color-ink-muted); cursor: pointer; padding: 2px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all var(--duration-fast); }
+  .topdf-card__remove:hover { background: rgba(200,0,0,0.1); color: #d00; }
+
+  .topdf-actions { display:flex; align-items:center; gap:var(--space-4); }
+
+  .topdf-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
+  .topdf-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .topdf-result__meta { flex:1; min-width:120px; }
+  .topdf-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
+  .topdf-result__size { font-size:.875rem; color:var(--color-ink-muted); margin-top:2px; font-variant-numeric:tabular-nums; }
+</style>
+
+<script>
+  import { PDFDocument } from 'pdf-lib';
+  
+  interface ImgFile {
+    id: string;
+    file: File;
+    url: string;
+  }
+
+  let images: ImgFile[] = [];
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  
+  const workspace = document.getElementById('topdf-workspace') as HTMLElement;
+  const topdfGrid = document.getElementById('topdf-grid') as HTMLElement;
+  const addMoreBtn = document.getElementById('add-more-btn') as HTMLButtonElement;
+  
+  const actionsPanel = document.getElementById('topdf-actions') as HTMLElement;
+  const resultPanel = document.getElementById('topdf-result') as HTMLElement;
+  
+  const convertBtn = document.getElementById('convert-btn') as HTMLButtonElement;
+  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const resultSize = document.getElementById('topdf-result-size') as HTMLElement;
+
+  function fmt(b: number) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+
+  // ── Upload ───────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  addMoreBtn.addEventListener('click', () => fileInput.click());
+  
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); if(e.dataTransfer?.files) handleFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', () => { if(fileInput.files) handleFiles(fileInput.files); fileInput.value=''; });
+
+  function handleFiles(files: FileList) {
+    let added = false;
+    for(let i=0; i<files.length; i++) {
+      const f = files[i];
+      if (f.type.startsWith('image/')) {
+        images.push({
+          id: Math.random().toString(36).substring(2, 9),
+          file: f,
+          url: URL.createObjectURL(f)
+        });
+        added = true;
+      }
+    }
+    
+    if (added) {
+      dropZone.style.display = 'none';
+      workspace.style.display = 'flex';
+      actionsPanel.style.display = 'flex';
+      resultPanel.style.display = 'none';
+      renderGrid();
+    }
+  }
+
+  // ── Grid & Drag/Drop ──────────────────────────────────────
+  let dragSrcEl: HTMLElement | null = null;
+
+  function renderGrid() {
+    topdfGrid.innerHTML = '';
+    images.forEach((img, idx) => {
+      const el = document.createElement('div');
+      el.className = 'topdf-card';
+      el.draggable = true;
+      el.dataset.id = img.id;
+      el.innerHTML = `
+        <div class="topdf-card__img-wrap">
+          <img src="${img.url}" class="topdf-card__img" alt="Page ${idx+1}" />
+        </div>
+        <div class="topdf-card__meta">
+          <span class="topdf-card__idx">${idx + 1}</span>
+          <button class="topdf-card__remove" data-id="${img.id}" title="Remove">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      `;
+      
+      // Drag events
+      el.addEventListener('dragstart', (e) => {
+        dragSrcEl = el;
+        el.classList.add('dragging');
+        e.dataTransfer!.effectAllowed = 'move';
+        e.dataTransfer!.setData('text/plain', el.dataset.id!);
+      });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      el.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer!.dropEffect = 'move'; });
+      el.addEventListener('dragenter', () => el.classList.add('drag-over'));
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.remove('drag-over');
+        if (dragSrcEl && dragSrcEl !== el) {
+          const srcId = dragSrcEl.dataset.id!;
+          const tgtId = el.dataset.id!;
+          const srcIdx = images.findIndex(x => x.id === srcId);
+          const tgtIdx = images.findIndex(x => x.id === tgtId);
+          if (srcIdx > -1 && tgtIdx > -1) {
+            const [moved] = images.splice(srcIdx, 1);
+            images.splice(tgtIdx, 0, moved);
+            renderGrid();
+          }
+        }
+      });
+      
+      // Remove
+      el.querySelector('.topdf-card__remove')!.addEventListener('click', (e) => {
+        e.stopPropagation();
+        images = images.filter(x => x.id !== img.id);
+        URL.revokeObjectURL(img.url);
+        if (images.length === 0) reset();
+        else renderGrid();
+      });
+      
+      topdfGrid.appendChild(el);
+    });
+  }
+
+  // ── Action ──────────────────────────────────────────────
+  convertBtn.addEventListener('click', async () => {
+    if(images.length === 0) return;
+    
+    convertBtn.disabled = true;
+    convertBtn.innerHTML = '<svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Creating PDF...';
+    
+    try {
+      const pdfDoc = await PDFDocument.create();
+      
+      for(let i=0; i<images.length; i++) {
+        const item = images[i];
+        const bytes = await item.file.arrayBuffer();
+        
+        let pdfImg;
+        if(item.file.type === 'image/jpeg') {
+          pdfImg = await pdfDoc.embedJpg(bytes);
+        } else if(item.file.type === 'image/png') {
+          pdfImg = await pdfDoc.embedPng(bytes);
+        } else {
+          // If webp/avif, draw to canvas and convert to jpeg first
+          const imgObj = new Image();
+          imgObj.src = item.url;
+          await new Promise(r => imgObj.onload = r);
+          
+          const tmp = document.createElement('canvas');
+          tmp.width = imgObj.width; tmp.height = imgObj.height;
+          const ctx = tmp.getContext('2d')!;
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,tmp.width,tmp.height);
+          ctx.drawImage(imgObj, 0, 0);
+          
+          const blob = await new Promise<Blob|null>(r => tmp.toBlob(r, 'image/jpeg', 0.95));
+          if(blob) {
+            const jBytes = await blob.arrayBuffer();
+            pdfImg = await pdfDoc.embedJpg(jBytes);
+          }
+        }
+        
+        if (pdfImg) {
+          const page = pdfDoc.addPage([pdfImg.width, pdfImg.height]);
+          page.drawImage(pdfImg, { x: 0, y: 0, width: pdfImg.width, height: pdfImg.height });
+        }
+      }
+      
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const dlUrl = URL.createObjectURL(blob);
+      
+      downloadBtn.href = dlUrl;
+      downloadBtn.download = `converted-images.pdf`;
+      resultSize.textContent = `${images.length} pages \u00b7 ${fmt(blob.size)}`;
+      
+      workspace.style.display = 'none';
+      actionsPanel.style.display = 'none';
+      resultPanel.style.display = 'flex';
+      
+    } catch(err) {
+      console.error(err);
+      (window as any).showToast('Failed to generate PDF. Make sure your images are valid JPG/PNG files.', 'error');
+    } finally {
+      convertBtn.disabled = false;
+      convertBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Convert to PDF';
+    }
+  });
+
+  function reset() {
+    images.forEach(x => URL.revokeObjectURL(x.url));
+    images = [];
+    
+    dropZone.style.display = 'flex';
+    workspace.style.display = 'none';
+    actionsPanel.style.display = 'none';
+    resultPanel.style.display = 'none';
+  }
+  
+  resetBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+
+</script>

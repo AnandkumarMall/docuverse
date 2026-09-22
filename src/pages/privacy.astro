@@ -1,0 +1,252 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const lastUpdated = 'September 21, 2025';
+const SITE_NAME = 'DocuVerse';
+const SITE_URL = 'https://docuverse.tools';
+const CONTACT_EMAIL = 'privacy@docuverse.tools';
+---
+
+<BaseLayout
+  title="Privacy Policy — DocuVerse"
+  description="DocuVerse Privacy Policy. Learn how we protect your data. All file processing happens 100% in your browser — no files are ever uploaded to our servers."
+  canonicalUrl={`${SITE_URL}/privacy`}
+>
+  <div class="legal-page">
+    <div class="legal-container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Privacy Policy</span>
+      </nav>
+
+      <header class="legal-header">
+        <h1>Privacy Policy</h1>
+        <p class="legal-meta">Last updated: <time datetime="2025-09-21">{lastUpdated}</time></p>
+        <div class="legal-highlight">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <strong>The short version:</strong> Your files never leave your device. All PDF and image processing happens entirely inside your browser using WebAssembly. We never see, store, or transmit your files.
+        </div>
+      </header>
+
+      <main class="legal-content">
+
+        <section>
+          <h2>1. Who We Are</h2>
+          <p>{SITE_NAME} (<a href={SITE_URL}>{SITE_URL}</a>) is a free online toolkit that provides PDF and image processing tools. Our registered contact for privacy matters is <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+        </section>
+
+        <section>
+          <h2>2. The Core Privacy Guarantee: Client-Side Processing</h2>
+          <p>Every tool on {SITE_NAME} — including PDF merging, image compression, OCR text extraction, and all others — runs <strong>100% inside your web browser</strong>. Your files are processed by your own device's CPU using WebAssembly technology.</p>
+          <ul>
+            <li>Your files are <strong>never uploaded</strong> to our servers.</li>
+            <li>Your files are <strong>never transmitted</strong> over the internet.</li>
+            <li>Your files are <strong>never stored</strong> anywhere outside your device.</li>
+            <li>We have <strong>no technical ability</strong> to access the content of any file you process.</li>
+          </ul>
+          <p>When you download the result, that file is generated directly in your browser and saved to your local computer. No round-trip to a server occurs at any point.</p>
+        </section>
+
+        <section>
+          <h2>3. What Information We Do Collect</h2>
+          <p>We collect minimal, non-personal information to operate the website:</p>
+
+          <h3>3.1 Server Log Data (Automatic)</h3>
+          <p>Like all websites, our hosting provider automatically logs standard server access data when you visit:</p>
+          <ul>
+            <li>IP address (anonymized after 24 hours)</li>
+            <li>Browser type and version</li>
+            <li>Operating system</li>
+            <li>Pages visited and time of visit</li>
+            <li>Referring URL</li>
+          </ul>
+          <p>This data is used solely for security, uptime monitoring, and aggregate traffic analysis. It is <strong>never</strong> linked to your identity or sold.</p>
+
+          <h3>3.2 Analytics (Aggregate Only)</h3>
+          <p>We use privacy-respecting analytics to understand which tools are most useful. We measure page views, session duration, and geographic region (country-level only). <strong>No individual user tracking, no cross-site tracking, and no fingerprinting.</strong></p>
+
+          <h3>3.3 Cookies</h3>
+          <p>We use only essential functional cookies required for the website to work (e.g., your preferences within a tool session). We do not use advertising tracking cookies or third-party behavioral cookies without your explicit consent.</p>
+        </section>
+
+        <section>
+          <h2>4. Google AdSense & Advertising</h2>
+          <p>{SITE_NAME} displays advertisements served by Google AdSense and other ad networks to fund the free service. These networks may use cookies to serve ads relevant to your interests based on your browsing history across other websites.</p>
+          <p>You can opt out of personalized advertising by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">Google Ads Settings</a> or by using the <a href="https://optout.aboutads.info" target="_blank" rel="noopener noreferrer">Digital Advertising Alliance opt-out</a>.</p>
+          <p>Google's use of advertising cookies is governed by the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a>.</p>
+        </section>
+
+        <section>
+          <h2>5. Third-Party Services</h2>
+          <p>Some tools load open-source WebAssembly libraries from trusted CDNs (e.g., <code>cdn.jsdelivr.net</code>) to power specific features like OCR. These are code libraries only — no file data is sent to these services. The CDN may log your IP address as a standard HTTP request. These CDNs are governed by their own privacy policies.</p>
+        </section>
+
+        <section>
+          <h2>6. Children's Privacy</h2>
+          <p>{SITE_NAME} does not knowingly collect personal information from children under 13 (or under 16 in the European Economic Area). If you believe a child has provided us personal information, please contact us at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we will delete it promptly.</p>
+        </section>
+
+        <section>
+          <h2>7. Your Rights</h2>
+          <p>Depending on your jurisdiction, you may have rights including:</p>
+          <ul>
+            <li><strong>Access:</strong> Request a copy of any personal data we hold about you.</li>
+            <li><strong>Deletion:</strong> Request deletion of any personal data we hold.</li>
+            <li><strong>Correction:</strong> Request correction of inaccurate data.</li>
+            <li><strong>Objection:</strong> Object to processing of your data for certain purposes.</li>
+            <li><strong>Data Portability:</strong> Receive your data in a structured, machine-readable format.</li>
+          </ul>
+          <p>Because we collect no personal data tied to file processing, most requests will be answered by confirming that no such data exists. To exercise any right, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+        </section>
+
+        <section>
+          <h2>8. Data Security</h2>
+          <p>Because your files never leave your browser, the primary security of your file content rests with your own device. Our website is served over HTTPS with modern TLS. We apply industry-standard security measures to our web infrastructure.</p>
+        </section>
+
+        <section>
+          <h2>9. International Users</h2>
+          <p>Our servers are located in the United States. If you are accessing the service from outside the United States, be aware that your connection data (IP address, browser info) may be processed in the United States. By using the service, you consent to this transfer.</p>
+          <p><strong>For EU/EEA Users (GDPR):</strong> Our legal basis for processing server log data is Legitimate Interest (Article 6(1)(f) GDPR) for security and uptime. You have the rights described in Section 7 above.</p>
+          <p><strong>For California Users (CCPA):</strong> We do not sell your personal information. You have the right to know what data we collect and to request its deletion.</p>
+          <p><strong>For Indian Users (DPDP Act):</strong> We process only technical data necessary to provide the service. We do not share your data with third parties except as described in Section 4 (advertising) and Section 5 (CDNs).</p>
+        </section>
+
+        <section>
+          <h2>10. Changes to This Policy</h2>
+          <p>We may update this Privacy Policy from time to time. When we do, we will update the "Last Updated" date at the top of this page. Continued use of the service after changes constitutes acceptance of the updated policy. We encourage you to review this page periodically.</p>
+        </section>
+
+        <section>
+          <h2>11. Contact Us</h2>
+          <p>If you have any questions about this Privacy Policy or our privacy practices, please contact us:</p>
+          <address>
+            <strong>{SITE_NAME}</strong><br />
+            Email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+          </address>
+        </section>
+
+      </main>
+
+      <footer class="legal-footer">
+        <a href="/terms">Terms of Service</a>
+        <span>·</span>
+        <a href="/">Back to DocuVerse</a>
+      </footer>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal-page {
+    min-height: 100vh;
+    background: var(--color-canvas);
+    padding: var(--space-8) var(--space-5) var(--space-16);
+  }
+  .legal-container {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    margin-bottom: var(--space-6);
+  }
+  .breadcrumb a { color: var(--color-accent-orange); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .legal-header {
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border-hairline);
+  }
+  .legal-header h1 {
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: var(--color-ink-primary);
+    margin-bottom: var(--space-2);
+    letter-spacing: -0.02em;
+  }
+  .legal-meta {
+    font-size: 0.875rem;
+    color: var(--color-ink-faint);
+    margin-bottom: var(--space-5);
+  }
+  .legal-highlight {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: rgba(207, 69, 0, 0.06);
+    border: 1.5px solid rgba(207, 69, 0, 0.2);
+    border-radius: var(--radius-lg);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-ink-secondary);
+  }
+  .legal-highlight svg { flex-shrink: 0; color: var(--color-accent-orange); margin-top: 2px; }
+  .legal-highlight strong { color: var(--color-ink-primary); }
+
+  .legal-content { display: flex; flex-direction: column; gap: var(--space-8); }
+
+  .legal-content section { display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .legal-content h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-ink-primary);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border-hairline);
+    margin-bottom: var(--space-1);
+  }
+  .legal-content h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-ink-secondary);
+    margin-top: var(--space-2);
+  }
+  .legal-content p {
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    color: var(--color-ink-secondary);
+  }
+  .legal-content ul {
+    padding-left: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .legal-content li {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-ink-secondary);
+  }
+  .legal-content a { color: var(--color-accent-orange); text-decoration: underline; text-underline-offset: 3px; }
+  .legal-content a:hover { opacity: 0.8; }
+  .legal-content code {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.875em;
+    background: rgba(0,0,0,0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  address { font-style: normal; line-height: 1.75; font-size: 0.9375rem; color: var(--color-ink-secondary); }
+
+  .legal-footer {
+    margin-top: var(--space-10);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border-hairline);
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--color-ink-faint);
+  }
+  .legal-footer a { color: var(--color-accent-orange); text-decoration: none; }
+  .legal-footer a:hover { text-decoration: underline; }
+</style>

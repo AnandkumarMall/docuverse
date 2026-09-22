@@ -1,0 +1,244 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataTools } from '../../data/seo-tools';
+
+const howToSteps = [
+  { name: "Upload your logo or icon", text: "Drop or click to select a high-resolution square PNG or SVG of your logo." },
+  { name: "Generate the favicon pack", text: "Click 'Generate Favicons'. The tool creates icons at 16×16, 32×32, 48×48, and 180×180 (Apple Touch) sizes." },
+  { name: "Download and install", text: "Download the ZIP archive and use the HTML snippet shown to add all icons to your website's <head>." },
+];
+---
+
+<ToolLayout
+  title="Favicon Generator Online Free — Multi-Size Icon Pack with Apple Touch Icon"
+  description="Generate a complete favicon pack (16×16, 32×32, 48×48, 180×180 Apple Touch) from your logo in one click. Download as ZIP. Free, private, instant."
+  canonicalPath="/tools/favicon-generator"
+  toolName="Favicon Generator"
+  toolTagline="Create a complete multi-size favicon pack from your logo — including Apple Touch icon. Free, instant."
+  category="utility"
+  categoryLabel="Smart Utilities"
+  categoryHref="/#category-tools"
+  acceptedFormats="PNG, SVG, WebP · Square image recommended"
+  howToSteps={howToSteps}
+  keywords={seoDataTools["favicon-generator"].keywords}
+  faqs={seoDataTools["favicon-generator"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop your logo here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 3 3 3-3 4 4"/><path d="M3 15h18"/></svg>
+      <span class="drop-zone__text">Drop your logo or icon here or click to browse</span>
+      <span class="drop-zone__hint">PNG or SVG recommended · Square image gives best results</span>
+      <input type="file" id="file-input" accept="image/*" class="sr-only" aria-label="Select logo image" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="fav-file-info" style="display:none;" class="compress-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span id="fav-file-name" class="compress-file-info__name"></span>
+      <span id="fav-file-dims" class="compress-file-info__size"></span>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="fav-preview-grid" style="display:none;">
+      <p class="overline-text" style="margin-bottom:var(--space-4);">Preview Sizes</p>
+      <div class="fav-sizes-grid" id="fav-sizes-grid" aria-label="Favicon size previews"></div>
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="fav-actions" style="display:none;" class="convert-actions">
+      <button class="btn btn-primary btn-lg" id="generate-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Generate Favicon Pack
+      </button>
+      <button class="btn btn-ghost" id="reset-btn">New image</button>
+    </div>
+  </div>
+
+  <div slot="result">
+    <div id="fav-result" style="display:none;">
+      <div class="convert-result" style="margin-bottom:var(--space-5);">
+        <div class="resize-result__icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="resize-result__info">
+          <p class="resize-result__label">Favicon pack ready!</p>
+          <p class="resize-result__dims">4 icon sizes generated (16×16, 32×32, 48×48, 180×180)</p>
+        </div>
+        <a class="btn btn-accent" id="download-zip" download="favicons.zip">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download ZIP
+        </a>
+        <button class="btn btn-ghost btn-sm" id="generate-again-btn">New image</button>
+      </div>
+
+      <!-- HTML snippet -->
+      <div class="b64-snippets">
+        <div class="b64-code-header">
+          <p class="overline-text">HTML Installation Snippet</p>
+          <button class="btn btn-ghost btn-sm" id="copy-html-snippet">Copy HTML</button>
+        </div>
+        <pre class="b64-pre"><code id="fav-html-snippet"></code></pre>
+      </div>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<style is:global>
+  .fav-sizes-grid {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+    padding: var(--space-5);
+    background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-hairline);
+  }
+  .fav-size-item { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+  .fav-size-label { font-size: 0.75rem; color: var(--color-ink-faint); font-weight: 500; }
+  .fav-size-item canvas { border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+</style>
+
+<script>
+  // Pure-JS minimal ZIP builder — no external deps needed
+  function u8(s: string) { return new TextEncoder().encode(s); }
+  function num4LE(n: number) { const b = new Uint8Array(4); new DataView(b.buffer).setUint32(0, n, true); return b; }
+  function num2LE(n: number) { const b = new Uint8Array(2); new DataView(b.buffer).setUint16(0, n, true); return b; }
+
+  async function buildZip(files: { name: string; data: Uint8Array }[]): Promise<Blob> {
+    const parts: Uint8Array[] = [];
+    const centralDir: Uint8Array[] = [];
+    let offset = 0;
+    const now = new Date();
+    const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+    for (const file of files) {
+      const fname = u8(file.name);
+      const crc = await crc32(file.data);
+      // Local file header
+      const localHeader = concat([u8('PK\x03\x04'), num2LE(20), num2LE(0), num2LE(0), num2LE(dosTime), num2LE(dosDate), num4LE(crc), num4LE(file.data.length), num4LE(file.data.length), num2LE(fname.length), num2LE(0), fname]);
+      parts.push(localHeader, file.data);
+      // Central directory entry
+      centralDir.push(concat([u8('PK\x01\x02'), num2LE(20), num2LE(20), num2LE(0), num2LE(0), num2LE(dosTime), num2LE(dosDate), num4LE(crc), num4LE(file.data.length), num4LE(file.data.length), num2LE(fname.length), num2LE(0), num2LE(0), num2LE(0), num2LE(0), num4LE(0), num4LE(offset), fname]));
+      offset += localHeader.length + file.data.length;
+    }
+    const cdData = concat(centralDir);
+    const eocd = concat([u8('PK\x05\x06'), num2LE(0), num2LE(0), num2LE(files.length), num2LE(files.length), num4LE(cdData.length), num4LE(offset), num2LE(0)]);
+    return new Blob([...parts, cdData, eocd], { type: 'application/zip' });
+  }
+
+  function concat(arrays: Uint8Array[]): Uint8Array {
+    const total = arrays.reduce((s, a) => s + a.length, 0);
+    const out = new Uint8Array(total); let off = 0;
+    for (const a of arrays) { out.set(a, off); off += a.length; }
+    return out;
+  }
+
+  async function crc32(data: Uint8Array): Promise<number> {
+    const table = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) { let c = i; for (let j = 0; j < 8; j++) c = (c & 1) ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; table[i] = c; }
+    let crc = 0xFFFFFFFF;
+    for (const byte of data) crc = table[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+
+
+  const SIZES = [16, 32, 48, 180];
+  let img: HTMLImageElement | null = null;
+  const canvases: HTMLCanvasElement[] = [];
+
+  const dropZone = document.getElementById('drop-zone') as HTMLDivElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('fav-file-info') as HTMLDivElement;
+  const fileNameEl = document.getElementById('fav-file-name') as HTMLSpanElement;
+  const fileDims = document.getElementById('fav-file-dims') as HTMLSpanElement;
+  const previewGrid = document.getElementById('fav-preview-grid') as HTMLDivElement;
+  const sizesGrid = document.getElementById('fav-sizes-grid') as HTMLDivElement;
+  const actions = document.getElementById('fav-actions') as HTMLDivElement;
+  const result = document.getElementById('fav-result') as HTMLDivElement;
+  const downloadZip = document.getElementById('download-zip') as HTMLAnchorElement;
+  const htmlSnippet = document.getElementById('fav-html-snippet') as HTMLElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f = e.dataTransfer?.files[0]; if (f && f.type.startsWith('image/')) loadFile(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) loadFile(fileInput.files[0]); fileInput.value = ''; });
+
+  function loadFile(file: File) {
+    img = new Image();
+    img.onload = () => {
+      fileNameEl.textContent = file.name;
+      fileDims.textContent = `${img!.naturalWidth}×${img!.naturalHeight}`;
+      renderPreviews();
+      fileInfo.style.display = 'flex';
+      previewGrid.style.display = 'block';
+      actions.style.display = 'flex';
+      result.style.display = 'none';
+      dropZone.style.display = 'none';
+    };
+    img.src = URL.createObjectURL(file);
+  }
+
+  function renderPreviews() {
+    sizesGrid.innerHTML = '';
+    canvases.length = 0;
+    SIZES.forEach(size => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img!, 0, 0, size, size);
+      canvases.push(canvas);
+      const item = document.createElement('div');
+      item.className = 'fav-size-item';
+      const label = document.createElement('p');
+      label.className = 'fav-size-label';
+      label.textContent = `${size}×${size}${size === 180 ? '\nApple' : ''}`;
+      item.appendChild(canvas);
+      item.appendChild(label);
+      sizesGrid.appendChild(item);
+    });
+  }
+
+  (document.getElementById('generate-btn') as HTMLButtonElement).addEventListener('click', async () => {
+    if (!img) return;
+    const zipFiles: { name: string; data: Uint8Array }[] = [];
+    for (let i = 0; i < SIZES.length; i++) {
+      const size = SIZES[i];
+      const canvas = canvases[i];
+      const blob: Blob = await new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/png'));
+      zipFiles.push({ name: `favicon-${size}x${size}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+    }
+    const zipBlob = await buildZip(zipFiles);
+    downloadZip.href = URL.createObjectURL(zipBlob);
+
+    const htmlText = `<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />\n<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />\n<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />\n<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180x180.png" />`;
+    htmlSnippet.textContent = htmlText;
+    result.style.display = 'block';
+    actions.style.display = 'none';
+  });
+
+  document.getElementById('copy-html-snippet')!.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(htmlSnippet.textContent || '');
+    const btn = document.getElementById('copy-html-snippet') as HTMLButtonElement;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+
+  document.getElementById('remove-file')!.addEventListener('click', reset);
+  document.getElementById('reset-btn')!.addEventListener('click', reset);
+  document.getElementById('generate-again-btn')!.addEventListener('click', reset);
+  function reset() { img = null; fileInfo.style.display = 'none'; previewGrid.style.display = 'none'; actions.style.display = 'none'; result.style.display = 'none'; dropZone.style.display = ''; }
+</script>

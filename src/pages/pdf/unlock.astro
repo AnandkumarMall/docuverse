@@ -1,24 +1,11 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
   { name: "Upload your protected PDF", text: "Drop or select the password-protected PDF you want to unlock." },
   { name: "Enter the password", text: "Type the correct password for the PDF. DocuVerse does not crack or bypass encryption — you must know the password." },
   { name: "Unlock and Download", text: "Click 'Unlock PDF'. Your browser decrypts the file and exports an unprotected version you can open freely." },
-];
-const faqs = [
-  {
-    question: "How to unlock an Aadhaar card or Bank Statement PDF?",
-    answer: "Upload your password-protected Aadhaar or bank statement PDF, enter your personal unlock password (e.g., the first 4 letters of your name + birth year for Aadhaar, or the last 4 digits of your mobile number for bank PDFs), and click 'Unlock PDF'. The password is permanently removed so you can open the file anytime without re-typing."
-  },
-  {
-    question: "Can you unlock a password-protected PDF without knowing the password?",
-    answer: "Strong AES owner passwords cannot be legally or technologically broken without the password. However, if a PDF only has editing, copying, or printing restrictions (no open-password), our tool can strip those permission restrictions instantly."
-  },
-  {
-    question: "How to unlock a PDF for editing or printing?",
-    answer: "Upload the restricted PDF file. Our browser-based unlocker decodes the permission flags and gives you an unrestricted, fully printable and editable PDF copy — all without uploading to any server."
-  },
 ];
 ---
 
@@ -33,7 +20,8 @@ const faqs = [
   categoryHref="/#category-pdf"
   acceptedFormats="Password-protected PDF · No size limit"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf["unlock"].keywords}
+  faqs={seoDataPdf["unlock"].faqs}
 >
 
   <div slot="drop-zone">
@@ -87,8 +75,8 @@ const faqs = [
   </div>
 </ToolLayout>
 
-<style>
-  .ul-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); }
+<style is:global>
+  .ul-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207, 69, 0, 0.04); border:1px solid rgba(207, 69, 0, 0.15); border-radius:var(--radius-md); }
   .ul-file-info__name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ul-options { display:flex; flex-direction:column; gap:var(--space-3); max-width:420px; }
   .ul-label { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); }

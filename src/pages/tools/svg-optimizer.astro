@@ -1,0 +1,188 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataTools } from '../../data/seo-tools';
+
+const howToSteps = [
+  { name: "Upload an SVG file or paste code", text: "Drop an .svg file or paste raw SVG XML code directly into the input editor." },
+  { name: "Optimize instantly", text: "Click 'Optimize SVG'. The tool strips metadata, empty groups, and editor junk from your vector code." },
+  { name: "Copy or download the result", text: "One-click copy the minified code or download the cleaned .svg file directly." },
+];
+---
+
+<ToolLayout
+  title="SVG Optimizer Online Free — Minify and Clean SVG Code for the Web"
+  description="Optimize and minify SVG files by stripping editor metadata, empty groups, and hidden junk. Lossless compression for web developers. Free, private, instant."
+  canonicalPath="/tools/svg-optimizer"
+  toolName="SVG Optimizer"
+  toolTagline="Clean and minify SVG vector files — remove editor bloat, reduce file size. Free, lossless, instant."
+  category="utility"
+  categoryLabel="Smart Utilities"
+  categoryHref="/#category-tools"
+  acceptedFormats=".svg files or paste raw SVG code"
+  howToSteps={howToSteps}
+  keywords={seoDataTools["svg-optimizer"].keywords}
+  faqs={seoDataTools["svg-optimizer"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an SVG file here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+      <span class="drop-zone__text">Drop an SVG file here or click to browse</span>
+      <span class="drop-zone__hint">.svg files · Or paste code in the editor below</span>
+      <input type="file" id="file-input" accept=".svg,image/svg+xml" class="sr-only" aria-label="Select SVG file" />
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="svg-workspace" style="display:none;">
+      <div class="svg-editor-grid">
+        <div class="svg-editor-col">
+          <div class="svg-editor-header">
+            <p class="overline-text">Input SVG</p>
+            <span id="svg-input-size" class="svg-size-badge"></span>
+          </div>
+          <textarea id="svg-input" class="svg-textarea" placeholder="Paste your SVG code here..." spellcheck="false" aria-label="SVG input code"></textarea>
+        </div>
+        <div class="svg-editor-col">
+          <div class="svg-editor-header">
+            <p class="overline-text">Optimized SVG</p>
+            <span id="svg-output-size" class="svg-size-badge svg-size-badge--green"></span>
+          </div>
+          <textarea id="svg-output" class="svg-textarea svg-textarea--output" placeholder="Optimized code will appear here..." readonly spellcheck="false" aria-label="Optimized SVG code"></textarea>
+        </div>
+      </div>
+      <div class="svg-savings" id="svg-savings" style="display:none;">
+        <span id="svg-savings-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="svg-actions" class="convert-actions">
+      <button class="btn btn-primary btn-lg" id="optimize-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        Optimize SVG
+      </button>
+      <button class="btn btn-ghost btn-sm" id="copy-btn" style="display:none;">Copy Code</button>
+      <a class="btn btn-accent btn-sm" id="download-btn" download="optimized.svg" style="display:none;">Download .svg</a>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<style is:global>
+  .svg-editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  @media (max-width: 640px) { .svg-editor-grid { grid-template-columns: 1fr; } }
+  .svg-editor-col { display: flex; flex-direction: column; gap: var(--space-2); }
+  .svg-editor-header { display: flex; align-items: center; justify-content: space-between; }
+  .svg-size-badge { font-size: 0.75rem; font-weight: 600; color: var(--color-ink-faint); }
+  .svg-size-badge--green { color: var(--color-accent-green); }
+  .svg-textarea {
+    width: 100%; min-height: 280px;
+    padding: var(--space-4);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-canvas-soft);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-ink-primary);
+    font-family: var(--font-mono, monospace);
+    resize: vertical;
+    transition: border-color var(--duration-fast);
+  }
+  .svg-textarea:focus { outline: none; border-color: var(--color-accent-orange); }
+  .svg-textarea--output { background: var(--color-surface); border-color: var(--color-border-hairline); color: var(--color-ink-secondary); }
+  .svg-savings { padding: var(--space-3) var(--space-4); background: var(--color-success-bg); border: 1px solid rgba(15,123,63,0.15); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--color-accent-green); font-weight: 500; }
+</style>
+
+<script>
+  const dropZone = document.getElementById('drop-zone') as HTMLDivElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const workspace = document.getElementById('svg-workspace') as HTMLDivElement;
+  const svgInput = document.getElementById('svg-input') as HTMLTextAreaElement;
+  const svgOutput = document.getElementById('svg-output') as HTMLTextAreaElement;
+  const inputSize = document.getElementById('svg-input-size') as HTMLSpanElement;
+  const outputSize = document.getElementById('svg-output-size') as HTMLSpanElement;
+  const savings = document.getElementById('svg-savings') as HTMLDivElement;
+  const savingsText = document.getElementById('svg-savings-text') as HTMLSpanElement;
+  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drop-zone--active');
+    const f = e.dataTransfer?.files[0];
+    if (f) readFile(f);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) readFile(fileInput.files[0]); fileInput.value = ''; });
+
+  function readFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      svgInput.value = (e.target?.result as string) || '';
+      showWorkspace();
+    };
+    reader.readAsText(file);
+  }
+
+  svgInput.addEventListener('input', () => {
+    const bytes = new TextEncoder().encode(svgInput.value).length;
+    inputSize.textContent = `${(bytes / 1024).toFixed(1)} KB`;
+    workspace.style.display = 'block';
+  });
+
+  function showWorkspace() {
+    workspace.style.display = 'block';
+    dropZone.style.display = 'none';
+    const bytes = new TextEncoder().encode(svgInput.value).length;
+    inputSize.textContent = `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  (document.getElementById('optimize-btn') as HTMLButtonElement).addEventListener('click', () => {
+    const input = svgInput.value.trim();
+    if (!input) { workspace.style.display = 'block'; dropZone.style.display = 'none'; return; }
+    showWorkspace();
+    const optimized = optimizeSvg(input);
+    svgOutput.value = optimized;
+    const inBytes = new TextEncoder().encode(input).length;
+    const outBytes = new TextEncoder().encode(optimized).length;
+    outputSize.textContent = `${(outBytes / 1024).toFixed(1)} KB`;
+    const saved = Math.round((1 - outBytes / inBytes) * 100);
+    savingsText.textContent = saved > 0 ? `✓ Reduced by ${saved}% (${(inBytes / 1024).toFixed(1)} KB → ${(outBytes / 1024).toFixed(1)} KB)` : '✓ SVG optimized (already fairly compact)';
+    savings.style.display = 'block';
+
+    const blob = new Blob([optimized], { type: 'image/svg+xml' });
+    downloadBtn.href = URL.createObjectURL(blob);
+    copyBtn.style.display = 'inline-flex';
+    downloadBtn.style.display = 'inline-flex';
+  });
+
+  function optimizeSvg(svg: string): string {
+    // Remove XML comments
+    let out = svg.replace(/<!--[\s\S]*?-->/g, '');
+    // Remove editor metadata namespaces (inkscape, sodipodi, dc, cc, rdf)
+    out = out.replace(/<(inkscape|sodipodi|dc|cc|rdf):[^>]*\/>/gi, '');
+    out = out.replace(/<(inkscape|sodipodi|dc|cc|rdf):[\s\S]*?<\/(inkscape|sodipodi|dc|cc|rdf):[^>]*>/gi, '');
+    // Remove empty groups
+    out = out.replace(/<g[^>]*>\s*<\/g>/gi, '');
+    // Remove display:none and visibility:hidden elements
+    out = out.replace(/<[^>]+(?:display:\s*none|visibility:\s*hidden)[^>]*>[\s\S]*?<\/[^>]+>/gi, '');
+    // Collapse whitespace between tags
+    out = out.replace(/>\s+</g, '><');
+    // Remove leading whitespace in attribute values
+    out = out.replace(/\s{2,}/g, ' ');
+    // Remove empty attributes
+    out = out.replace(/\s+\w+=""/g, '');
+    return out.trim();
+  }
+
+  copyBtn.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(svgOutput.value);
+    const orig = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+  });
+</script>

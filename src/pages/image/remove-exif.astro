@@ -1,0 +1,259 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataImage } from '../../data/seo-image';
+
+const howToSteps = [
+  { name: "Upload your image", text: "Drop or click to select any JPG or TIFF photo." },
+  { name: "Review EXIF data", text: "Instantly see all hidden metadata attached to the file, including location coordinates, camera models, and dates." },
+  { name: "Strip and Download", text: "Click 'Remove EXIF Data' to completely strip the metadata and download a clean, private copy." },
+];
+---
+
+<ToolLayout
+  title="Remove EXIF Data from Image Online — Privacy Tool"
+  description="Strip hidden EXIF metadata from images to protect your privacy. Remove GPS location, camera details, and dates before sharing online. Free and private."
+  canonicalPath="/image/remove-exif"
+  toolName="Remove EXIF Data"
+  toolTagline="Strip hidden metadata (GPS, dates, camera info) from photos before sharing online."
+  category="image"
+  categoryLabel="Image Tools"
+  categoryHref="/#category-image"
+  acceptedFormats="JPG, TIFF · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataImage["remove-exif"].keywords}
+  faqs={seoDataImage["remove-exif"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a JPG here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="drop-zone__text">Drop a JPG here or click to browse</span>
+      <span class="drop-zone__hint">JPG, TIFF · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/jpeg,image/tiff" class="sr-only" aria-label="Select image" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="exif-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <div class="exif-file-info__text">
+        <span id="file-name" class="exif-file-info__name"></span>
+        <span id="file-size-orig" class="exif-file-info__size"></span>
+      </div>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="exif-workspace" style="display:none;" class="exif-workspace">
+      
+      <div class="exif-layout">
+        <!-- Data Panel -->
+        <div class="exif-panel">
+          <div class="exif-header">
+            <p class="exif-overline">Detected EXIF Data</p>
+            <span class="exif-badge" id="exif-count">0 tags</span>
+          </div>
+          <div class="exif-table-wrap">
+            <table class="exif-table" id="exif-table">
+              <tbody id="exif-body">
+                <!-- injected data -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="exif-actions" style="display:none;" class="exif-actions">
+      <button class="btn btn-primary btn-lg" id="strip-btn" aria-label="Remove EXIF data">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Remove EXIF Data
+      </button>
+      <button class="btn btn-ghost" id="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div slot="result">
+    <div class="exif-result" id="exif-result" style="display:none;" aria-live="assertive">
+      <div class="exif-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="exif-result__meta">
+        <p class="exif-result__label">Metadata stripped successfully!</p>
+        <p class="exif-result__size" id="exif-result-size"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Clean Image
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Clean another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .exif-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .exif-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .exif-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .exif-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
+
+  .exif-workspace { display:flex; flex-direction:column; gap:var(--space-4); }
+
+  .exif-layout { display: flex; flex-direction: column; gap: var(--space-5); }
+
+  .exif-panel { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+  .exif-header { display: flex; justify-content: space-between; align-items: center; }
+  .exif-overline { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
+  .exif-badge { background: rgba(207,69,0,0.1); color: var(--color-accent-orange); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill); }
+
+  .exif-table-wrap { overflow-x: auto; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); background: var(--color-canvas-base); }
+  .exif-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .exif-table th, .exif-table td { padding: 10px 16px; border-bottom: 1px solid var(--color-border-hairline); font-size: 0.875rem; }
+  .exif-table th { font-weight: 600; color: var(--color-ink-secondary); background: rgba(0,0,0,0.02); width: 30%; }
+  .exif-table td { color: var(--color-ink-primary); font-family: ui-monospace, SFMono-Regular, monospace; }
+  .exif-table tr:last-child td, .exif-table tr:last-child th { border-bottom: none; }
+  
+  .exif-empty { padding: 32px; text-align: center; color: var(--color-ink-faint); font-size: 0.9375rem; }
+
+  .exif-actions { display:flex; align-items:center; gap:var(--space-4); }
+
+  .exif-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
+  .exif-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .exif-result__meta { flex:1; min-width:120px; }
+  .exif-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
+  .exif-result__size { font-size:.875rem; color:var(--color-ink-muted); margin-top:2px; font-variant-numeric:tabular-nums; }
+</style>
+
+<script>
+  import exifr from 'exifr';
+
+  let currentFile: File | null = null;
+  let hasExif = false;
+  let strippedBlob: Blob | null = null;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl = document.getElementById('file-size-orig') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  
+  const workspace = document.getElementById('exif-workspace') as HTMLElement;
+  const actionsPanel = document.getElementById('exif-actions') as HTMLElement;
+  const resultPanel = document.getElementById('exif-result') as HTMLElement;
+  
+  const exifBody = document.getElementById('exif-body') as HTMLElement;
+  const exifCount = document.getElementById('exif-count') as HTMLElement;
+  
+  const stripBtn = document.getElementById('strip-btn') as HTMLButtonElement;
+  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const resultSize = document.getElementById('exif-result-size') as HTMLElement;
+
+  function fmt(b: number) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+
+  // ── Upload ───────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f&&f.type.startsWith('image/')) load(f); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  async function load(f: File) {
+    currentFile = f;
+    fileNameEl.textContent = f.name;
+    fileSizeEl.textContent = fmt(f.size);
+    
+    fileInfo.style.display = 'flex';
+    dropZone.style.display = 'none';
+    workspace.style.display = 'flex';
+    actionsPanel.style.display = 'flex';
+    resultPanel.style.display = 'none';
+
+    try {
+      const output = await exifr.parse(f);
+      if (output && Object.keys(output).length > 0) {
+        hasExif = true;
+        const keys = Object.keys(output);
+        exifCount.textContent = `${keys.length} tags`;
+        stripBtn.disabled = false;
+        
+        exifBody.innerHTML = '';
+        keys.forEach(k => {
+          let val = output[k];
+          if(typeof val === 'object') val = JSON.stringify(val);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<th>${k}</th><td>${val}</td>`;
+          exifBody.appendChild(tr);
+        });
+      } else {
+        hasExif = false;
+        exifCount.textContent = `0 tags`;
+        exifBody.innerHTML = `<tr><td colspan="2" class="exif-empty">No EXIF data found. This image is already clean.</td></tr>`;
+        stripBtn.disabled = true;
+      }
+    } catch(e) {
+      hasExif = false;
+      exifCount.textContent = `Error`;
+      exifBody.innerHTML = `<tr><td colspan="2" class="exif-empty">Could not parse EXIF data.</td></tr>`;
+      stripBtn.disabled = true;
+    }
+  }
+
+  // ── Action ──────────────────────────────────────────────
+  stripBtn.addEventListener('click', () => {
+    if(!currentFile || !hasExif) return;
+    
+    // The easiest reliable client-side way to strip EXIF from a JPG is to render it to canvas and export as blob.
+    const url = URL.createObjectURL(currentFile);
+    const img = new Image();
+    img.onload = () => {
+      const tmp = document.createElement('canvas');
+      tmp.width = img.width;
+      tmp.height = img.height;
+      const ctx = tmp.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      
+      tmp.toBlob(blob => {
+        if(!blob) return;
+        strippedBlob = blob;
+        const dlUrl = URL.createObjectURL(blob);
+        downloadBtn.href = dlUrl;
+        downloadBtn.download = `clean-${currentFile?.name}`;
+        
+        resultSize.textContent = `Original: ${fmt(currentFile!.size)} \u00b7 Clean: ${fmt(blob.size)}`;
+        
+        workspace.style.display = 'none';
+        actionsPanel.style.display = 'none';
+        resultPanel.style.display = 'flex';
+        
+      }, currentFile!.type, 1.0);
+    };
+    img.src = url;
+  });
+
+  function reset() {
+    currentFile = null;
+    hasExif = false;
+    strippedBlob = null;
+    
+    dropZone.style.display = 'flex';
+    fileInfo.style.display = 'none';
+    workspace.style.display = 'none';
+    actionsPanel.style.display = 'none';
+    resultPanel.style.display = 'none';
+  }
+  
+  resetBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+
+</script>

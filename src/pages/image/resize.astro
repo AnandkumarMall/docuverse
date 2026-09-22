@@ -1,0 +1,553 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataImage } from '../../data/seo-image';
+
+const howToSteps = [
+  { name: "Upload your image", text: "Drop or click to select any JPG, PNG, WebP, or AVIF image you want to resize." },
+  { name: "Set dimensions", text: "Enter a specific Width or Height. By default, proportions are locked so your image won't stretch." },
+  { name: "Download", text: "Click 'Resize Image' to instantly scale and download the new file." },
+];
+---
+
+<ToolLayout
+  title="Resize Image Online Free — Change Photo Dimensions"
+  description="Resize images online by pixel dimensions or percentage. Keep aspect ratio locked to prevent stretching. Free, private, and instant."
+  canonicalPath="/image/resize"
+  toolName="Resize Image"
+  toolTagline="Change image dimensions by exact pixels or percentages. Free, instant, private."
+  category="image"
+  categoryLabel="Image Tools"
+  categoryHref="/#category-image"
+  acceptedFormats="JPG, PNG, WebP, AVIF · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataImage["resize"].keywords}
+  faqs={seoDataImage["resize"].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an image here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/><path d="M9 3v18"/></svg>
+      <span class="drop-zone__text">Drop an image here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP, AVIF · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/*" class="sr-only" aria-label="Select image" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="resize-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <div class="resize-file-info__text">
+        <span id="file-name" class="resize-file-info__name"></span>
+        <span id="file-size-orig" class="resize-file-info__size"></span>
+      </div>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="resize-workspace" style="display:none;" class="resize-options-panel">
+      
+      <!-- Side-by-side Layout -->
+      <div class="resize-layout">
+        
+        <!-- Controls -->
+        <div class="resize-controls">
+          <p class="resize-overline-text">Resize By</p>
+          
+          <div class="resize-tabs" role="tablist" style="flex-wrap: wrap; gap: 4px;">
+            <button class="resize-tab resize-tab--active" data-mode="px" id="mode-px" role="tab">px</button>
+            <button class="resize-tab" data-mode="pct" id="mode-pct" role="tab">%</button>
+            <button class="resize-tab" data-mode="cm" id="mode-cm" role="tab">cm</button>
+            <button class="resize-tab" data-mode="mm" id="mode-mm" role="tab">mm</button>
+            <button class="resize-tab" data-mode="in" id="mode-in" role="tab">in</button>
+          </div>
+          
+          <div class="resize-fields">
+            <div class="resize-field">
+              <label for="width-input" class="resize-label">Width</label>
+              <div class="resize-input-wrap">
+                <input type="number" id="width-input" class="resize-input" min="0.01" step="any" max="10000" />
+                <span class="resize-unit" id="unit-w">px</span>
+              </div>
+            </div>
+            
+            <button id="lock-btn" class="resize-lock-btn" title="Toggle Aspect Ratio Lock">
+              <svg id="lock-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg id="unlock-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            </button>
+            
+            <div class="resize-field">
+              <label for="height-input" class="resize-label">Height</label>
+              <div class="resize-input-wrap">
+                <input type="number" id="height-input" class="resize-input" min="0.01" step="any" max="10000" />
+                <span class="resize-unit" id="unit-h">px</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="resize-field" id="dpi-field" style="display:none; margin-top: var(--space-4);">
+            <label for="dpi-input" class="resize-label">Print Resolution (DPI)</label>
+            <div class="resize-input-wrap" style="max-width: 150px;">
+              <input type="number" id="dpi-input" class="resize-input" min="72" max="1200" value="300" />
+              <span class="resize-unit">dpi</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-ink-muted); margin-top: 4px;">Used to convert physical size to pixels.</p>
+          </div>
+        </div>
+        
+        <!-- Preview -->
+        <div class="resize-preview-area">
+          <div class="resize-preview-card">
+            <p class="resize-preview-label">Preview</p>
+            <div class="resize-preview-img-wrap">
+              <canvas id="resize-preview-canvas" class="resize-preview-canvas"></canvas>
+            </div>
+            <div class="resize-preview-meta">
+              <span class="resize-estimate-size" id="preview-dims">— × —</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="resize-actions" style="display:none;" class="resize-actions">
+      <div class="resize-export-wrap">
+        <label for="export-format" class="sr-only">Export Format</label>
+        <select id="export-format" class="resize-export-select">
+          <option value="original">Keep Original Format</option>
+          <option value="image/jpeg">Convert to JPG</option>
+          <option value="image/png">Convert to PNG</option>
+          <option value="image/webp">Convert to WebP</option>
+          <option value="application/pdf">Convert to PDF</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-lg" id="resize-btn" aria-label="Apply resize">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Resize & Download
+      </button>
+      <button class="btn btn-ghost" id="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div slot="result">
+    <div class="resize-result" id="resize-result" style="display:none;" aria-live="assertive">
+      <div class="resize-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="resize-result__meta">
+        <p class="resize-result__label">Resize complete!</p>
+        <p class="resize-result__size" id="resize-result-size"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Resized Image
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Resize another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .resize-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .resize-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .resize-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .resize-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
+
+  .resize-options-panel { display:flex; flex-direction:column; gap:var(--space-4); }
+
+  .resize-layout { display: grid; grid-template-columns: 300px 1fr; gap: var(--space-5); }
+  @media (max-width: 768px) { .resize-layout { grid-template-columns: 1fr; } }
+
+  .resize-controls { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+  .resize-overline-text { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
+  
+  .resize-tabs { display: flex; align-items: center; background: rgba(0,0,0,0.04); padding: 4px; border-radius: var(--radius-md); }
+  .resize-tab { flex: 1; padding: 8px 12px; border: none; border-radius: var(--radius-sm); font-size: 0.8125rem; font-weight: 600; color: var(--color-ink-secondary); background: transparent; cursor: pointer; transition: all var(--duration-fast); }
+  .resize-tab:hover { color: var(--color-ink-primary); }
+  .resize-tab--active { background: #fff; color: var(--color-ink-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  .resize-fields { display: flex; align-items: center; gap: var(--space-3); }
+  .resize-field { display: flex; flex-direction: column; gap: var(--space-1); flex: 1; }
+  .resize-label { font-size: 0.75rem; font-weight: 600; color: var(--color-ink-secondary); }
+  .resize-input-wrap { display: flex; align-items: center; border: 1.5px solid var(--color-border-hairline); border-radius: var(--radius-sm); background: var(--color-canvas-base); overflow: hidden; }
+  .resize-input-wrap:focus-within { border-color: var(--color-accent-orange); }
+  .resize-input { flex: 1; width: 100%; min-width: 0; padding: 8px; border: none; background: transparent; font-size: 0.875rem; color: var(--color-ink-primary); text-align: right; outline: none; }
+  .resize-unit { padding: 8px; font-size: 0.8125rem; color: var(--color-ink-muted); font-weight: 600; background: rgba(0,0,0,0.03); border-left: 1px solid var(--color-border-hairline); }
+
+  .resize-lock-btn { align-self: flex-end; padding: 10px; border: none; background: rgba(0,0,0,0.04); border-radius: var(--radius-sm); color: var(--color-ink-secondary); cursor: pointer; transition: all var(--duration-fast); display: flex; align-items: center; justify-content: center; }
+  .resize-lock-btn:hover { background: rgba(0,0,0,0.08); color: var(--color-ink-primary); }
+  .resize-lock-btn--active { color: var(--color-accent-orange); background: rgba(207,69,0,0.08); }
+
+  .resize-preview-area { flex: 1; display: flex; flex-direction: column; }
+  .resize-preview-card { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-lg); background:var(--color-canvas-soft); }
+  .resize-preview-label { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-muted); }
+  .resize-preview-img-wrap {
+    background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px;
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    flex: 1; min-height: 200px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .resize-preview-canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .resize-preview-meta { display:flex; flex-direction:column; gap:2px; margin-top:var(--space-2); align-items: center; }
+  .resize-estimate-size { font-size:1.5rem; font-weight:800; color:var(--color-accent-orange); font-variant-numeric:tabular-nums; }
+
+  .resize-actions { display:flex; align-items:center; gap:var(--space-4); flex-wrap: wrap; }
+  .resize-export-wrap { display: flex; align-items: center; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); background: #fff; padding: 0 var(--space-2); height: 48px; }
+  .resize-export-select { border: none; background: transparent; font-size: 0.875rem; font-weight: 600; color: var(--color-ink-primary); padding: 0 var(--space-2); outline: none; cursor: pointer; }
+
+  .resize-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
+  .resize-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .resize-result__meta { flex:1; min-width:120px; }
+  .resize-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
+  .resize-result__size { font-size:.875rem; color:var(--color-ink-muted); margin-top:2px; font-variant-numeric:tabular-nums; }
+</style>
+
+<script>
+  import { PDFDocument } from 'pdf-lib';
+  let currentFile: File | null = null;
+  let currentImg: HTMLImageElement | null = null;
+  
+  let origW = 0;
+  let origH = 0;
+  let isLocked = true;
+  let mode = 'px'; // 'px' or 'pct'
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl = document.getElementById('file-size-orig') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  
+  const workspace = document.getElementById('resize-workspace') as HTMLElement;
+  const actionsPanel = document.getElementById('resize-actions') as HTMLElement;
+  const resultPanel = document.getElementById('resize-result') as HTMLElement;
+  
+  const modePxBtn = document.getElementById('mode-px') as HTMLButtonElement;
+  const modePctBtn = document.getElementById('mode-pct') as HTMLButtonElement;
+  const modeCmBtn = document.getElementById('mode-cm') as HTMLButtonElement;
+  const modeMmBtn = document.getElementById('mode-mm') as HTMLButtonElement;
+  const modeInBtn = document.getElementById('mode-in') as HTMLButtonElement;
+  const dpiField = document.getElementById('dpi-field') as HTMLElement;
+  const dpiInput = document.getElementById('dpi-input') as HTMLInputElement;
+  
+  const exportFormat = document.getElementById('export-format') as HTMLSelectElement;
+  
+  const widthInput = document.getElementById('width-input') as HTMLInputElement;
+  const heightInput = document.getElementById('height-input') as HTMLInputElement;
+  const unitW = document.getElementById('unit-w') as HTMLElement;
+  const unitH = document.getElementById('unit-h') as HTMLElement;
+  
+  const lockBtn = document.getElementById('lock-btn') as HTMLButtonElement;
+  const lockIcon = document.getElementById('lock-icon') as HTMLElement;
+  const unlockIcon = document.getElementById('unlock-icon') as HTMLElement;
+  
+  const canvas = document.getElementById('resize-preview-canvas') as HTMLCanvasElement;
+  const previewDims = document.getElementById('preview-dims') as HTMLElement;
+  
+  const resizeBtn = document.getElementById('resize-btn') as HTMLButtonElement;
+  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const resultSize = document.getElementById('resize-result-size') as HTMLElement;
+
+  function fmt(b: number) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+
+  // ── Upload ───────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f&&f.type.startsWith('image/')) load(f); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  function load(f: File) {
+    currentFile = f;
+    fileNameEl.textContent = f.name;
+    fileSizeEl.textContent = fmt(f.size);
+    
+    fileInfo.style.display = 'flex';
+    dropZone.style.display = 'none';
+    workspace.style.display = 'flex';
+    actionsPanel.style.display = 'flex';
+    resultPanel.style.display = 'none';
+
+    const url = URL.createObjectURL(f);
+    currentImg = new Image();
+    currentImg.onload = () => {
+      origW = currentImg!.width;
+      origH = currentImg!.height;
+      setMode('px');
+      renderPreview();
+    };
+    currentImg.src = url;
+  }
+
+  // ── Mode Switch ──────────────────────────────────────────
+  const modes = ['px', 'pct', 'cm', 'mm', 'in'];
+  const modeBtns = { px: modePxBtn, pct: modePctBtn, cm: modeCmBtn, mm: modeMmBtn, in: modeInBtn };
+  
+  Object.keys(modeBtns).forEach(k => {
+    (modeBtns as any)[k].addEventListener('click', () => setMode(k));
+  });
+
+  function getDpi() {
+    return parseFloat(dpiInput.value) || 300;
+  }
+
+  function getPixelValue(physicalValue: number, modeStr: string): number {
+    const dpi = getDpi();
+    if (modeStr === 'in') return physicalValue * dpi;
+    if (modeStr === 'cm') return (physicalValue / 2.54) * dpi;
+    if (modeStr === 'mm') return (physicalValue / 25.4) * dpi;
+    return physicalValue;
+  }
+
+  function getPhysicalValue(pixelValue: number, modeStr: string): number {
+    const dpi = getDpi();
+    if (modeStr === 'in') return +(pixelValue / dpi).toFixed(3);
+    if (modeStr === 'cm') return +((pixelValue / dpi) * 2.54).toFixed(3);
+    if (modeStr === 'mm') return +((pixelValue / dpi) * 25.4).toFixed(3);
+    return pixelValue;
+  }
+
+  function setMode(newMode: string) {
+    // Current pixel values to convert from
+    let currentPixelW = origW;
+    let currentPixelH = origH;
+    
+    // If not first load, calculate current pixels before switching
+    if (widthInput.value) {
+      if (mode === 'pct') {
+        currentPixelW = origW * (parseFloat(widthInput.value) / 100) || origW;
+        currentPixelH = origH * (parseFloat(heightInput.value) / 100) || origH;
+      } else {
+        currentPixelW = getPixelValue(parseFloat(widthInput.value), mode) || origW;
+        currentPixelH = getPixelValue(parseFloat(heightInput.value), mode) || origH;
+      }
+    }
+
+    mode = newMode;
+    
+    // UI updates
+    modes.forEach(m => (modeBtns as any)[m].classList.remove('resize-tab--active'));
+    (modeBtns as any)[mode].classList.add('resize-tab--active');
+    
+    dpiField.style.display = ['cm', 'mm', 'in'].includes(mode) ? 'flex' : 'none';
+
+    if (mode === 'px') {
+      unitW.textContent = 'px';
+      unitH.textContent = 'px';
+      widthInput.value = Math.round(currentPixelW).toString();
+      heightInput.value = Math.round(currentPixelH).toString();
+    } else if (mode === 'pct') {
+      unitW.textContent = '%';
+      unitH.textContent = '%';
+      widthInput.value = +((currentPixelW / origW) * 100).toFixed(1);
+      heightInput.value = +((currentPixelH / origH) * 100).toFixed(1);
+    } else {
+      unitW.textContent = mode;
+      unitH.textContent = mode;
+      widthInput.value = getPhysicalValue(currentPixelW, mode).toString();
+      heightInput.value = getPhysicalValue(currentPixelH, mode).toString();
+    }
+  }
+
+  dpiInput.addEventListener('input', () => {
+    // Retain physical values visually, but trigger preview update since pixel sizes change
+    renderPreview();
+  });
+
+  // ── Input Handling ────────────────────────────────────────
+  lockBtn.addEventListener('click', () => {
+    isLocked = !isLocked;
+    if (isLocked) {
+      lockBtn.classList.remove('resize-lock-btn--active');
+      lockIcon.style.display = 'block';
+      unlockIcon.style.display = 'none';
+      // Re-apply ratio based on width
+      triggerInput(widthInput);
+    } else {
+      lockBtn.classList.add('resize-lock-btn--active');
+      lockIcon.style.display = 'none';
+      unlockIcon.style.display = 'block';
+    }
+  });
+
+  widthInput.addEventListener('input', () => {
+    if (!currentImg) return;
+    const w = parseFloat(widthInput.value) || 0;
+    if (isLocked) {
+      if (mode === 'px') {
+        heightInput.value = Math.round(w * (origH / origW)).toString();
+      } else if (mode === 'pct') {
+        heightInput.value = w.toString();
+      } else {
+        heightInput.value = +(w * (origH / origW)).toFixed(3);
+      }
+    }
+    renderPreview();
+  });
+
+  heightInput.addEventListener('input', () => {
+    if (!currentImg) return;
+    const h = parseFloat(heightInput.value) || 0;
+    if (isLocked) {
+      if (mode === 'px') {
+        widthInput.value = Math.round(h * (origW / origH)).toString();
+      } else if (mode === 'pct') {
+        widthInput.value = h.toString();
+      } else {
+        widthInput.value = +(h * (origW / origH)).toFixed(3);
+      }
+    }
+    renderPreview();
+  });
+
+  function triggerInput(el: HTMLInputElement) {
+    const ev = new Event('input');
+    el.dispatchEvent(ev);
+  }
+
+  function renderPreview() {
+    if(!currentImg) return;
+    
+    let w = parseFloat(widthInput.value) || 0;
+    let h = parseFloat(heightInput.value) || 0;
+    
+    if (mode === 'pct') {
+      w = Math.round(origW * (w / 100));
+      h = Math.round(origH * (h / 100));
+    } else if (mode !== 'px') {
+      w = Math.round(getPixelValue(w, mode));
+      h = Math.round(getPixelValue(h, mode));
+    }
+    
+    // Safety caps for preview
+    if(w > 10000) w = 10000;
+    if(h > 10000) h = 10000;
+    if(w < 1) w = 1;
+    if(h < 1) h = 1;
+
+    previewDims.textContent = `${w} × ${h} px`;
+    
+    // Actually render a scaled version for the canvas so it looks proportional
+    const MAX_P = 800;
+    let pw = w, ph = h;
+    if(pw > MAX_P) { ph = ph * (MAX_P / pw); pw = MAX_P; }
+    if(ph > MAX_P) { pw = pw * (MAX_P / ph); ph = MAX_P; }
+    
+    canvas.width = pw;
+    canvas.height = ph;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(currentImg, 0, 0, pw, ph);
+  }
+
+  // ── Action ──────────────────────────────────────────────
+  resizeBtn.addEventListener('click', async () => {
+    if(!currentImg || !currentFile) return;
+    
+    let w = parseFloat(widthInput.value) || 0;
+    let h = parseFloat(heightInput.value) || 0;
+    
+    if (mode === 'pct') {
+      w = Math.round(origW * (w / 100));
+      h = Math.round(origH * (h / 100));
+    } else if (mode !== 'px') {
+      w = Math.round(getPixelValue(w, mode));
+      h = Math.round(getPixelValue(h, mode));
+    }
+    
+    if(w < 1) w = 1;
+    if(h < 1) h = 1;
+    
+    const tmp = document.createElement('canvas');
+    tmp.width = w;
+    tmp.height = h;
+    const ctx = tmp.getContext('2d')!;
+    
+    // Fill white bg for transparent to JPEG/PDF conversions
+    const targetFormat = exportFormat.value === 'original' ? currentFile.type : exportFormat.value;
+    if (targetFormat === 'image/jpeg' || targetFormat === 'application/pdf') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+    }
+    
+    ctx.drawImage(currentImg, 0, 0, w, h);
+    
+    let ext = targetFormat.split('/')[1];
+    if (ext === 'jpeg') ext = 'jpg';
+    if (targetFormat === 'original') ext = currentFile.name.split('.').pop() || 'jpg';
+    
+    const finalize = (blob: Blob) => {
+      const url = URL.createObjectURL(blob);
+      downloadBtn.href = url;
+      downloadBtn.download = `resized-${currentFile?.name.split('.')[0]}.${ext}`;
+      
+      resultSize.textContent = `${w}×${h} \u00b7 ${fmt(blob.size)}`;
+      
+      workspace.style.display = 'none';
+      actionsPanel.style.display = 'none';
+      resultPanel.style.display = 'flex';
+    };
+
+    if (targetFormat === 'application/pdf') {
+      const pdfDoc = await PDFDocument.create();
+      const page = pdfDoc.addPage([w, h]);
+      
+      let imgDataUrl = tmp.toDataURL('image/jpeg', 0.95);
+      const imgObj = await pdfDoc.embedJpg(imgDataUrl);
+      
+      page.drawImage(imgObj, {
+        x: 0, y: 0, width: w, height: h,
+      });
+      
+      const pdfBytes = await pdfDoc.save();
+      finalize(new Blob([pdfBytes], { type: 'application/pdf' }));
+    } else {
+      let mimeType = targetFormat;
+      if (mimeType === 'original') mimeType = currentFile.type;
+      
+      // Fallback for AVIF/etc if browser can't encode it -> jpeg
+      try {
+        tmp.toBlob(blob => {
+          if (!blob || blob.size < 10) {
+            // Failed, fallback
+            tmp.toBlob(fallbackBlob => {
+              if (fallbackBlob) finalize(fallbackBlob);
+            }, 'image/jpeg', 0.95);
+          } else {
+            finalize(blob);
+          }
+        }, mimeType, 0.95);
+      } catch(e) {
+        // Encoding not supported (e.g. avif), fallback to png
+        tmp.toBlob(blob => {
+          if (blob) finalize(blob);
+        }, 'image/png');
+      }
+    }
+  });
+
+  function reset() {
+    currentFile = null;
+    currentImg = null;
+    dropZone.style.display = 'flex';
+    fileInfo.style.display = 'none';
+    workspace.style.display = 'none';
+    actionsPanel.style.display = 'none';
+    resultPanel.style.display = 'none';
+  }
+  
+  resetBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+
+</script>

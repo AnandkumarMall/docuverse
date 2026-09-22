@@ -1,32 +1,28 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
   { name: "Upload your PDF", text: "Drop or browse to select the PDF you want to split. Any PDF up to any size works — no file limit." },
-  { name: "Choose split mode", text: "Pick 'By Page Range' to extract specific pages (e.g. 1-3, 5, 7-9), or 'Extract All Pages' to get every page as its own file." },
-  { name: "Split and Download", text: "Click 'Split PDF'. Your browser splits the file instantly using WebAssembly. Download as individual files or a ZIP." },
+  { name: "Choose split mode", text: "Pick 'Visual Selection' to select pages by clicking them, 'By Page Range' to extract specific pages (e.g. 1-3, 5, 7-9), or 'Extract All Pages'." },
+  { name: "Split and Download", text: "Choose to extract into a single new PDF or multiple PDFs. Click 'Split PDF'. Your browser splits the file instantly using WebAssembly." },
 ];
 
-const faqs = [
-  { question: "Are my files uploaded to a server?", answer: "No. Everything runs in your browser. Files never leave your device." },
-  { question: "What page range format should I use?", answer: "Use commas and hyphens: '1-3, 5, 7-9' gives you pages 1, 2, 3, 5, 7, 8, 9. Spaces are fine." },
-  { question: "Can I extract a single page?", answer: "Yes. Enter a single page number like '3' to extract just that one page as its own PDF." },
-  { question: "Is there a page or file size limit?", answer: "No. The limit is only your device memory. Multi-hundred page PDFs work fine on any modern device." },
-];
 ---
 
 <ToolLayout
-  title="Split PDF Free Online — Extract Pages by Range, No Sign-Up"
-  description="Split a PDF into separate files by page range or extract all pages individually. Free, private, instant — runs entirely in your browser."
+  title="Split PDF Free Online — Extract Pages by Range or Visually, No Sign-Up"
+  description="Split a PDF into separate files by page range, visually select pages, or extract all pages individually. Free, private, instant — runs entirely in your browser."
   canonicalPath="/pdf/split"
   toolName="Split PDF"
-  toolTagline="Extract any pages from a PDF — by range or all at once. Free and 100% private."
+  toolTagline="Extract any pages from a PDF visually or by range. Create single or multiple PDFs. Free & private."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
   acceptedFormats="One PDF file · No size limit · Files stay on your device"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf["split"].keywords}
+  faqs={seoDataPdf["split"].faqs}
 >
 
   <div slot="drop-zone">
@@ -57,10 +53,19 @@ const faqs = [
 
   <div slot="options">
     <div class="split-options" id="split-options" style="display:none;">
+      
       <p class="overline-text" style="margin-bottom:var(--space-3);">Split Mode</p>
       <div class="split-mode-group" role="radiogroup" aria-label="Split mode">
-        <label class="split-mode-option split-mode-option--active" id="mode-range-label">
-          <input type="radio" name="split-mode" value="range" checked class="sr-only" />
+        <label class="split-mode-option split-mode-option--active" id="mode-visual-label">
+          <input type="radio" name="split-mode" value="visual" checked class="sr-only" />
+          <div class="split-mode-option__dot"></div>
+          <div>
+            <span class="split-mode-option__title">Visual Selection</span>
+            <span class="split-mode-option__desc">Click pages to select/deselect them</span>
+          </div>
+        </label>
+        <label class="split-mode-option" id="mode-range-label">
+          <input type="radio" name="split-mode" value="range" class="sr-only" />
           <div class="split-mode-option__dot"></div>
           <div>
             <span class="split-mode-option__title">By Page Range</span>
@@ -72,14 +77,30 @@ const faqs = [
           <div class="split-mode-option__dot"></div>
           <div>
             <span class="split-mode-option__title">Extract All Pages</span>
-            <span class="split-mode-option__desc">Each page becomes its own PDF</span>
+            <span class="split-mode-option__desc">Select every page</span>
           </div>
         </label>
       </div>
-      <div class="split-range-input" id="range-input-wrapper">
+
+      <div id="loading-msg" style="display:none;" class="split-loading">
+        <div class="skeleton" style="height:80px;width:100%;"></div>
+        <p class="caption-text" style="margin-top:var(--space-2);">Rendering page thumbnails…</p>
+      </div>
+
+      <div class="split-visual-grid" id="visual-grid"></div>
+
+      <div class="split-range-input" id="range-input-wrapper" style="display:none;">
         <label for="page-range" class="split-range-label">Page ranges <span class="split-range-hint">(e.g. 1-3, 5, 8-10)</span></label>
         <input type="text" id="page-range" class="input" placeholder="1-3, 5, 8-10" aria-describedby="range-hint" />
         <p class="caption-text" id="range-hint" style="margin-top:var(--space-1);">Separate ranges with commas. Use hyphens for ranges.</p>
+      </div>
+
+      <div class="split-output-group" style="margin-top:var(--space-5);">
+        <p class="overline-text" style="margin-bottom:var(--space-3);">Output Format</p>
+        <div class="ti-radio-group">
+          <label class="ti-radio"><input type="radio" name="output-mode" value="single" checked /> Merge selected into ONE file</label>
+          <label class="ti-radio"><input type="radio" name="output-mode" value="multiple" /> Create MULTIPLE files</label>
+        </div>
       </div>
     </div>
   </div>
@@ -102,8 +123,8 @@ const faqs = [
 
 </ToolLayout>
 
-<style>
-  .split-file-info { background: var(--color-canvas-soft); border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); }
+<style is:global>
+  .split-file-info { background: rgba(207, 69, 0, 0.04); border: 1px solid rgba(207, 69, 0, 0.15); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
   .split-file-info__row { display: flex; align-items: center; gap: var(--space-3); }
   .split-file-info__name { flex: 1; font-size: .9375rem; font-weight: 500; color: var(--color-ink-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .split-file-info__meta { font-size: .8125rem; color: var(--color-ink-faint); white-space: nowrap; }
@@ -116,23 +137,41 @@ const faqs = [
   .split-mode-option__title { display: block; font-size: .9375rem; font-weight: 600; color: var(--color-ink-primary); }
   .split-mode-option__desc { font-size: .8125rem; color: var(--color-ink-muted); }
 
-  .split-range-input { display: flex; flex-direction: column; gap: var(--space-2); }
+  .split-range-input { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
   .split-range-label { font-size: .9375rem; font-weight: 500; color: var(--color-ink-primary); }
   .split-range-hint { font-weight: 400; color: var(--color-ink-faint); }
 
-  .split-actions { display: flex; align-items: center; gap: var(--space-4); }
+  .split-visual-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+  .split-visual-grid:empty { display: none; }
+  .split-page { position: relative; cursor: pointer; user-select: none; border-radius: var(--radius-sm); border: 2px solid transparent; transition: all var(--duration-fast); padding: 4px; }
+  .split-page:hover { border-color: rgba(207, 69, 0, 0.4); background: rgba(207, 69, 0, 0.02); }
+  .split-page--selected { border-color: var(--color-accent-orange); background: rgba(207, 69, 0, 0.06); }
+  .split-thumb { width: 100%; aspect-ratio: 3/4; background: #fff; border: 1px solid var(--color-border-hairline); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .split-page-num { display: block; text-align: center; font-size: 0.75rem; font-weight: 600; margin-top: 6px; color: var(--color-ink-muted); }
+  .split-page--selected .split-page-num { color: var(--color-accent-orange); }
+  .split-page--selected .split-thumb { border-color: var(--color-accent-orange); box-shadow: 0 0 0 2px rgba(207,69,0,0.2); }
+  
+  .split-loading { margin-bottom: var(--space-4); }
+  
+  .ti-radio-group { display: flex; flex-direction: column; gap: var(--space-3); }
+  .ti-radio { display: flex; align-items: center; gap: var(--space-2); font-size: 0.9375rem; color: var(--color-ink-secondary); cursor: pointer; }
 
+  .split-actions { display: flex; align-items: center; gap: var(--space-4); }
+  
   .split-results__label { font-size: 1rem; font-weight: 600; color: var(--color-ink-primary); margin-bottom: var(--space-4); }
   .split-results__list { display: flex; flex-direction: column; gap: var(--space-2); }
   .split-result-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-success-bg); border: 1px solid rgba(15,123,63,.15); border-radius: var(--radius-md); }
-  .split-result-item__name { flex: 1; font-size: .9rem; font-weight: 500; color: var(--color-ink-primary); }
+  .split-result-item__name { flex: 1; font-size: .9rem; font-weight: 500; color: var(--color-ink-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .split-result-item__size { font-size: .8125rem; color: var(--color-ink-muted); white-space: nowrap; }
 </style>
 
 <script>
   import { PDFDocument } from 'pdf-lib';
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
 
+  interface PageData { index: number; dataUrl?: string; selected: boolean; }
   let currentFile: File | null = null;
+  let pages: PageData[] = [];
   let totalPages = 0;
 
   const dropZone = document.getElementById('drop-zone') as HTMLElement;
@@ -149,8 +188,12 @@ const faqs = [
   const resultsList = document.getElementById('results-list') as HTMLElement;
   const resultsCount = document.getElementById('results-count') as HTMLElement;
   const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  
+  const loadingMsg = document.getElementById('loading-msg') as HTMLElement;
+  const visualGrid = document.getElementById('visual-grid') as HTMLElement;
   const rangeWrapper = document.getElementById('range-input-wrapper') as HTMLElement;
   const pageRangeInput = document.getElementById('page-range') as HTMLInputElement;
+  
   const progressEl = document.getElementById('tool-progress') as HTMLElement;
   const progressFill = document.getElementById('progress-fill') as HTMLElement;
   const progressLabel = document.getElementById('progress-label') as HTMLElement;
@@ -165,16 +208,76 @@ const faqs = [
 
   async function loadFile(file: File) {
     currentFile = file;
-    const buf = await file.arrayBuffer();
-    const pdf = await PDFDocument.load(buf);
-    totalPages = pdf.getPageCount();
     fileName.textContent = file.name;
-    fileMeta.textContent = `${totalPages} pages · ${formatSize(file.size)}`;
     fileInfo.style.display = 'block';
     dropZone.style.display = 'none';
     splitOptions.style.display = 'block';
     splitActions.style.display = 'flex';
     splitResults.style.display = 'none';
+    loadingMsg.style.display = 'flex';
+    
+    const buf = await file.arrayBuffer();
+    
+    try {
+      const pdfjs = await loadPdfJs();
+      const pdfDoc = await getPdfDoc(pdfjs, buf);
+      totalPages = pdfDoc.numPages;
+      fileMeta.textContent = `${totalPages} pages · ${formatSize(file.size)}`;
+      
+      pages = Array.from({ length: totalPages }, (_, i) => ({ index: i, selected: false }));
+      renderVisualGrid();
+      
+      // Load thumbnails
+      for (let i = 0; i < totalPages; i++) {
+        const { canvas } = await renderPageToCanvas(pdfDoc, i + 1, 0.6); // Better quality thumbnail
+        pages[i].dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        updateThumbnail(i);
+      }
+    } catch (e) {
+      console.error(e);
+      (window as any).showToast('Error rendering PDF preview.', 'error');
+    } finally {
+      loadingMsg.style.display = 'none';
+    }
+  }
+
+  function renderVisualGrid() {
+    visualGrid.innerHTML = '';
+    pages.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = `split-page ${p.selected ? 'split-page--selected' : ''}`;
+      card.dataset.index = String(i);
+      
+      const thumbHtml = p.dataUrl 
+        ? `<img src="${p.dataUrl}" alt="Page ${i + 1}" style="width:100%;height:100%;object-fit:contain;" />`
+        : `<span class="caption-text">Page ${i + 1}</span>`;
+
+      card.innerHTML = `
+        <div class="split-thumb">${thumbHtml}</div>
+        <span class="split-page-num">${i + 1}</span>
+      `;
+      
+      card.addEventListener('click', () => {
+        pages[i].selected = !pages[i].selected;
+        if (pages[i].selected) {
+          card.classList.add('split-page--selected');
+        } else {
+          card.classList.remove('split-page--selected');
+        }
+      });
+      
+      visualGrid.appendChild(card);
+    });
+  }
+
+  function updateThumbnail(index: number) {
+    const card = document.querySelector(`.split-page[data-index="${index}"]`);
+    if (card) {
+      const thumb = card.querySelector('.split-thumb') as HTMLElement;
+      if (pages[index].dataUrl && thumb) {
+        thumb.innerHTML = `<img src="${pages[index].dataUrl}" alt="Page ${index + 1}" style="width:100%;height:100%;object-fit:contain;" />`;
+      }
+    }
   }
 
   // Mode toggle
@@ -183,25 +286,35 @@ const faqs = [
       const val = (radio as HTMLInputElement).value;
       document.querySelectorAll('.split-mode-option').forEach(el => el.classList.remove('split-mode-option--active'));
       (radio.closest('.split-mode-option') as HTMLElement)?.classList.add('split-mode-option--active');
-      rangeWrapper.style.display = val === 'range' ? 'flex' : 'none';
+      
+      if (val === 'range') {
+        rangeWrapper.style.display = 'flex';
+        visualGrid.style.display = 'none';
+      } else if (val === 'visual') {
+        rangeWrapper.style.display = 'none';
+        visualGrid.style.display = 'grid';
+      } else { // all
+        rangeWrapper.style.display = 'none';
+        visualGrid.style.display = 'none';
+      }
     });
   });
 
-  function parseRanges(rangeStr: string, max: number): number[][] {
-    const groups: number[][] = [];
+  function parseRanges(rangeStr: string, max: number): number[] {
+    const indices = new Set<number>();
     const parts = rangeStr.split(',').map(s => s.trim()).filter(Boolean);
     for (const part of parts) {
       if (part.includes('-')) {
         const [a, b] = part.split('-').map(Number);
         if (!isNaN(a) && !isNaN(b) && a >= 1 && b <= max && a <= b) {
-          groups.push(Array.from({ length: b - a + 1 }, (_, i) => a + i - 1));
+          for (let i = a; i <= b; i++) indices.add(i - 1);
         }
       } else {
         const n = Number(part);
-        if (!isNaN(n) && n >= 1 && n <= max) groups.push([n - 1]);
+        if (!isNaN(n) && n >= 1 && n <= max) indices.add(n - 1);
       }
     }
-    return groups;
+    return Array.from(indices).sort((a, b) => a - b);
   }
 
   function formatSize(bytes: number) {
@@ -213,30 +326,49 @@ const faqs = [
   splitBtn.addEventListener('click', async () => {
     if (!currentFile) return;
     const mode = (document.querySelector('input[name="split-mode"]:checked') as HTMLInputElement).value;
-    const buf = await currentFile.arrayBuffer();
-    const srcPdf = await PDFDocument.load(buf);
-
-    let groups: number[][] = [];
+    const outputMode = (document.querySelector('input[name="output-mode"]:checked') as HTMLInputElement).value;
+    
+    let selectedIndices: number[] = [];
     if (mode === 'all') {
-      groups = Array.from({ length: totalPages }, (_, i) => [i]);
+      selectedIndices = Array.from({ length: totalPages }, (_, i) => i);
+    } else if (mode === 'range') {
+      selectedIndices = parseRanges(pageRangeInput.value, totalPages);
     } else {
-      groups = parseRanges(pageRangeInput.value, totalPages);
-      if (groups.length === 0) { alert('Please enter valid page ranges.'); return; }
+      selectedIndices = pages.filter(p => p.selected).map(p => p.index);
+    }
+
+    if (selectedIndices.length === 0) { 
+      (window as any).showToast('Please select at least one page to extract.', 'error'); 
+      return; 
     }
 
     splitBtn.disabled = true;
-    showProgress(0, 'Splitting…');
+    showProgress(10, 'Loading original PDF…');
     resultsList.innerHTML = '';
+    
+    const buf = await currentFile.arrayBuffer();
+    const srcPdf = await PDFDocument.load(buf);
     const outputs: { name: string; blob: Blob; size: number }[] = [];
 
-    for (let i = 0; i < groups.length; i++) {
-      showProgress(Math.round((i / groups.length) * 90), `Creating part ${i + 1} of ${groups.length}…`);
+    if (outputMode === 'single') {
+      showProgress(50, 'Extracting pages into a single file…');
       const newPdf = await PDFDocument.create();
-      const pages = await newPdf.copyPages(srcPdf, groups[i]);
-      pages.forEach(p => newPdf.addPage(p));
+      const copiedPages = await newPdf.copyPages(srcPdf, selectedIndices);
+      copiedPages.forEach(p => newPdf.addPage(p));
       const bytes = await newPdf.save();
       const baseName = currentFile.name.replace(/\.pdf$/i, '');
-      outputs.push({ name: `${baseName}-part${i + 1}.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }), size: bytes.byteLength });
+      outputs.push({ name: `${baseName}-extracted.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }), size: bytes.byteLength });
+    } else {
+      // Multiple PDFs
+      for (let i = 0; i < selectedIndices.length; i++) {
+        showProgress(10 + Math.round((i / selectedIndices.length) * 80), `Extracting page ${selectedIndices[i] + 1}…`);
+        const newPdf = await PDFDocument.create();
+        const [copiedPage] = await newPdf.copyPages(srcPdf, [selectedIndices[i]]);
+        newPdf.addPage(copiedPage);
+        const bytes = await newPdf.save();
+        const baseName = currentFile.name.replace(/\.pdf$/i, '');
+        outputs.push({ name: `${baseName}-page${selectedIndices[i] + 1}.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }), size: bytes.byteLength });
+      }
     }
 
     hideProgress();

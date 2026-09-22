@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const lastUpdated = 'September 21, 2025';
+const SITE_NAME = 'DocuVerse';
+const SITE_URL = 'https://docuverse.tools';
+const CONTACT_EMAIL = 'legal@docuverse.tools';
+---
+
+<BaseLayout
+  title="Terms of Service — DocuVerse"
+  description="DocuVerse Terms of Service. Read our usage rules for the free online PDF and image tools. No sign-up required. All processing is private and client-side."
+  canonicalUrl={`${SITE_URL}/terms`}
+>
+  <div class="legal-page">
+    <div class="legal-container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Terms of Service</span>
+      </nav>
+
+      <header class="legal-header">
+        <h1>Terms of Service</h1>
+        <p class="legal-meta">Last updated: <time datetime="2025-09-21">{lastUpdated}</time></p>
+        <div class="legal-highlight">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <strong>The short version:</strong> DocuVerse is a free service. All file processing happens in your browser — we never see your files. Use the tools legally and responsibly. No sign-up required.
+        </div>
+      </header>
+
+      <main class="legal-content">
+
+        <section>
+          <h2>1. Acceptance of Terms</h2>
+          <p>By accessing or using {SITE_NAME} (<a href={SITE_URL}>{SITE_URL}</a>), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the service.</p>
+          <p>We reserve the right to update these Terms at any time. Continued use of the service after changes are posted constitutes your acceptance of the revised Terms.</p>
+        </section>
+
+        <section>
+          <h2>2. Description of Service</h2>
+          <p>{SITE_NAME} provides a free, browser-based toolkit for processing PDF documents and images. All processing is performed locally in your web browser using WebAssembly technology. The service includes tools for:</p>
+          <ul>
+            <li>PDF manipulation: merging, splitting, compressing, protecting, unlocking, organizing, watermarking, signing, and converting</li>
+            <li>Image editing: cropping, compressing, resizing, converting, and metadata removal</li>
+            <li>Developer utilities: OCR text extraction, SVG optimization, Base64 encoding, and favicon generation</li>
+          </ul>
+          <p>The service is provided free of charge. We fund the service through non-intrusive display advertising.</p>
+        </section>
+
+        <section>
+          <h2>3. No Account Required</h2>
+          <p>{SITE_NAME} requires no registration, email address, or account creation. You may use all tools as an anonymous visitor. This also means we cannot maintain any user account for you, nor can we recover any files you have processed.</p>
+        </section>
+
+        <section>
+          <h2>4. Your Files & Data</h2>
+          <p><strong>4.1 Client-Side Processing.</strong> All files you submit to {SITE_NAME}'s tools are processed entirely within your web browser. Your files are not uploaded to, stored on, or transmitted to our servers at any point. We have no access to the content of your files.</p>
+          <p><strong>4.2 Your Responsibility.</strong> You are solely responsible for the files you process using our tools. You represent and warrant that:</p>
+          <ul>
+            <li>You own the files or have the legal right to process them.</li>
+            <li>The files do not infringe any copyright, trademark, patent, or other intellectual property rights.</li>
+            <li>The files do not contain illegal, harmful, or offensive content.</li>
+          </ul>
+          <p><strong>4.3 No Backup.</strong> Since we do not store your files, we cannot recover them. You are responsible for maintaining your own backups of original files before processing.</p>
+        </section>
+
+        <section>
+          <h2>5. Acceptable Use</h2>
+          <p>You agree not to use {SITE_NAME} to:</p>
+          <ul>
+            <li>Violate any applicable local, national, or international law or regulation</li>
+            <li>Infringe upon the intellectual property rights of others</li>
+            <li>Process files containing child sexual abuse material or any illegal content</li>
+            <li>Attempt to reverse engineer, decompile, or modify the website's software</li>
+            <li>Use automated bots or scrapers to access the service in bulk</li>
+            <li>Attempt to circumvent or disable any security feature of the website</li>
+            <li>Interfere with or disrupt the service or servers or networks connected to the service</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>6. Intellectual Property</h2>
+          <p><strong>6.1 Our Property.</strong> The {SITE_NAME} website, including its design, text, graphics, logos, and code, is the property of {SITE_NAME} and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.</p>
+          <p><strong>6.2 Your Property.</strong> You retain all ownership and intellectual property rights to the files you process. We claim no rights over your files or the output files generated by our tools.</p>
+          <p><strong>6.3 Open-Source Components.</strong> Our tools use open-source libraries (e.g., pdf-lib, pdf.js, Tesseract.js) released under their respective licenses. Attribution details are available on our GitHub repository.</p>
+        </section>
+
+        <section>
+          <h2>7. Disclaimer of Warranties</h2>
+          <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+          <p>We do not warrant that:</p>
+          <ul>
+            <li>The service will be uninterrupted, timely, secure, or error-free</li>
+            <li>The results obtained from using the service will be accurate or reliable</li>
+            <li>Any errors in the software will be corrected</li>
+          </ul>
+          <p>You use the service at your own risk. Always keep backup copies of your original files before processing.</p>
+        </section>
+
+        <section>
+          <h2>8. Limitation of Liability</h2>
+          <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, {SITE_NAME.toUpperCase()} SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, LOSS OF PROFITS, OR BUSINESS INTERRUPTION, ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+          <p>Our total aggregate liability to you for any claims arising from these Terms or the service shall not exceed USD $10.</p>
+        </section>
+
+        <section>
+          <h2>9. Indemnification</h2>
+          <p>You agree to defend, indemnify, and hold harmless {SITE_NAME}, its affiliates, officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or in any way connected with your access to or use of the service, your violation of these Terms, or your infringement of any intellectual property or other rights of any person or entity.</p>
+        </section>
+
+        <section>
+          <h2>10. Third-Party Links & Advertising</h2>
+          <p>The service displays advertisements from third-party networks (including Google AdSense). We are not responsible for the content of these advertisements or any products or services offered by third-party advertisers. Clicking on advertisements may take you to third-party websites governed by their own terms and privacy policies.</p>
+          <p>The service may contain links to third-party websites. We are not responsible for the content, privacy practices, or terms of service of those sites.</p>
+        </section>
+
+        <section>
+          <h2>11. Service Availability & Modifications</h2>
+          <p>We reserve the right to modify, suspend, or discontinue any part of the service at any time, with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuation of the service.</p>
+          <p>We may also add new tools, change existing tools, or remove tools at our discretion.</p>
+        </section>
+
+        <section>
+          <h2>12. Governing Law</h2>
+          <p>These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict of law provisions. Any disputes shall be subject to the exclusive jurisdiction of the courts located in Delaware, United States.</p>
+          <p>If you are accessing the service from outside the United States, you are responsible for compliance with your local laws.</p>
+        </section>
+
+        <section>
+          <h2>13. Contact Us</h2>
+          <p>If you have any questions about these Terms of Service, please contact us:</p>
+          <address>
+            <strong>{SITE_NAME}</strong><br />
+            Email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+          </address>
+        </section>
+
+      </main>
+
+      <footer class="legal-footer">
+        <a href="/privacy">Privacy Policy</a>
+        <span>·</span>
+        <a href="/">Back to DocuVerse</a>
+      </footer>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Reuse privacy page styles */
+  .legal-page {
+    min-height: 100vh;
+    background: var(--color-canvas);
+    padding: var(--space-8) var(--space-5) var(--space-16);
+  }
+  .legal-container { max-width: 780px; margin: 0 auto; }
+  .breadcrumb { display: flex; align-items: center; gap: var(--space-2); font-size: 0.875rem; color: var(--color-ink-muted); margin-bottom: var(--space-6); }
+  .breadcrumb a { color: var(--color-accent-orange); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .legal-header { margin-bottom: var(--space-10); padding-bottom: var(--space-8); border-bottom: 1px solid var(--color-border-hairline); }
+  .legal-header h1 { font-size: clamp(1.875rem, 4vw, 2.5rem); font-weight: 800; color: var(--color-ink-primary); margin-bottom: var(--space-2); letter-spacing: -0.02em; }
+  .legal-meta { font-size: 0.875rem; color: var(--color-ink-faint); margin-bottom: var(--space-5); }
+  .legal-highlight { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4) var(--space-5); background: rgba(207,69,0,0.06); border: 1.5px solid rgba(207,69,0,0.2); border-radius: var(--radius-lg); font-size: 0.9375rem; line-height: 1.6; color: var(--color-ink-secondary); }
+  .legal-highlight svg { flex-shrink: 0; color: var(--color-accent-orange); margin-top: 2px; }
+  .legal-highlight strong { color: var(--color-ink-primary); }
+  .legal-content { display: flex; flex-direction: column; gap: var(--space-8); }
+  .legal-content section { display: flex; flex-direction: column; gap: var(--space-3); }
+  .legal-content h2 { font-size: 1.25rem; font-weight: 700; color: var(--color-ink-primary); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-border-hairline); margin-bottom: var(--space-1); }
+  .legal-content p { font-size: 0.9375rem; line-height: 1.75; color: var(--color-ink-secondary); }
+  .legal-content ul { padding-left: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); }
+  .legal-content li { font-size: 0.9375rem; line-height: 1.65; color: var(--color-ink-secondary); }
+  .legal-content a { color: var(--color-accent-orange); text-decoration: underline; text-underline-offset: 3px; }
+  .legal-content a:hover { opacity: 0.8; }
+  address { font-style: normal; line-height: 1.75; font-size: 0.9375rem; color: var(--color-ink-secondary); }
+  .legal-footer { margin-top: var(--space-10); padding-top: var(--space-6); border-top: 1px solid var(--color-border-hairline); display: flex; gap: var(--space-4); align-items: center; font-size: 0.875rem; color: var(--color-ink-faint); }
+  .legal-footer a { color: var(--color-accent-orange); text-decoration: none; }
+  .legal-footer a:hover { text-decoration: underline; }
+</style>

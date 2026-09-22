@@ -1,14 +1,10 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 const howToSteps = [
   { name: "Upload your PDF", text: "Drop or select the PDF whose pages you want to organize." },
   { name: "Reorder, rotate, or delete pages", text: "Drag page thumbnails to reorder. Click the rotate button to rotate 90°. Click × to delete a page." },
   { name: "Save and Download", text: "Click 'Save PDF'. The reorganized file downloads immediately with your changes applied." },
-];
-const faqs = [
-  { question: "Can I rotate individual pages?", answer: "Yes — each page has a rotate button that rotates it 90° clockwise. Click multiple times to rotate 180° or 270°." },
-  { question: "Can I undo a deletion?", answer: "Once you click × on a page it is removed from the preview. Click 'Clear' to restart with the original file." },
-  { question: "Are my files uploaded?", answer: "No. All operations run in your browser." },
 ];
 ---
 
@@ -23,7 +19,8 @@ const faqs = [
   categoryHref="/#category-pdf"
   acceptedFormats="One PDF file · No size limit"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf["organize"].keywords}
+  faqs={seoDataPdf["organize"].faqs}
 >
   <div slot="drop-zone">
     <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
@@ -58,15 +55,16 @@ const faqs = [
   </div>
 </ToolLayout>
 
-<style>
+<style is:global>
   .org-loading{display:flex;flex-direction:column;gap:var(--space-2);}
-  .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--space-4);}
+  .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-4);}
   .org-grid:empty{display:none;}
   .org-page{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);cursor:grab;user-select:none;}
   .org-page:active{cursor:grabbing;}
   .org-page.dragging{opacity:.4;}
-  .org-page.drag-over>.org-thumb{border-color:var(--color-accent-blue);}
-  .org-thumb{width:100%;aspect-ratio:3/4;background:var(--color-canvas-soft);border:1.5px solid var(--color-border-hairline);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color var(--duration-fast);}
+  .org-page.dragging .org-thumb{border-color:var(--color-accent-orange);box-shadow:var(--shadow-md);}
+  .org-page.drag-over>.org-thumb{border-color:var(--color-accent-orange);}
+  .org-thumb{width:100%;aspect-ratio:3/4;background:#fff;border:1.5px solid rgba(207,69,0,0.15);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color var(--duration-fast);box-shadow:var(--shadow-sm);}
   .org-thumb canvas,.org-thumb img{width:100%;height:100%;object-fit:contain;}
   .org-thumb-placeholder{font-size:.75rem;color:var(--color-ink-faint);}
   .org-controls{display:flex;gap:var(--space-1);}
@@ -82,8 +80,9 @@ const faqs = [
 
 <script>
   import { PDFDocument, degrees } from 'pdf-lib';
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
 
-  interface PageState { index: number; rotation: number; }
+  interface PageState { index: number; rotation: number; dataUrl?: string; }
   let currentFile: File | null = null;
   let pages: PageState[] = [];
   let dragSrc: number | null = null;
@@ -115,12 +114,41 @@ const faqs = [
     dropZone.style.display = 'none';
     loadingMsg.style.display = 'flex';
     const buf = await f.arrayBuffer();
-    const pdf = await PDFDocument.load(buf);
-    pages = pdf.getPageIndices().map(i => ({ index: i, rotation: 0 }));
-    loadingMsg.style.display = 'none';
-    renderGrid();
-    orgActions.style.display = 'flex';
-    orgResult.style.display = 'none';
+    
+    try {
+      const pdfjs = await loadPdfJs();
+      const pdfDoc = await getPdfDoc(pdfjs, buf);
+      const numPages = pdfDoc.numPages;
+      
+      pages = Array.from({ length: numPages }, (_, i) => ({ index: i, rotation: 0 }));
+      renderGrid(); // Render placeholders first
+      orgActions.style.display = 'flex';
+      orgResult.style.display = 'none';
+
+      // Render thumbnails asynchronously
+      for (let i = 0; i < numPages; i++) {
+        // scale 0.5 is usually enough for a small thumbnail
+        const { canvas } = await renderPageToCanvas(pdfDoc, i + 1, 0.75);
+        pages[i].dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        updateThumbnail(i);
+      }
+    } catch (e) {
+      console.error(e);
+      (window as any).showToast('Error loading PDF pages for preview.', 'error');
+    } finally {
+      loadingMsg.style.display = 'none';
+    }
+  }
+
+  function updateThumbnail(originalIndex: number) {
+    const card = document.querySelector(`.org-page[data-original="${originalIndex}"]`);
+    if (card) {
+      const thumbInner = card.querySelector('.org-thumb-inner') as HTMLElement;
+      const pageState = pages.find(p => p.index === originalIndex);
+      if (pageState && pageState.dataUrl && thumbInner) {
+        thumbInner.innerHTML = `<img src="${pageState.dataUrl}" alt="Page ${originalIndex + 1}" style="width:100%;height:100%;object-fit:contain;" />`;
+      }
+    }
   }
 
   function renderGrid() {
@@ -131,9 +159,17 @@ const faqs = [
       card.className = 'org-page';
       card.draggable = true;
       card.dataset.i = String(i);
+      card.dataset.original = String(p.index);
+      
+      const thumbHtml = p.dataUrl 
+        ? `<img src="${p.dataUrl}" alt="Page ${p.index + 1}" style="width:100%;height:100%;object-fit:contain;" />`
+        : `<span class="org-thumb-placeholder">Page ${p.index + 1}</span>`;
+
       card.innerHTML = `
         <div class="org-thumb">
-          <span class="org-thumb-placeholder">Page ${p.index + 1}</span>
+          <div class="org-thumb-inner" style="transform: rotate(${p.rotation}deg); width:100%; height:100%; display:flex; align-items:center; justify-content:center; transition: transform var(--duration-fast);">
+            ${thumbHtml}
+          </div>
         </div>
         <div class="org-controls">
           <button class="org-ctrl-btn" data-action="rotate" data-i="${i}" aria-label="Rotate page ${p.index+1}">

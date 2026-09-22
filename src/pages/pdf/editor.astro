@@ -1,0 +1,659 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
+
+const howToSteps = [
+  { name: "Upload your PDF", text: "Drop or browse to select any PDF. All pages are loaded instantly in a full-resolution viewer." },
+  { name: "Choose a tool and annotate", text: "Pick Text, Draw, Highlight, or Insert Image from the toolbar. Click anywhere on the page to place, then style it." },
+  { name: "Navigate and Save", text: "Navigate between all pages. When done, click 'Save PDF' to download your annotated PDF file." },
+];
+---
+
+<ToolLayout
+  title="PDF Editor Online Free — Add Text, Draw, Highlight, Insert Images on PDF"
+  description="Edit and annotate PDFs online for free. Add text boxes, draw freehand, highlight areas, insert images. Works in your browser — no upload, no signup, 100% private."
+  canonicalPath="/pdf/editor"
+  toolName="PDF Editor"
+  toolTagline="Add text, draw, highlight, and insert images on any PDF — live, free, private, no sign-up."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  keywords={seoDataPdf["editor"].keywords}
+  faqs={seoDataPdf["editor"].faqs}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="ed-file-info" style="display:none;" class="ed-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span id="ed-file-name" class="ed-file-name"></span>
+      <span id="ed-file-meta" class="ed-file-meta"></span>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div id="ed-loading" style="display:none;" class="ed-loading">
+      <div class="ed-spinner"></div>
+      <span>Loading PDF...</span>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="ed-workspace" style="display:none;" class="ed-workspace">
+
+      <!-- Toolbar -->
+      <div class="ed-toolbar" role="toolbar" aria-label="PDF editing tools">
+        <div class="ed-toolbar-group">
+          <button class="ed-tool-btn ed-tool-btn--active" id="tool-select" data-tool="select" title="Select / Move (V)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3l14 9-7 1-4 7-3-17z"/></svg>
+            Select
+          </button>
+          <button class="ed-tool-btn" id="tool-text" data-tool="text" title="Add Text (T)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            Text
+          </button>
+          <button class="ed-tool-btn" id="tool-draw" data-tool="draw" title="Draw (D)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+            Draw
+          </button>
+          <button class="ed-tool-btn" id="tool-highlight" data-tool="highlight" title="Highlight (H)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l-4 4 2 5h8l2-5-4-4"/><path d="M12 2C7 2 4 6 4 11h16c0-5-3-9-8-9z"/></svg>
+            Highlight
+          </button>
+          <button class="ed-tool-btn" id="tool-eraser" data-tool="eraser" title="Whiteout / Eraser (E)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            Eraser
+          </button>
+          <button class="ed-tool-btn" id="tool-replace" data-tool="replace" title="Replace Text (R)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Replace Text
+          </button>
+          <button class="ed-tool-btn" id="tool-image" data-tool="image" title="Insert Image (I)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Image
+          </button>
+          <input type="file" id="img-file-input" accept="image/*" class="sr-only" />
+        </div>
+
+        <div class="ed-toolbar-sep"></div>
+
+        <!-- Context-sensitive style options -->
+        <div class="ed-style-group" id="style-text-opts">
+          <select id="font-family" class="ed-select" title="Font family">
+            <option value="Arial">Arial</option>
+            <option value="'Times New Roman'">Times New Roman</option>
+            <option value="'Courier New'">Courier New</option>
+            <option value="Georgia">Georgia</option>
+          </select>
+          <input type="number" id="font-size" class="ed-number-input" value="16" min="8" max="120" title="Font size" />
+          <span class="ed-label">pt</span>
+          <button class="ed-style-btn" id="bold-btn" title="Bold"><strong>B</strong></button>
+          <button class="ed-style-btn" id="italic-btn" title="Italic"><em>I</em></button>
+          <div class="ed-color-group">
+            <label class="ed-color-btn" title="Text color">
+              <input type="color" id="text-color" value="#000000" />
+              <span class="ed-color-label">A</span>
+            </label>
+          </div>
+          <label class="ed-checkbox-label" title="Transparent background">
+            <input type="checkbox" id="text-bg-transparent" checked />
+            No BG
+          </label>
+          <div class="ed-color-group" id="text-bg-group" style="display:none;">
+            <label class="ed-color-btn" title="Background color">
+              <input type="color" id="text-bg-color" value="#ffffff" />
+              <span class="ed-color-label">BG</span>
+            </label>
+          </div>
+        </div>
+        <div class="ed-style-group" id="style-eraser-opts" style="display:none;">
+          <label class="ed-color-btn" title="Eraser color">
+            <input type="color" id="eraser-color" value="#ffffff" />
+            <span class="ed-color-label">Color</span>
+          </label>
+        </div>
+        <div class="ed-style-group" id="style-draw-opts" style="display:none;">
+          <label class="ed-color-btn" title="Stroke color">
+            <input type="color" id="draw-color" value="#e53e3e" />
+            <span class="ed-color-label">Color</span>
+          </label>
+          <input type="number" id="draw-size" class="ed-number-input" value="3" min="1" max="30" title="Stroke width" />
+          <span class="ed-label">px</span>
+        </div>
+        <div class="ed-style-group" id="style-highlight-opts" style="display:none;">
+          <label class="ed-color-btn" title="Highlight color">
+            <input type="color" id="highlight-color" value="#ffd700" />
+            <span class="ed-color-label">Color</span>
+          </label>
+          <input type="number" id="highlight-opacity" class="ed-number-input" value="40" min="10" max="80" title="Opacity %" />
+          <span class="ed-label">%</span>
+        </div>
+
+        <div class="ed-toolbar-sep"></div>
+
+        <!-- Page navigation -->
+        <div class="ed-page-nav">
+          <button class="ed-nav-btn" id="prev-page" title="Previous page">&#8249;</button>
+          <span class="ed-page-indicator">Page <strong id="cur-page-num">1</strong> / <strong id="total-page-num">1</strong></span>
+          <button class="ed-nav-btn" id="next-page" title="Next page">&#8250;</button>
+        </div>
+
+        <div class="ed-toolbar-spacer"></div>
+
+        <div class="ed-zoom-group">
+          <button class="ed-nav-btn" id="zoom-out" title="Zoom out">&#8722;</button>
+          <span id="zoom-label" class="ed-zoom-label">100%</span>
+          <button class="ed-nav-btn" id="zoom-in" title="Zoom in">+</button>
+        </div>
+
+        <button class="btn btn-ghost btn-sm" id="undo-btn" title="Undo (Ctrl+Z)">&#8630; Undo</button>
+        <button class="ed-tool-btn ed-tool-btn--danger" id="clear-page-btn">Clear Page</button>
+      </div>
+
+      <!-- Canvas area -->
+      <div class="ed-canvas-area" id="ed-canvas-area">
+        <div class="ed-canvas-wrap" id="ed-canvas-wrap">
+          <canvas id="ed-pdf-canvas" class="ed-pdf-canvas"></canvas>
+          <canvas id="ed-overlay-canvas" class="ed-overlay-canvas"></canvas>
+        </div>
+      </div>
+
+      <p class="ed-hint">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Shortcuts: V=Select, T=Text, D=Draw, H=Highlight, I=Image, Ctrl+Z=Undo
+      </p>
+    </div>
+  </div>
+
+  <div slot="actions" style="display:none;" id="ed-actions" class="ed-actions">
+    <button class="btn btn-primary btn-lg" id="save-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Save PDF
+    </button>
+    <button class="btn btn-ghost" id="clear-btn">Clear</button>
+  </div>
+
+  <div slot="result">
+    <div id="ed-result" style="display:none;" aria-live="assertive" class="ed-result">
+      <div class="ed-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="ed-result__text">
+        <p class="ed-result__label">PDF saved!</p>
+        <p class="ed-result__sub" id="ed-result-sub"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Edited PDF
+      </a>
+      <button class="btn btn-ghost btn-sm" id="keep-editing-btn">Keep Editing</button>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Edit another PDF</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+.ed-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+.ed-file-name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ed-file-meta { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
+.ed-loading { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-4); color:var(--color-ink-muted); font-size:.9375rem; }
+.ed-spinner { width:20px; height:20px; border:2px solid rgba(207,69,0,0.2); border-top-color:var(--color-accent-orange); border-radius:50%; animation:ed-spin 0.8s linear infinite; flex-shrink:0; }
+@keyframes ed-spin { to { transform:rotate(360deg); } }
+
+.ed-workspace { display:flex; flex-direction:column; gap:var(--space-3); }
+.ed-hint { font-size:.75rem; color:var(--color-ink-faint); display:flex; align-items:center; gap:4px; }
+
+/* Toolbar */
+.ed-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:var(--space-2); padding:var(--space-3) var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); }
+.ed-toolbar-group { display:flex; align-items:center; gap:2px; }
+.ed-toolbar-sep { width:1px; height:28px; background:var(--color-border-hairline); margin:0 var(--space-1); align-self:stretch; }
+.ed-toolbar-spacer { flex:1; min-width:8px; }
+.ed-tool-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border:1.5px solid transparent; border-radius:var(--radius-sm); background:none; cursor:pointer; font-size:.8125rem; font-weight:500; color:var(--color-ink-secondary); transition:all var(--duration-fast); white-space:nowrap; line-height:1; }
+.ed-tool-btn svg { flex-shrink:0; }
+.ed-tool-btn:hover { background:rgba(207,69,0,0.07); color:var(--color-accent-orange); border-color:rgba(207,69,0,0.2); }
+.ed-tool-btn--active { background:rgba(207,69,0,0.1); color:var(--color-accent-orange); border-color:rgba(207,69,0,0.3); }
+.ed-tool-btn--danger { color:#e53e3e; }
+.ed-tool-btn--danger:hover { background:rgba(229,62,62,0.08); border-color:rgba(229,62,62,0.25); }
+.ed-style-group { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
+.ed-select { padding:5px 8px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.8125rem; background:var(--color-canvas-base); color:var(--color-ink-primary); max-width:140px; }
+.ed-number-input { width:48px; padding:5px 4px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.8125rem; background:var(--color-canvas-base); color:var(--color-ink-primary); text-align:center; }
+.ed-style-btn { padding:5px 10px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.9rem; background:var(--color-canvas-base); cursor:pointer; color:var(--color-ink-primary); transition:all var(--duration-fast); }
+.ed-style-btn:hover, .ed-style-btn--active { background:rgba(207,69,0,0.08); border-color:var(--color-accent-orange); }
+.ed-color-group { display:flex; align-items:center; }
+.ed-color-btn { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; }
+.ed-color-btn input[type=color] { width:30px; height:22px; border:1.5px solid var(--color-border-hairline); border-radius:3px; padding:1px; cursor:pointer; background:none; }
+.ed-color-label { font-size:.6875rem; font-weight:700; color:var(--color-ink-muted); line-height:1; }
+.ed-checkbox-label { display:flex; align-items:center; gap:4px; font-size:.75rem; color:var(--color-ink-muted); cursor:pointer; white-space:nowrap; }
+.ed-label { font-size:.75rem; color:var(--color-ink-faint); }
+.ed-page-nav { display:flex; align-items:center; gap:var(--space-2); }
+.ed-page-indicator { font-size:.8125rem; color:var(--color-ink-secondary); white-space:nowrap; }
+.ed-nav-btn { min-width:28px; height:28px; padding:0 6px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--color-ink-secondary); font-size:1rem; font-weight:700; transition:all var(--duration-fast); }
+.ed-nav-btn:hover { border-color:var(--color-accent-orange); color:var(--color-accent-orange); }
+.ed-nav-btn:disabled { opacity:0.35; cursor:not-allowed; }
+.ed-zoom-group { display:flex; align-items:center; gap:var(--space-1); }
+.ed-zoom-label { font-size:.8125rem; font-weight:600; color:var(--color-ink-muted); min-width:3.5ch; text-align:center; }
+
+/* Canvas */
+.ed-canvas-area { overflow:auto; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-lg); background:#888; display:flex; align-items:flex-start; justify-content:center; min-height:500px; padding:var(--space-5); }
+.ed-canvas-wrap { position:relative; display:inline-block; }
+.ed-pdf-canvas { display:block; border-radius:2px; box-shadow:0 6px 32px rgba(0,0,0,0.35); }
+.ed-overlay-canvas { position:absolute; top:0; left:0; border-radius:2px; cursor:crosshair; }
+.ed-overlay-canvas.tool-select { cursor:default; }
+
+/* Actions & Result */
+.ed-actions { display:flex; align-items:center; gap:var(--space-4); flex-wrap:wrap; }
+.ed-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
+.ed-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ed-result__text { flex:1; min-width:120px; }
+.ed-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
+.ed-result__sub { font-size:.8125rem; color:var(--color-ink-muted); margin-top:2px; }
+</style>
+
+<script>
+  import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
+
+  type Ann = {
+    type: 'text'|'draw'|'highlight'|'image'|'eraser'|'replace';
+    x?:number; y?:number; text?:string; fontSize?:number; fontFamily?:string;
+    bold?:boolean; italic?:boolean; color?:string; bgColor?:string; bgTransparent?:boolean;
+    points?:{x:number;y:number}[]; strokeColor?:string; strokeWidth?:number;
+    rect?:{x:number;y:number;w:number;h:number};
+    highlightColor?:string; highlightOpacity?:number;
+    imgSrc?:string; width?:number; height?:number;
+  };
+
+  let currentFile: File|null=null, pdfLibDoc: any=null, pdfJsDoc: any=null;
+  let numPages=0, currentPage=1, zoom=1.0, activeTool='select';
+  let isBold=false, isItalic=false;
+  let annotations: Ann[][]=[], history: {page:number;anns:Ann[]}[]=[];
+  let isDrawing=false, drawPoints: {x:number;y:number}[]=[];
+  let hlStart: {x:number;y:number}|null=null;
+  let dragState: {idx:number;sx:number;sy:number;ox:number;oy:number}|null=null;
+
+  const $ = (id:string) => document.getElementById(id)!;
+  const dropZone=$('drop-zone') as HTMLElement, fileInput=$('file-input') as HTMLInputElement;
+  const imgFileInput=$('img-file-input') as HTMLInputElement;
+  const edFileInfo=$('ed-file-info') as HTMLElement, edFileName=$('ed-file-name') as HTMLElement;
+  const edFileMeta=$('ed-file-meta') as HTMLElement, removeBtn=$('remove-file') as HTMLButtonElement;
+  const edLoading=$('ed-loading') as HTMLElement, edWorkspace=$('ed-workspace') as HTMLElement;
+  const edActions=$('ed-actions') as HTMLElement, edResult=$('ed-result') as HTMLElement;
+  const downloadBtn=$('download-btn') as HTMLAnchorElement, edResultSub=$('ed-result-sub') as HTMLElement;
+  const saveBtn=$('save-btn') as HTMLButtonElement, clearBtn=$('clear-btn') as HTMLButtonElement;
+  const restartBtn=$('restart-btn') as HTMLButtonElement, keepEditingBtn=$('keep-editing-btn') as HTMLButtonElement;
+  const progressEl=$('tool-progress') as HTMLElement, progressFill=$('progress-fill') as HTMLElement;
+  const progressLabel=$('progress-label') as HTMLElement;
+  const pdfCanvas=$('ed-pdf-canvas') as HTMLCanvasElement, overlay=$('ed-overlay-canvas') as HTMLCanvasElement;
+  const curPageEl=$('cur-page-num') as HTMLElement, totalPageEl=$('total-page-num') as HTMLElement;
+  const prevBtn=$('prev-page') as HTMLButtonElement, nextBtn=$('next-page') as HTMLButtonElement;
+  const undoBtn=$('undo-btn') as HTMLButtonElement, clearPageBtn=$('clear-page-btn') as HTMLButtonElement;
+  const zoomInBtn=$('zoom-in') as HTMLButtonElement, zoomOutBtn=$('zoom-out') as HTMLButtonElement;
+  const zoomLabel=$('zoom-label') as HTMLElement;
+  const fontFamily=$('font-family') as HTMLSelectElement, fontSize=$('font-size') as HTMLInputElement;
+  const boldBtn=$('bold-btn') as HTMLButtonElement, italicBtn=$('italic-btn') as HTMLButtonElement;
+  const textColor=$('text-color') as HTMLInputElement, textBgColor=$('text-bg-color') as HTMLInputElement;
+  const textBgTransp=$('text-bg-transparent') as HTMLInputElement;
+  const drawColor=$('draw-color') as HTMLInputElement, drawSize=$('draw-size') as HTMLInputElement;
+  const hlColor=$('highlight-color') as HTMLInputElement, hlOpacity=$('highlight-opacity') as HTMLInputElement;
+
+  // BG toggle
+  textBgTransp.addEventListener('change', () => {
+    ($('text-bg-group') as HTMLElement).style.display = textBgTransp.checked ? 'none' : 'flex';
+  });
+
+  // Upload
+  dropZone.addEventListener('click', ()=>fileInput.click());
+  dropZone.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') loadPDF(f); });
+  fileInput.addEventListener('change', ()=>{ if(fileInput.files?.[0]) loadPDF(fileInput.files[0]); fileInput.value=''; });
+
+  function fmtSz(b:number){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+
+  async function loadPDF(f:File){
+    currentFile=f; edFileName.textContent=f.name;
+    edFileInfo.style.display='flex'; dropZone.style.display='none';
+    edLoading.style.display='flex'; edWorkspace.style.display='none'; edActions.style.display='none';
+    const buf=await f.arrayBuffer();
+    try{
+      const pdfjs=await loadPdfJs();
+      pdfJsDoc=await getPdfDoc(pdfjs,buf);
+      pdfLibDoc=await PDFDocument.load(buf);
+      numPages=pdfJsDoc.numPages;
+      edFileMeta.textContent=`${numPages} page${numPages!==1?'s':''} \u00b7 ${fmtSz(f.size)}`;
+      annotations=Array.from({length:numPages},()=>[]);
+      history=[]; currentPage=1; totalPageEl.textContent=String(numPages);
+      edLoading.style.display='none'; edWorkspace.style.display='flex'; edActions.style.display='flex';
+      await renderPage();
+    }catch(e){console.error(e);(window as any).showToast('Error loading PDF. It may be encrypted or corrupted.', 'error');resetEditor();}
+  }
+
+  async function renderPage(){
+    curPageEl.textContent=String(currentPage);
+    prevBtn.disabled=currentPage<=1; nextBtn.disabled=currentPage>=numPages;
+    const {canvas}=await renderPageToCanvas(pdfJsDoc,currentPage,zoom);
+    pdfCanvas.width=canvas.width; pdfCanvas.height=canvas.height;
+    pdfCanvas.style.width=canvas.width+'px'; pdfCanvas.style.height=canvas.height+'px';
+    pdfCanvas.getContext('2d')!.drawImage(canvas,0,0);
+    overlay.width=canvas.width; overlay.height=canvas.height;
+    overlay.style.width=canvas.width+'px'; overlay.style.height=canvas.height+'px';
+    redrawOverlay();
+  }
+
+  function redrawOverlay(){
+    const ctx=overlay.getContext('2d')!; ctx.clearRect(0,0,overlay.width,overlay.height);
+    for(const ann of annotations[currentPage-1]) drawAnn(ctx,ann);
+  }
+
+  function drawAnn(ctx:CanvasRenderingContext2D,ann:Ann){
+    ctx.save();
+    if(ann.type==='text'){
+      const sz=(ann.fontSize||16)*zoom;
+      let f=''; if(ann.italic)f+='italic '; if(ann.bold)f+='bold '; f+=`${sz}px ${ann.fontFamily||'Arial'}`;
+      ctx.font=f;
+      const tw=ctx.measureText(ann.text||'').width;
+      const th=sz*1.2;
+      if(!ann.bgTransparent&&ann.bgColor){ctx.fillStyle=ann.bgColor;ctx.fillRect((ann.x||0)*zoom,(ann.y||0)*zoom-th+4,tw+8,th+4);}
+      ctx.fillStyle=ann.color||'#000';
+      ctx.fillText(ann.text||'',(ann.x||0)*zoom+4,(ann.y||0)*zoom);
+    } else if(ann.type==='draw'){
+      const pts=ann.points||[];
+      if(pts.length<2){ctx.restore();return;}
+      ctx.beginPath();ctx.moveTo(pts[0].x*zoom,pts[0].y*zoom);
+      for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x*zoom,pts[i].y*zoom);
+      ctx.strokeStyle=ann.strokeColor||'#e53e3e'; ctx.lineWidth=(ann.strokeWidth||3)*zoom;
+      ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+    } else if((ann.type==='eraser'||ann.type==='replace')&&ann.rect){
+      const r=ann.rect;
+      ctx.fillStyle=ann.bgColor||'#ffffff';
+      ctx.fillRect(r.x*zoom,r.y*zoom,r.w*zoom,r.h*zoom);
+      if(ann.type==='replace' && ann.text){
+        const sz=(ann.fontSize||16)*zoom;
+        let f=''; if(ann.italic)f+='italic '; if(ann.bold)f+='bold '; f+=`${sz}px ${ann.fontFamily||'Arial'}`;
+        ctx.font=f;
+        ctx.fillStyle=ann.color||'#000';
+        ctx.fillText(ann.text,(r.x)*zoom+4,(r.y)*zoom+sz-2);
+      }
+    } else if((ann.type==='eraser'||ann.type==='replace')&&ann.rect){
+            const r=ann.rect;
+            const bh=ann.bgColor||'#ffffff';
+            const br=parseInt(bh.slice(1,3),16)/255,bg=parseInt(bh.slice(3,5),16)/255,bb=parseInt(bh.slice(5,7),16)/255;
+            page.drawRectangle({x:r.x*sx,y:ph-(r.y+Math.abs(r.h))*sy,width:Math.abs(r.w)*sx,height:Math.abs(r.h)*sy,color:rgb(br,bg,bb)});
+            
+            if(ann.type==='replace' && ann.text){
+              const sz=ann.fontSize||16;
+              const hex=ann.color||'#000';
+              const cr=parseInt(hex.slice(1,3),16)/255,cg=parseInt(hex.slice(3,5),16)/255,cb=parseInt(hex.slice(5,7),16)/255;
+              const usedFont=ann.bold&&ann.italic?fntBI:ann.bold?fntB:ann.italic?fntI:fnt;
+              page.drawText(ann.text,{x:(r.x*sx)+4,y:ph-(r.y)*sy - sz + 2,size:sz,font:usedFont,color:rgb(cr,cg,cb)});
+            }
+          } else if(ann.type==='highlight'&&ann.rect){
+      const r=ann.rect,hex=ann.highlightColor||'#ffd700',op=(ann.highlightOpacity||40)/100;
+      const rv=parseInt(hex.slice(1,3),16),gv=parseInt(hex.slice(3,5),16),bv=parseInt(hex.slice(5,7),16);
+      ctx.fillStyle=`rgba(${rv},${gv},${bv},${op})`;
+      ctx.fillRect(r.x*zoom,r.y*zoom,r.w*zoom,r.h*zoom);
+    } else if(ann.type==='image'&&ann.imgSrc){
+      const img=new Image(); img.src=ann.imgSrc;
+      if(img.complete){ctx.drawImage(img,(ann.x||0)*zoom,(ann.y||0)*zoom,(ann.width||100)*zoom,(ann.height||100)*zoom);}
+      else{img.onload=()=>redrawOverlay();}
+    }
+    ctx.restore();
+  }
+
+  // Tool selection
+  document.querySelectorAll('.ed-tool-btn[data-tool]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const tool=(btn as HTMLElement).dataset.tool!;
+      if(tool==='image'){imgFileInput.click();return;}
+      activeTool=tool;
+      document.querySelectorAll('.ed-tool-btn[data-tool]').forEach(b=>b.classList.remove('ed-tool-btn--active'));
+      btn.classList.add('ed-tool-btn--active');
+      ($('style-text-opts') as HTMLElement).style.display=tool==='text'?'flex':'none';
+      ($('style-draw-opts') as HTMLElement).style.display=tool==='draw'?'flex':'none';
+      ($('style-highlight-opts') as HTMLElement).style.display=tool==='highlight'?'flex':'none';
+      ($('style-eraser-opts') as HTMLElement).style.display=(tool==='eraser'||tool==='replace')?'flex':'none';
+      overlay.className='ed-overlay-canvas'+(tool==='select'?' tool-select':'');
+    });
+  });
+
+  boldBtn.addEventListener('click',()=>{isBold=!isBold;boldBtn.classList.toggle('ed-style-btn--active',isBold);});
+  italicBtn.addEventListener('click',()=>{isItalic=!isItalic;italicBtn.classList.toggle('ed-style-btn--active',isItalic);});
+
+  imgFileInput.addEventListener('change',()=>{
+    const f=imgFileInput.files?.[0]; if(!f)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const src=e.target?.result as string;
+      saveHistory();
+      annotations[currentPage-1].push({type:'image',imgSrc:src,x:overlay.width/zoom/2-75,y:overlay.height/zoom/2-75,width:150,height:150});
+      redrawOverlay();
+      // Switch to select
+      ($('tool-select') as HTMLButtonElement).click();
+    };
+    reader.readAsDataURL(f); imgFileInput.value='';
+  });
+
+  // Canvas coords
+  function getXY(e:MouseEvent|TouchEvent):{x:number;y:number}{
+    const rect=overlay.getBoundingClientRect();
+    const sx=overlay.width/rect.width, sy=overlay.height/rect.height;
+    let cx:number,cy:number;
+    if(e instanceof TouchEvent){cx=e.touches[0]?.clientX||0;cy=e.touches[0]?.clientY||0;}
+    else{cx=e.clientX;cy=e.clientY;}
+    return{x:(cx-rect.left)*sx/zoom,y:(cy-rect.top)*sy/zoom};
+  }
+
+  overlay.addEventListener('mousedown',onStart);
+  overlay.addEventListener('touchstart',onStart,{passive:false});
+  overlay.addEventListener('mousemove',onMove);
+  overlay.addEventListener('touchmove',onMove,{passive:false});
+  overlay.addEventListener('mouseup',onEnd);
+  overlay.addEventListener('touchend',onEnd);
+  overlay.addEventListener('mouseleave',onEnd);
+
+  function onStart(e:MouseEvent|TouchEvent){
+    if(e instanceof TouchEvent)e.preventDefault();
+    if(!pdfJsDoc)return;
+    const pos=getXY(e);
+    if(activeTool==='text'){
+      const txt=prompt('Enter text to add:'); if(!txt)return;
+      saveHistory();
+      annotations[currentPage-1].push({type:'text',x:pos.x,y:pos.y,text:txt,fontSize:Number(fontSize.value),fontFamily:fontFamily.value,bold:isBold,italic:isItalic,color:textColor.value,bgColor:textBgColor.value,bgTransparent:textBgTransp.checked});
+      redrawOverlay();
+    } else if(activeTool==='draw'){isDrawing=true;drawPoints=[pos];}
+    else if(activeTool==='highlight'||activeTool==='eraser'||activeTool==='replace'){hlStart=pos;}
+    else if(activeTool==='select'){
+      const anns=annotations[currentPage-1];
+      for(let i=anns.length-1;i>=0;i--){
+        const a=anns[i]; let hit=false;
+        if(a.type==='text'){
+          const sz=(a.fontSize||16); const ctx=overlay.getContext('2d')!;
+          let f='';if(a.italic)f+='italic ';if(a.bold)f+='bold ';f+=`${sz*zoom}px ${a.fontFamily||'Arial'}`;
+          ctx.font=f; const w=ctx.measureText(a.text||'').width/zoom;
+          hit=pos.x>=(a.x||0)&&pos.x<=(a.x||0)+w&&pos.y>=(a.y||0)-sz&&pos.y<=(a.y||0)+4;
+        } else if(a.type==='image'){hit=pos.x>=(a.x||0)&&pos.x<=(a.x||0)+(a.width||100)&&pos.y>=(a.y||0)&&pos.y<=(a.y||0)+(a.height||100);}
+        else if((a.type==='highlight'||a.type==='eraser'||a.type==='replace')&&a.rect){const r=a.rect;hit=pos.x>=r.x&&pos.x<=r.x+r.w&&pos.y>=r.y&&pos.y<=r.y+r.h;}
+        if(hit){dragState={idx:i,sx:pos.x,sy:pos.y,ox:a.x||a.rect?.x||0,oy:a.y||a.rect?.y||0};break;}
+      }
+    }
+  }
+
+  function onMove(e:MouseEvent|TouchEvent){
+    if(e instanceof TouchEvent)e.preventDefault();
+    const pos=getXY(e);
+    if(activeTool==='draw'&&isDrawing){
+      drawPoints.push(pos);
+      const ctx=overlay.getContext('2d')!; redrawOverlay();
+      ctx.save(); ctx.beginPath(); ctx.moveTo(drawPoints[0].x*zoom,drawPoints[0].y*zoom);
+      for(let i=1;i<drawPoints.length;i++)ctx.lineTo(drawPoints[i].x*zoom,drawPoints[i].y*zoom);
+      ctx.strokeStyle=drawColor.value; ctx.lineWidth=Number(drawSize.value)*zoom;
+      ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.restore();
+    } else if((activeTool==='highlight'||activeTool==='eraser'||activeTool==='replace')&&hlStart){
+      redrawOverlay();
+      const ctx=overlay.getContext('2d')!;
+      if(activeTool==='highlight'){
+        const hex=hlColor.value,op=Number(hlOpacity.value)/100;
+        const rv=parseInt(hex.slice(1,3),16),gv=parseInt(hex.slice(3,5),16),bv=parseInt(hex.slice(5,7),16);
+        ctx.fillStyle=`rgba(${rv},${gv},${bv},${op})`;
+      } else {
+        const hex=($('eraser-color') as HTMLInputElement).value;
+        ctx.fillStyle=hex;
+      }
+      ctx.fillRect(hlStart.x*zoom,hlStart.y*zoom,(pos.x-hlStart.x)*zoom,(pos.y-hlStart.y)*zoom);
+    } else if(activeTool==='select'&&dragState){
+      const ann=annotations[currentPage-1][dragState.idx];
+      const dx=pos.x-dragState.sx, dy=pos.y-dragState.sy;
+      if((ann.type==='highlight'||ann.type==='eraser'||ann.type==='replace')&&ann.rect){ann.rect.x=dragState.ox+dx;ann.rect.y=dragState.oy+dy;}
+      else{ann.x=dragState.ox+dx;ann.y=dragState.oy+dy;}
+      redrawOverlay();
+    }
+  }
+
+  function onEnd(e:MouseEvent|TouchEvent){
+    if(activeTool==='draw'&&isDrawing&&drawPoints.length>1){
+      saveHistory();
+      annotations[currentPage-1].push({type:'draw',points:[...drawPoints],strokeColor:drawColor.value,strokeWidth:Number(drawSize.value)});
+      redrawOverlay();
+    } else if((activeTool==='highlight'||activeTool==='eraser'||activeTool==='replace')&&hlStart){
+      const pos=e instanceof TouchEvent?getXY(e as any):getXY(e);
+      const w=pos.x-hlStart.x,h=pos.y-hlStart.y;
+      if(Math.abs(w)>5&&Math.abs(h)>5){
+        saveHistory();
+        const rx = w<0 ? hlStart.x+w : hlStart.x;
+        const ry = h<0 ? hlStart.y+h : hlStart.y;
+        const rw = Math.abs(w);
+        const rh = Math.abs(h);
+        
+        if (activeTool === 'highlight') {
+          annotations[currentPage-1].push({type:'highlight',rect:{x:rx,y:ry,w:rw,h:rh},highlightColor:hlColor.value,highlightOpacity:Number(hlOpacity.value)});
+        } else if (activeTool === 'eraser') {
+          annotations[currentPage-1].push({type:'eraser',rect:{x:rx,y:ry,w:rw,h:rh},bgColor:($('eraser-color') as HTMLInputElement).value});
+        } else if (activeTool === 'replace') {
+          const txt=prompt('Enter replacement text:');
+          if(txt){
+            annotations[currentPage-1].push({
+              type:'replace',rect:{x:rx,y:ry,w:rw,h:rh},
+              bgColor:($('eraser-color') as HTMLInputElement).value,
+              text:txt,fontSize:Number(fontSize.value),fontFamily:fontFamily.value,
+              bold:isBold,italic:isItalic,color:textColor.value
+            });
+          }
+        }
+        redrawOverlay();
+      }
+    }
+    isDrawing=false; drawPoints=[]; hlStart=null; dragState=null;
+  }
+
+  function saveHistory(){history.push({page:currentPage,anns:JSON.parse(JSON.stringify(annotations[currentPage-1]))});if(history.length>60)history.shift();}
+
+  undoBtn.addEventListener('click',()=>{const l=history.pop();if(l&&l.page===currentPage){annotations[currentPage-1]=l.anns;redrawOverlay();}});
+  clearPageBtn.addEventListener('click',()=>{if(!annotations[currentPage-1].length)return;saveHistory();annotations[currentPage-1]=[];redrawOverlay();});
+
+  document.addEventListener('keydown',e=>{
+    if(edWorkspace.style.display==='none')return;
+    if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undoBtn.click();}
+    if(!e.ctrlKey&&!e.metaKey){
+      if(e.key==='v'||e.key==='V')($('tool-select') as HTMLElement).click();
+      if(e.key==='t'||e.key==='T')($('tool-text') as HTMLElement).click();
+      if(e.key==='d'||e.key==='D')($('tool-draw') as HTMLElement).click();
+      if(e.key==='h'||e.key==='H')($('tool-highlight') as HTMLElement).click();
+      if(e.key==='e'||e.key==='E')($('tool-eraser') as HTMLElement).click();
+      if(e.key==='r'||e.key==='R')($('tool-replace') as HTMLElement).click();
+    }
+  });
+
+  prevBtn.addEventListener('click',async()=>{if(currentPage>1){currentPage--;await renderPage();}});
+  nextBtn.addEventListener('click',async()=>{if(currentPage<numPages){currentPage++;await renderPage();}});
+  zoomInBtn.addEventListener('click',async()=>{zoom=Math.min(zoom+0.25,3);zoomLabel.textContent=Math.round(zoom*100)+'%';await renderPage();});
+  zoomOutBtn.addEventListener('click',async()=>{zoom=Math.max(zoom-0.25,0.25);zoomLabel.textContent=Math.round(zoom*100)+'%';await renderPage();});
+
+  saveBtn.addEventListener('click',async()=>{
+    if(!currentFile||!pdfLibDoc)return;
+    saveBtn.disabled=true;
+    progressEl.setAttribute('aria-hidden','false');
+    progressFill.style.width='20%'; progressLabel.textContent='Baking annotations...';
+    try{
+      const buf=await currentFile.arrayBuffer();
+      const outPdf=await PDFDocument.load(buf);
+      const fnt=await outPdf.embedFont(StandardFonts.Helvetica);
+      const fntB=await outPdf.embedFont(StandardFonts.HelveticaBold);
+      const fntI=await outPdf.embedFont(StandardFonts.HelveticaOblique);
+      const fntBI=await outPdf.embedFont(StandardFonts.HelveticaBoldOblique);
+      const pages=outPdf.getPages();
+      for(let pi=0;pi<numPages;pi++){
+        progressFill.style.width=`${20+Math.round((pi/numPages)*70)}%`;
+        const anns=annotations[pi]; if(!anns.length)continue;
+        const page=pages[pi]; const{width:pw,height:ph}=page.getSize();
+        const pjsPage=await pdfJsDoc.getPage(pi+1);
+        const vp=pjsPage.getViewport({scale:1});
+        const sx=pw/vp.width, sy=ph/vp.height;
+        for(const ann of anns){
+          if(ann.type==='text'){
+            const sz=ann.fontSize||16;
+            const px=(ann.x||0)*sx, py=ph-(ann.y||0)*sy;
+            const hex=ann.color||'#000';
+            const cr=parseInt(hex.slice(1,3),16)/255,cg=parseInt(hex.slice(3,5),16)/255,cb=parseInt(hex.slice(5,7),16)/255;
+            const usedFont=ann.bold&&ann.italic?fntBI:ann.bold?fntB:ann.italic?fntI:fnt;
+            if(!ann.bgTransparent&&ann.bgColor){
+              const bh=ann.bgColor;
+              const br=parseInt(bh.slice(1,3),16)/255,bg=parseInt(bh.slice(3,5),16)/255,bb=parseInt(bh.slice(5,7),16)/255;
+              const tw=usedFont.widthOfTextAtSize(ann.text||'',sz);
+              page.drawRectangle({x:px,y:py-sz,width:tw+8,height:sz+4,color:rgb(br,bg,bb)});
+            }
+            page.drawText(ann.text||'',{x:px+4,y:py-sz+2,size:sz,font:usedFont,color:rgb(cr,cg,cb)});
+          } else if(ann.type==='draw'){
+            const pts=ann.points||[]; if(pts.length<2)continue;
+            const hex=ann.strokeColor||'#e53e3e';
+            const cr=parseInt(hex.slice(1,3),16)/255,cg=parseInt(hex.slice(3,5),16)/255,cb=parseInt(hex.slice(5,7),16)/255;
+            const sw=(ann.strokeWidth||3)*Math.min(sx,sy);
+            for(let i=0;i<pts.length-1;i++){
+              page.drawLine({start:{x:pts[i].x*sx,y:ph-pts[i].y*sy},end:{x:pts[i+1].x*sx,y:ph-pts[i+1].y*sy},thickness:sw,color:rgb(cr,cg,cb)});
+            }
+          } else if(ann.type==='highlight'&&ann.rect){
+            const r=ann.rect,hex=ann.highlightColor||'#ffd700',op=(ann.highlightOpacity||40)/100;
+            const cr=parseInt(hex.slice(1,3),16)/255,cg=parseInt(hex.slice(3,5),16)/255,cb=parseInt(hex.slice(5,7),16)/255;
+            page.drawRectangle({x:r.x*sx,y:ph-(r.y+Math.abs(r.h))*sy,width:Math.abs(r.w)*sx,height:Math.abs(r.h)*sy,color:rgb(cr,cg,cb),opacity:op});
+          } else if(ann.type==='image'&&ann.imgSrc){
+            try{
+              const b64=ann.imgSrc.split(',')[1];
+              const mime=ann.imgSrc.match(/data:([^;]+);/)?.[1]||'image/png';
+              const imgB=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+              const emb=mime.includes('jpeg')||mime.includes('jpg')?await outPdf.embedJpg(imgB):await outPdf.embedPng(imgB);
+              const iw=(ann.width||100)*sx, ih=(ann.height||100)*sy;
+              page.drawImage(emb,{x:(ann.x||0)*sx,y:ph-(ann.y||0)*sy-ih,width:iw,height:ih});
+            }catch(_){}
+          }
+        }
+      }
+      progressFill.style.width='98%';
+      const bytes=await outPdf.save();
+      progressFill.style.width='100%';
+      setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
+      const blob=new Blob([bytes],{type:'application/pdf'});
+      downloadBtn.href=URL.createObjectURL(blob);
+      downloadBtn.download=`edited-${currentFile.name}`;
+      const tot=annotations.reduce((s,a)=>s+a.length,0);
+      edResultSub.textContent=`${tot} annotation${tot!==1?'s':''} on ${numPages} page${numPages!==1?'s':''} \u2014 ${(bytes.byteLength/1048576).toFixed(2)} MB`;
+      edResult.style.display='flex'; edActions.style.display='none';
+    }catch(e){console.error(e);(window as any).showToast('Error saving PDF.', 'error');}
+    saveBtn.disabled=false;
+  });
+
+  keepEditingBtn.addEventListener('click',()=>{edResult.style.display='none';edActions.style.display='flex';});
+
+  function resetEditor(){
+    currentFile=null;pdfLibDoc=null;pdfJsDoc=null;numPages=0;annotations=[];history=[];
+    dropZone.style.display='flex';edFileInfo.style.display='none';edLoading.style.display='none';
+    edWorkspace.style.display='none';edActions.style.display='none';edResult.style.display='none';
+  }
+  clearBtn.addEventListener('click',resetEditor);
+  restartBtn.addEventListener('click',resetEditor);
+  removeBtn.addEventListener('click',resetEditor);
+</script>

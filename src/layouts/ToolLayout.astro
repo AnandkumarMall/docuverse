@@ -23,6 +23,7 @@ export interface Props {
   /* SEO */
   title: string;
   description: string;
+  keywords?: string;
   canonicalPath: string;
 
   /* Tool identity */
@@ -41,6 +42,7 @@ export interface Props {
 const {
   title,
   description,
+  keywords = "",
   canonicalPath,
   toolName,
   toolTagline,
@@ -91,7 +93,7 @@ const faqSchema = faqs.length > 0 ? {
 } : null;
 ---
 
-<BaseLayout {title} {description} canonicalUrl={canonicalUrl}>
+<BaseLayout {title} {description} {keywords} canonicalUrl={canonicalUrl}>
 
   <!-- JSON-LD injection -->
   <script type="application/ld+json" slot="head" set:text={JSON.stringify(webAppSchema)} />

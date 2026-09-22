@@ -1,0 +1,102 @@
+export const seoDataTools = {
+  ocr: {
+    keywords: "ocr image to text free, extract text from screenshot, english hindi ocr online, image to txt converter, copy text from photo, optical character recognition browser, extract text from picture online, photo to text converter free, screen capture text extractor, free ocr converter, ocr extract text from photo, english and hindi ocr online, one click text export txt, extract text from image client side, online screenshot text extractor, copy text from screenshot browser, free optical character recognition, convert image to text txt, ocr tool english hindi, photo to editable text converter, ocr image to text free hindi, extract text from photo hindi english, photo se text copy karne wala app, image to text converter online low kb, screenshot to text converter free, ocr online hindi english, extract text from image for notes, image to txt online free, free ocr tool mobile, photo text extractor online, photo se text kaise nikale, hindi image to text converter online, screenshot se text copy kare, image to text converter english hindi low kb, free hindi ocr tool online, photo se text convert karne wala tool, extract hindi text from image online, screenshot text extractor free mobile, image to txt converter free online, ocr photo to text app free",
+    faqs: [
+      { question: "What is Image to Text OCR?", answer: "OCR (Optical Character Recognition) is a technology that scans images or photos and extracts the readable text, allowing you to copy, edit, or save it." },
+      { question: "Which languages are supported for text extraction in this tool?", answer: "We support both English and Hindi text extraction natively." },
+      { question: "How do I copy or export extracted text?", answer: "Once the text is extracted, you can click the 'Copy' button to copy it to your clipboard or download it as a .txt file." },
+      { question: "Can I extract text directly from screenshots?", answer: "Yes, you can upload screenshots or even paste them directly from your clipboard into the tool." },
+      { question: "Is this online OCR tool free to use?", answer: "Yes, our OCR tool is completely free with no usage limits." },
+      { question: "Are uploaded images stored on remote servers during OCR?", answer: "Our OCR processing utilizes powerful WebAssembly technology to perform the extraction securely in your browser when possible." },
+      { question: "Can I extract text from photos of printed book pages?", answer: "Yes, the tool is highly accurate at extracting text from clear photos of documents and books." },
+      { question: "Does the OCR engine support handwritten text?", answer: "The OCR engine is optimized for typed and printed text. Handwritten text may yield inaccurate results." },
+      { question: "Can I export extracted text directly as a `.txt` file?", answer: "Yes, there is a one-click download button that exports your results to a text file." },
+      { question: "Does the OCR tool work on mobile phone browsers?", answer: "Yes, it is fully responsive and can process images taken directly with your phone's camera." },
+      { question: "How long does the text extraction process take?", answer: "It typically takes between 2 to 10 seconds depending on the length of the text and your device speed." },
+      { question: "Are watermarks added to the extracted text output?", answer: "No, you receive plain, unformatted text with no watermarks." },
+      { question: "Is desktop OCR software required to use this utility?", answer: "No software installation is required; it runs fully within your web browser." },
+      { question: "What image formats can be processed with OCR?", answer: "We support JPG, PNG, WebP, and AVIF image formats." },
+      { question: "Can I edit extracted text inside the browser?", answer: "Yes, the extracted text is presented in a text area where you can edit it before copying." },
+      { question: "How accurate is Hindi character recognition?", answer: "Our engine uses advanced trained data files, providing high accuracy for clearly printed Hindi text." },
+      { question: "Can I extract text from low-resolution or blurry images?", answer: "The engine will attempt it, but for the best accuracy, we strongly recommend high-contrast, clear images." },
+      { question: "Is user registration required to use the OCR tool?", answer: "No, there is no account or registration required." },
+      { question: "Can I process multiple screenshots in sequence?", answer: "Yes, you can process them one after another quickly without reloading the page." },
+      { question: "Are original line breaks and layout structures preserved in extracted text?", answer: "The engine attempts to preserve line breaks, but complex multi-column layouts may be merged into continuous text blocks." }
+    ]
+  },
+  'svg-optimizer': {
+    keywords: "minify svg online, svg optimizer tool, reduce svg file size, clean raw svg code, remove hidden junk svg, svg minifier free, optimize vector graphics browser, clean svg markup online, svg code cleaner developer, compress svg code free, minify raw svg code online, strip metadata from svg, clean raw svg XML string, svg optimizer for web developers, reduce vector file size browser, clean hidden junk from svg, online svg code minifier, optimize svg markup free, svg size reducer tool, clean svg code client side, minify svg online free, svg optimizer tool for web, reduce svg file size online, clean svg code online free, remove junk metadata from svg, svg minifier tool online, compress svg code for website, free svg optimizer developer tool, clean svg markup fast, svg size reducer online, minify svg code free online, clean raw svg code online low kb, svg optimizer tool for web designer, remove hidden tags from svg, compress svg file size free, clean vector graphic code online, free svg minifier tool india, reduce svg size for website speed, clean svg markup code fast, svg code optimizer online free",
+    faqs: [
+      { question: "How does the SVG Optimizer tool work?", answer: "It parses raw SVG XML code and safely removes unnecessary metadata, comments, and hidden layers to drastically reduce the file size." },
+      { question: "Why should I optimize and minify SVG vector files?", answer: "Minifying SVGs reduces page load times and bandwidth usage without altering the visual appearance of the graphic." },
+      { question: "What hidden data and junk code get removed during optimization?", answer: "It removes editor metadata (from Illustrator or Figma), empty groups, hidden elements, and useless XML comments." },
+      { question: "Does optimizing an SVG alter its visual rendering or design?", answer: "No, the optimization is strictly 'lossless', meaning the visual result is exactly identical to the original." },
+      { question: "Is SVG code optimization processed locally in the browser?", answer: "Yes, the code is parsed and optimized securely on your device." },
+      { question: "Is this SVG Optimizer free for web developers and designers?", answer: "Yes, it is a completely free tool with no limits." },
+      { question: "Can I paste raw SVG code directly into the tool?", answer: "Yes, you can either upload an .svg file or paste raw XML code directly into the editor." },
+      { question: "Can I copy the optimized SVG markup to my clipboard with one click?", answer: "Yes, we provide a quick 'Copy Code' button for immediate use in your projects." },
+      { question: "Does minification remove XML comments and unused groups?", answer: "Yes, it recursively strips all non-essential tags and groupings." },
+      { question: "How much file size reduction can I expect from SVG minification?", answer: "Reductions typically range from 30% to 70%, especially for SVGs exported directly from design software." },
+      { question: "Are watermarks added to optimized vector output?", answer: "No, we do not modify the actual graphic or add any watermarks." },
+      { question: "Does the optimizer work on complex vector illustrations?", answer: "Yes, it scales perfectly to handle highly complex, multi-layered vector graphics." },
+      { question: "Do I need Node.js or SVGO installed on my computer?", answer: "No, this web tool provides similar optimization power entirely in your browser without any terminal commands." },
+      { question: "Can I download the optimized SVG directly as a `.svg` file?", answer: "Yes, there is a direct download button for the optimized file." },
+      { question: "How fast is the SVG code optimization process?", answer: "Optimization is practically instant, taking mere milliseconds." },
+      { question: "Will minification alter the responsive ViewBox settings of my SVG?", answer: "No, the viewBox and aspect ratio constraints are preserved." },
+      { question: "Can I use this tool to optimize icon sets for web builds?", answer: "Absolutely, it is ideal for preparing icon libraries for production." },
+      { question: "Is account registration required to optimize SVG files?", answer: "No sign-up is required." },
+      { question: "Does the tool clean up unnecessary inline CSS styles within SVGs?", answer: "It streamlines paths and attributes but generally preserves necessary CSS styles." },
+      { question: "Is there a code length limit for raw SVG input?", answer: "There is no strict character limit, though massive files (several MBs of XML) may momentarily pause the browser." }
+    ]
+  },
+  'image-to-base64': {
+    keywords: "convert image to base64, image to base64 string online, base64 image encoder, base64 string for web developers, encode picture to base64, image to data uri converter, png to base64 string free, jpg to base64 code online, browser base64 encoder, free image to base64 tool, image to base64 data URI, encode image to base64 string, convert photo to data uri online, base64 encoder for web development, convert PNG JPG WebP to Base64, one click copy base64 string, image to base64 browser tool, base64 data string generator, encode picture for HTML CSS, free online base64 image encoder, convert image to base64 online free, image to base64 string for html css, png to base64 code online, encode photo to base64 string, image to data uri converter free, base64 image encoder developer tool, jpg to base64 string online, free base64 converter mobile, image to base64 fast, convert photo to data string, convert image to base64 for web page, image to base64 string code free, encode picture to data uri online, photo to base64 converter free, convert image to base64 low kb, base64 string generator online free, image to base64 code for html, convert png photo to base64 string, free base64 image encoder india, convert image to base64 string fast",
+    faqs: [
+      { question: "What does the Image to Base64 converter do?", answer: "It translates image files into a raw text string (Base64) that can be embedded directly into HTML or CSS." },
+      { question: "Why should developers use Base64 strings for images?", answer: "Embedding small images as Base64 reduces HTTP requests, speeding up initial page loads for icons and logos." },
+      { question: "How do I convert an image file into a Base64 string?", answer: "Upload your image, and the tool will instantly generate the Base64 data URI code." },
+      { question: "Is Base64 encoding executed locally in my browser?", answer: "Yes, the file is read and encoded locally without uploading to a server." },
+      { question: "Is this Image to Base64 encoder completely free?", answer: "Yes, it is entirely free for all developers." },
+      { question: "Which image formats can be encoded into Base64 data strings?", answer: "You can encode JPG, PNG, WebP, SVG, and GIF formats." },
+      { question: "Can I copy the generated Base64 string with one click?", answer: "Yes, we provide a 'Copy' button to easily paste it into your code editor." },
+      { question: "Does Base64 encoding increase the total file size of an image?", answer: "Yes, Base64 strings are typically about 33% larger in file size than the original binary image file." },
+      { question: "What string format is generated by this encoder?", answer: "It generates a standard Data URI format (e.g., `data:image/png;base64,iVBORw0K...`)." },
+      { question: "Are my uploaded images saved on remote web servers?", answer: "No, everything remains completely private on your device." },
+      { question: "Do I need developer plugins installed to generate Base64 strings?", answer: "No, this web tool provides the functionality without needing plugins or terminal commands." },
+      { question: "Can I use generated Base64 strings in CSS `background-image` rules?", answer: "Yes, simply paste the Data URI into the `url()` function in your CSS." },
+      { question: "How fast is the Base64 encoding process?", answer: "The encoding is instantaneous." },
+      { question: "Does Base64 string generation work on mobile browsers?", answer: "Yes, the tool is fully responsive and works on mobile devices." },
+      { question: "Is there a daily limit on Base64 image conversions?", answer: "There are no usage limits whatsoever." },
+      { question: "Are watermarks added to generated Base64 data URIs?", answer: "No, the string represents a perfect 1:1 copy of your original file." },
+      { question: "Can I encode small favicons and icons into Base64 strings?", answer: "Yes, small icons are the perfect use case for Base64 encoding." },
+      { question: "Does Base64 conversion alter original pixel values?", answer: "No, it is a lossless conversion representing the exact binary data of the file." },
+      { question: "Does the tool display an image preview alongside the code?", answer: "Yes, the tool renders a preview of the image above the generated code string." },
+      { question: "Is user registration required to use the encoder?", answer: "No sign-up is needed." }
+    ]
+  },
+  'favicon-generator': {
+    keywords: "generate favicon pack, multi size icon pack generator, create favicon 16x16 32x32 48x48 180x180, convert image to website favicon, free favicon icon generator, favicon generator for web developers, png to favicon ico pack, apple touch icon generator free, browser icon pack generator, generate website favicons, generate multi size favicon zip, favicon generator 16x16 32x32 48x48 180x180, apple touch icon 180x180 generator, convert logo to website favicon pack, free favicon zip generator, browser tab icon pack generator, create multi size favicons online, favicon generator web development, generate website icons browser, png to ico favicon pack free, generate favicon pack online free, convert photo to favicon 16x16 32x32, multi size icon pack generator free, website favicon generator online, png to favicon ico converter, create apple touch icon 180x180, favicon pack download zip, free favicon generator tool, convert image to website icon, favicon generator for web design, convert logo to favicon 16x16 32x32 online, multi size icon pack generator zip free, create website icon from photo online, favicon maker 16x16 32x32 48x48 180x180, free online favicon generator india, apple touch icon maker free, convert png to favicon zip low kb, generate favicon pack for website free, convert image to website icon pack, favicon generator online fast",
+    faqs: [
+      { question: "What icon sizes are included in the generated favicon pack?", answer: "The pack includes standard 16x16, 32x32, 48x48 for browsers, and 180x180 for Apple Touch devices." },
+      { question: "How do I generate a multi-size favicon pack using this tool?", answer: "Upload a high-resolution square image of your logo, and click generate to instantly download the ZIP package." },
+      { question: "How is the generated favicon pack delivered?", answer: "The various icon sizes and formats are bundled into a single ZIP archive for easy downloading." },
+      { question: "Is this online Favicon Generator free to use?", answer: "Yes, it is completely free for all users." },
+      { question: "Where does the icon rendering and resizing process take place?", answer: "All image processing and resizing is done locally in your browser." },
+      { question: "Which source image formats can I upload?", answer: "We recommend uploading a high-resolution PNG, but JPG and WebP are also supported." },
+      { question: "What is the purpose of the 180x180 Apple Touch Icon?", answer: "The Apple Touch Icon is used when iOS users save your website to their home screen as an app shortcut." },
+      { question: "Why are multiple favicon sizes necessary for modern websites?", answer: "Different devices, operating systems, and browsers require specific dimensions for optimal display clarity." },
+      { question: "Will transparent PNG backgrounds remain transparent in generated favicons?", answer: "Yes, transparency is perfectly preserved across all generated PNG icon sizes." },
+      { question: "Do I need desktop graphics software to generate favicons?", answer: "No, this tool automates the process of generating all necessary sizes without needing Photoshop." },
+      { question: "Are watermarks added to generated icon files?", answer: "No, the icons are generated identically to your source file." },
+      { question: "How long does it take to generate the full favicon pack?", answer: "Generation is instantaneous; the ZIP file is ready in milliseconds." },
+      { question: "Can I generate favicons using smartphone browsers?", answer: "Yes, the tool is mobile-friendly and can generate the ZIP archive on smartphones." },
+      { question: "Does the tool provide HTML header tag snippets for implementation?", answer: "Yes, along with the ZIP, we provide the exact HTML `<link>` tags to paste into your website's `<head>`." },
+      { question: "Are standard 16x16 and 32x32 browser tab icons included?", answer: "Yes, both 16x16 and 32x32 dimensions are generated." },
+      { question: "Are uploaded logos stored on remote servers?", answer: "No, your logo is processed entirely on your own device." },
+      { question: "What is the recommended source image aspect ratio for favicons?", answer: "We strongly recommend a perfectly square 1:1 aspect ratio to avoid distortion." },
+      { question: "Can I use vector SVG graphics as my source file?", answer: "Yes, SVG is supported and will yield the sharpest possible output across all sizes." },
+      { question: "Is account sign-up required to download the favicon ZIP file?", answer: "No sign-up or registration is required." },
+      { question: "Are generated favicons compatible with WordPress and custom websites?", answer: "Yes, the icons and HTML provided are a universal standard compatible with any website." }
+    ]
+  }
+};

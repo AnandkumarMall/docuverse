@@ -1,5 +1,6 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
   {
@@ -16,28 +17,6 @@ const howToSteps = [
   },
 ];
 
-const faqs = [
-  {
-    question: "Are my PDF files uploaded to a server?",
-    answer: "No. DocuVerse processes all files entirely in your browser using WebAssembly (pdf-lib). Your files never leave your device and are never sent to any server — not even for a second."
-  },
-  {
-    question: "Will the merged PDF have a watermark?",
-    answer: "Never. DocuVerse adds zero watermarks to any file, ever. What you download is exactly what you created — clean, unmodified."
-  },
-  {
-    question: "Is there a file size or page limit?",
-    answer: "There are no artificial limits. The only constraint is your device's available memory. Most modern devices handle PDFs up to several hundred MB without issue."
-  },
-  {
-    question: "Can I merge password-protected PDFs?",
-    answer: "If a PDF is password-protected, use our Unlock PDF tool first to remove the password, then merge. Unlocking is also free and runs in your browser."
-  },
-  {
-    question: "What order will the pages be in?",
-    answer: "Pages appear in the same order as the files you uploaded. Within each file, original page order is preserved. Drag to reorder files before merging to set your exact output order."
-  },
-];
 ---
 
 <ToolLayout
@@ -51,7 +30,8 @@ const faqs = [
   categoryHref="/#category-pdf"
   acceptedFormats="PDF files only · No size limit · Files stay on your device"
   howToSteps={howToSteps}
-  faqs={faqs}
+  keywords={seoDataPdf["merge"].keywords}
+  faqs={seoDataPdf["merge"].faqs}
 >
 
   <!-- ── Drop Zone ─────────────────────────────────────────── -->
@@ -110,7 +90,7 @@ const faqs = [
 
 </ToolLayout>
 
-<style>
+<style is:global>
   /* ── File List ───────────────────────────────────────────── */
   .pdf-file-list {
     display: flex;
@@ -128,17 +108,17 @@ const faqs = [
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-hairline);
+    background: rgba(207, 69, 0, 0.04);
+    border: 1px solid rgba(207, 69, 0, 0.15);
     border-radius: var(--radius-md);
     cursor: grab;
-    transition: box-shadow var(--duration-fast) var(--ease-out);
+    transition: box-shadow var(--duration-fast) var(--ease-out), border-color var(--duration-fast);
     user-select: none;
   }
 
   .pdf-file-item:active { cursor: grabbing; }
   .pdf-file-item.dragging { box-shadow: var(--shadow-lg); opacity: 0.7; }
-  .pdf-file-item.drag-over { border-color: var(--color-accent-blue); background: var(--color-info-bg); }
+  .pdf-file-item.drag-over { border-color: var(--color-accent-orange); background: rgba(207, 69, 0, 0.08); }
 
   .pdf-file-item__drag-handle {
     color: var(--color-ink-faint);
@@ -153,10 +133,10 @@ const faqs = [
     width: 28px;
     height: 28px;
     border-radius: var(--radius-pill);
-    background: var(--color-canvas-soft);
+    background: rgba(207, 69, 0, 0.1);
     font-size: 0.8125rem;
     font-weight: 700;
-    color: var(--color-ink-muted);
+    color: var(--color-accent-orange);
     flex-shrink: 0;
   }
 
@@ -397,7 +377,7 @@ const faqs = [
     } catch (err) {
       console.error('Merge failed:', err);
       hideProgress();
-      alert('Something went wrong while merging. Make sure all files are valid PDFs and try again.');
+      (window as any).showToast('Something went wrong while merging. Make sure all files are valid PDFs and try again.', 'error');
     } finally {
       mergeBtn.disabled = false;
       mergeBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Merge PDFs`;
