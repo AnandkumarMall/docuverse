@@ -1,0 +1,492 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataImage } from '../../data/seo-image';
+
+const howToSteps = [
+  { name: "Upload your image(s)", text: "Drop or browse to select JPG, PNG, or WebP images. You can upload multiple images for batch watermarking." },
+  { name: "Configure your watermark", text: "Type your watermark text and adjust font, color, opacity, size, position, and rotation. The canvas updates live so you see the exact result." },
+  { name: "Download", text: "Choose PNG, JPEG, or WebP format and click Download. If you uploaded multiple images, download each individually with the same watermark applied." },
+];
+---
+
+<ToolLayout
+  title="Add Watermark to Image Online Free — Text Watermark Maker"
+  description="Add a custom text watermark to any image online free. Choose font, color, opacity, position, and rotation. Tile watermark across entire image. Download as PNG, JPEG, or WebP. No upload — 100% in your browser."
+  canonicalPath="/image/watermark"
+  toolName="Image Watermark Maker"
+  toolTagline="Stamp custom text on your photos — font, color, opacity, tiling, rotation. Free, private, instant."
+  category="image"
+  categoryLabel="Image Tools"
+  categoryHref="/#category-image"
+  acceptedFormats="JPG, PNG, WebP · Multiple images supported"
+  howToSteps={howToSteps}
+  keywords={seoDataImage['watermark'].keywords}
+  faqs={seoDataImage['watermark'].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop images here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="1.2" opacity="0.5"/>
+      </svg>
+      <span class="drop-zone__text">Drop images here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP · Multiple images supported · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" aria-label="Select image files" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="iwm-file-list" style="display:none;" class="iwm-file-list">
+      <div id="iwm-thumbs" class="iwm-thumbs"></div>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="iwm-main" style="display:none;" class="iwm-main">
+
+      <!-- Canvas preview -->
+      <div class="iwm-canvas-section">
+        <div class="iwm-canvas-header">
+          <h3 class="iwm-section-title">Live Preview</h3>
+          <div class="iwm-nav" id="iwm-nav" style="display:none;">
+            <button class="btn btn-ghost btn-sm" id="iwm-prev" aria-label="Previous image">&#8592;</button>
+            <span id="iwm-nav-label" class="iwm-nav-label">1 / 1</span>
+            <button class="btn btn-ghost btn-sm" id="iwm-next" aria-label="Next image">&#8594;</button>
+          </div>
+        </div>
+        <div class="iwm-canvas-wrap">
+          <canvas id="iwm-canvas" class="iwm-canvas" aria-label="Watermark preview canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Controls panel -->
+      <div class="iwm-controls-panel">
+        <h3 class="iwm-section-title">Watermark Settings</h3>
+
+        <div class="iwm-ctrl-group iwm-ctrl-group--full">
+          <label class="iwm-label" for="iwm-text">Watermark Text</label>
+          <input type="text" id="iwm-text" class="input" placeholder="e.g. © YourBrand" maxlength="80" value="© YourBrand" />
+        </div>
+
+        <div class="iwm-ctrl-row">
+          <div class="iwm-ctrl-group">
+            <label class="iwm-label" for="iwm-font">Font</label>
+            <select id="iwm-font" class="input">
+              <option value="Inter, Arial, sans-serif">Inter / Modern</option>
+              <option value="Georgia, serif">Georgia / Serif</option>
+              <option value="'Courier New', monospace">Courier / Mono</option>
+              <option value="Impact, fantasy">Impact / Bold</option>
+              <option value="Arial, sans-serif">Arial / Clean</option>
+              <option value="'Dancing Script', cursive">Script / Handwriting</option>
+            </select>
+          </div>
+          <div class="iwm-ctrl-group">
+            <label class="iwm-label" for="iwm-pos">Position</label>
+            <select id="iwm-pos" class="input">
+              <option value="diagonal">Diagonal Center</option>
+              <option value="center">Center</option>
+              <option value="top-left">Top Left</option>
+              <option value="top-right">Top Right</option>
+              <option value="bottom-left">Bottom Left</option>
+              <option value="bottom-right">Bottom Right</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="iwm-ctrl-row">
+          <div class="iwm-ctrl-group">
+            <label class="iwm-label" for="iwm-color">Color</label>
+            <div class="iwm-color-wrap">
+              <input type="color" id="iwm-color" value="#ffffff" class="iwm-color-input" />
+              <span id="iwm-color-label" class="iwm-color-label">#ffffff</span>
+            </div>
+          </div>
+          <div class="iwm-ctrl-group iwm-ctrl-group--full">
+            <label class="iwm-label" for="iwm-opacity">Opacity: <span id="iwm-opacity-val">40%</span></label>
+            <input type="range" id="iwm-opacity" min="5" max="100" value="40" class="iwm-range" />
+          </div>
+        </div>
+
+        <div class="iwm-ctrl-row">
+          <div class="iwm-ctrl-group iwm-ctrl-group--full">
+            <label class="iwm-label" for="iwm-size">Font Size: <span id="iwm-size-val">48px</span></label>
+            <input type="range" id="iwm-size" min="12" max="200" value="48" class="iwm-range" />
+          </div>
+          <div class="iwm-ctrl-group iwm-ctrl-group--full">
+            <label class="iwm-label" for="iwm-rotate">Rotation: <span id="iwm-rotate-val">-30°</span></label>
+            <input type="range" id="iwm-rotate" min="-90" max="90" value="-30" class="iwm-range" />
+          </div>
+        </div>
+
+        <div class="iwm-ctrl-row iwm-ctrl-row--checks">
+          <label class="iwm-check-label">
+            <input type="checkbox" id="iwm-tile" /> Tile / Repeat across image
+          </label>
+        </div>
+
+        <!-- Download format -->
+        <div class="iwm-ctrl-row iwm-ctrl-row--download">
+          <div class="iwm-ctrl-group">
+            <label class="iwm-label" for="iwm-format">Download Format</label>
+            <select id="iwm-format" class="input">
+              <option value="image/png">PNG (lossless)</option>
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </div>
+          <div class="iwm-ctrl-group">
+            <label class="iwm-label" for="iwm-quality">Quality: <span id="iwm-quality-val">92%</span></label>
+            <input type="range" id="iwm-quality" min="60" max="100" value="92" class="iwm-range" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div slot="actions" style="display:none;" id="iwm-actions" class="iwm-actions">
+    <button class="btn btn-primary btn-lg" id="iwm-download-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Watermarked Image
+    </button>
+    <button class="btn btn-ghost" id="iwm-clear-btn">Clear</button>
+    <span id="iwm-batch-info" class="iwm-batch-info" style="display:none;"></span>
+  </div>
+
+  <div slot="result">
+    <div id="iwm-result" style="display:none;" class="iwm-result" aria-live="assertive">
+      <div class="iwm-result__icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="iwm-result__text">
+        <p class="iwm-result__label">Watermark applied!</p>
+        <p class="iwm-result__sub" id="iwm-result-sub"></p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="iwm-restart-btn">Watermark more images</button>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<!-- Dancing Script font for the script option -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+
+<script is:inline>
+(function() {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileListEl = document.getElementById('iwm-file-list');
+  const thumbsEl = document.getElementById('iwm-thumbs');
+  const mainEl = document.getElementById('iwm-main');
+  const actionsEl = document.getElementById('iwm-actions');
+  const canvas = document.getElementById('iwm-canvas');
+  const ctx = canvas ? canvas.getContext('2d') : null;
+  const resultEl = document.getElementById('iwm-result');
+  const resultSub = document.getElementById('iwm-result-sub');
+  const navEl = document.getElementById('iwm-nav');
+  const navLabel = document.getElementById('iwm-nav-label');
+  const prevBtn = document.getElementById('iwm-prev');
+  const nextBtn = document.getElementById('iwm-next');
+  const batchInfo = document.getElementById('iwm-batch-info');
+
+  // Controls
+  const wmText = document.getElementById('iwm-text');
+  const wmFont = document.getElementById('iwm-font');
+  const wmPos = document.getElementById('iwm-pos');
+  const wmColor = document.getElementById('iwm-color');
+  const wmColorLabel = document.getElementById('iwm-color-label');
+  const wmOpacity = document.getElementById('iwm-opacity');
+  const wmOpacityVal = document.getElementById('iwm-opacity-val');
+  const wmSize = document.getElementById('iwm-size');
+  const wmSizeVal = document.getElementById('iwm-size-val');
+  const wmRotate = document.getElementById('iwm-rotate');
+  const wmRotateVal = document.getElementById('iwm-rotate-val');
+  const wmTile = document.getElementById('iwm-tile');
+  const wmFormat = document.getElementById('iwm-format');
+  const wmQuality = document.getElementById('iwm-quality');
+  const wmQualityVal = document.getElementById('iwm-quality-val');
+  const downloadBtn = document.getElementById('iwm-download-btn');
+  const clearBtn = document.getElementById('iwm-clear-btn');
+  const restartBtn = document.getElementById('iwm-restart-btn');
+
+  let images = [];
+  let currentIdx = 0;
+  let loadedImages = [];
+
+  // Drop zone
+  dropZone && dropZone.addEventListener('click', () => fileInput && fileInput.click());
+  dropZone && dropZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput && fileInput.click(); } });
+  dropZone && dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone && dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone && dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drop-zone--active');
+    processFiles(e.dataTransfer.files);
+  });
+  fileInput && fileInput.addEventListener('change', (e) => processFiles(e.target.files));
+
+  function processFiles(files) {
+    if (!files || files.length === 0) return;
+    images = Array.from(files);
+    loadedImages = [];
+    dropZone.style.display = 'none';
+    fileListEl.style.display = 'block';
+    thumbsEl.innerHTML = '';
+
+    let loaded = 0;
+    images.forEach((file, i) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedImages[i] = img;
+          loaded++;
+
+          // Thumb
+          const thumb = document.createElement('div');
+          thumb.className = 'iwm-thumb' + (i === 0 ? ' iwm-thumb--active' : '');
+          thumb.dataset.idx = i;
+          const tImg = document.createElement('img');
+          tImg.src = ev.target.result;
+          tImg.alt = file.name;
+          const tName = document.createElement('span');
+          tName.textContent = file.name.length > 14 ? file.name.slice(0, 12) + '…' : file.name;
+          thumb.appendChild(tImg);
+          thumb.appendChild(tName);
+          thumb.addEventListener('click', () => {
+            document.querySelectorAll('.iwm-thumb').forEach(t => t.classList.remove('iwm-thumb--active'));
+            thumb.classList.add('iwm-thumb--active');
+            currentIdx = i;
+            drawCanvas();
+          });
+          thumbsEl.appendChild(thumb);
+
+          if (loaded === images.length) {
+            mainEl.style.display = 'block';
+            actionsEl.style.display = 'flex';
+            if (images.length > 1) {
+              navEl.style.display = 'flex';
+              batchInfo.style.display = 'inline';
+              batchInfo.textContent = images.length + ' images loaded';
+            }
+            currentIdx = 0;
+            drawCanvas();
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Nav
+  prevBtn && prevBtn.addEventListener('click', () => { currentIdx = (currentIdx - 1 + images.length) % images.length; updateActiveThumb(); drawCanvas(); });
+  nextBtn && nextBtn.addEventListener('click', () => { currentIdx = (currentIdx + 1) % images.length; updateActiveThumb(); drawCanvas(); });
+
+  function updateActiveThumb() {
+    document.querySelectorAll('.iwm-thumb').forEach((t, i) => t.classList.toggle('iwm-thumb--active', i === currentIdx));
+    if (navLabel) navLabel.textContent = (currentIdx + 1) + ' / ' + images.length;
+  }
+
+  // Draw watermark on canvas
+  function drawCanvas() {
+    const img = loadedImages[currentIdx];
+    if (!img || !ctx) return;
+
+    // Scale for display
+    const maxW = canvas.parentElement.clientWidth || 800;
+    const scale = Math.min(1, maxW / img.naturalWidth);
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.style.width = Math.round(img.naturalWidth * scale) + 'px';
+    canvas.style.height = Math.round(img.naturalHeight * scale) + 'px';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+
+    const text = wmText ? wmText.value || '© Watermark' : '© Watermark';
+    const font = wmFont ? wmFont.value : 'Arial, sans-serif';
+    const size = wmSize ? parseInt(wmSize.value) : 48;
+    const opacity = wmOpacity ? parseInt(wmOpacity.value) / 100 : 0.4;
+    const color = wmColor ? wmColor.value : '#ffffff';
+    const rotate = wmRotate ? (parseInt(wmRotate.value) * Math.PI) / 180 : 0;
+    const pos = wmPos ? wmPos.value : 'diagonal';
+    const tile = wmTile ? wmTile.checked : false;
+
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.font = `bold ${size}px ${font}`;
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'middle';
+
+    if (tile) {
+      drawTile(ctx, text, size, rotate, canvas.width, canvas.height);
+    } else {
+      drawSingle(ctx, text, size, rotate, pos, canvas.width, canvas.height);
+    }
+    ctx.restore();
+  }
+
+  function drawSingle(ctx, text, size, rotate, pos, W, H) {
+    const m = ctx.measureText(text);
+    const tw = m.width;
+    let x, y;
+    const pad = size * 0.8;
+    if (pos === 'diagonal' || pos === 'center') { x = W / 2; y = H / 2; }
+    else if (pos === 'top-left') { x = pad + tw / 2; y = pad; }
+    else if (pos === 'top-right') { x = W - pad - tw / 2; y = pad; }
+    else if (pos === 'bottom-left') { x = pad + tw / 2; y = H - pad; }
+    else if (pos === 'bottom-right') { x = W - pad - tw / 2; y = H - pad; }
+    else { x = W / 2; y = H / 2; }
+    ctx.translate(x, y);
+    if (pos === 'diagonal') ctx.rotate(rotate || -Math.PI / 6);
+    else ctx.rotate(rotate);
+    ctx.fillText(text, -tw / 2, 0);
+    ctx.translate(-x, -y);
+  }
+
+  function drawTile(ctx, text, size, rotate, W, H) {
+    const m = ctx.measureText(text);
+    const tw = m.width;
+    const gap = tw * 0.5;
+    const stepX = tw + gap;
+    const stepY = size * 2.5;
+    for (let y = 0; y < H + stepY; y += stepY) {
+      for (let x = 0; x < W + stepX; x += stepX) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotate);
+        ctx.fillText(text, -tw / 2, 0);
+        ctx.restore();
+      }
+    }
+  }
+
+  // Live re-render on any control change
+  const controls = [wmText, wmFont, wmPos, wmColor, wmOpacity, wmSize, wmRotate, wmTile];
+  controls.forEach(c => c && c.addEventListener(c.type === 'checkbox' ? 'change' : 'input', drawCanvas));
+
+  // Labels
+  wmColor && wmColor.addEventListener('input', () => { if (wmColorLabel) wmColorLabel.textContent = wmColor.value; drawCanvas(); });
+  wmOpacity && wmOpacity.addEventListener('input', () => { if (wmOpacityVal) wmOpacityVal.textContent = wmOpacity.value + '%'; drawCanvas(); });
+  wmSize && wmSize.addEventListener('input', () => { if (wmSizeVal) wmSizeVal.textContent = wmSize.value + 'px'; drawCanvas(); });
+  wmRotate && wmRotate.addEventListener('input', () => { if (wmRotateVal) wmRotateVal.textContent = wmRotate.value + '°'; drawCanvas(); });
+  wmQuality && wmQuality.addEventListener('input', () => { if (wmQualityVal) wmQualityVal.textContent = wmQuality.value + '%'; });
+
+  // Format change — hide quality for PNG
+  wmFormat && wmFormat.addEventListener('change', () => {
+    const qualityRow = wmQuality ? wmQuality.closest('.iwm-ctrl-group') : null;
+    if (qualityRow) qualityRow.style.display = wmFormat.value === 'image/png' ? 'none' : 'flex';
+  });
+
+  // Download current image
+  downloadBtn && downloadBtn.addEventListener('click', () => {
+    if (!canvas || !loadedImages[currentIdx]) return;
+    downloadCanvas(currentIdx);
+    if (resultEl) {
+      resultEl.style.display = 'flex';
+      if (resultSub) resultSub.textContent = images.length > 1 ? `Image ${currentIdx + 1} of ${images.length} downloaded.` : 'Image downloaded.';
+    }
+  });
+
+  function downloadCanvas(idx) {
+    // Re-draw on a fresh canvas at full resolution
+    const img = loadedImages[idx];
+    if (!img) return;
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const cx = c.getContext('2d');
+    cx.drawImage(img, 0, 0);
+
+    const text = wmText ? wmText.value || '© Watermark' : '© Watermark';
+    const font = wmFont ? wmFont.value : 'Arial, sans-serif';
+    const size = wmSize ? parseInt(wmSize.value) : 48;
+    const opacity = wmOpacity ? parseInt(wmOpacity.value) / 100 : 0.4;
+    const color = wmColor ? wmColor.value : '#ffffff';
+    const rotate = wmRotate ? (parseInt(wmRotate.value) * Math.PI) / 180 : 0;
+    const pos = wmPos ? wmPos.value : 'diagonal';
+    const tile = wmTile ? wmTile.checked : false;
+
+    cx.save();
+    cx.globalAlpha = opacity;
+    cx.font = `bold ${size}px ${font}`;
+    cx.fillStyle = color;
+    cx.textBaseline = 'middle';
+    if (tile) drawTile(cx, text, size, rotate, c.width, c.height);
+    else drawSingle(cx, text, size, rotate, pos, c.width, c.height);
+    cx.restore();
+
+    const fmt = wmFormat ? wmFormat.value : 'image/png';
+    const quality = wmQuality ? parseInt(wmQuality.value) / 100 : 0.92;
+    const ext = fmt === 'image/png' ? 'png' : fmt === 'image/webp' ? 'webp' : 'jpg';
+    const origName = images[idx] ? images[idx].name.replace(/\.[^.]+$/, '') : 'image';
+    const link = document.createElement('a');
+    link.download = origName + '-watermarked.' + ext;
+    link.href = c.toDataURL(fmt, quality);
+    link.click();
+  }
+
+  // Clear
+  function resetUI() {
+    images = []; loadedImages = []; currentIdx = 0;
+    dropZone.style.display = '';
+    fileListEl.style.display = 'none';
+    mainEl.style.display = 'none';
+    actionsEl.style.display = 'none';
+    resultEl.style.display = 'none';
+    navEl.style.display = 'none';
+    batchInfo.style.display = 'none';
+    thumbsEl.innerHTML = '';
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (fileInput) fileInput.value = '';
+  }
+  clearBtn && clearBtn.addEventListener('click', resetUI);
+  restartBtn && restartBtn.addEventListener('click', resetUI);
+})();
+</script>
+
+<style is:global>
+.iwm-file-list { margin-bottom:var(--space-3); }
+.iwm-thumbs { display:flex; flex-wrap:wrap; gap:var(--space-2); }
+.iwm-thumb { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; border-radius:var(--radius-sm); border:2px solid var(--color-border-hairline); overflow:hidden; background:var(--color-canvas-soft); padding:6px; transition:all .15s; width:80px; }
+.iwm-thumb img { width:64px; height:48px; object-fit:cover; border-radius:2px; }
+.iwm-thumb span { font-size:.65rem; color:var(--color-ink-muted); text-align:center; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.iwm-thumb:hover,.iwm-thumb--active { border-color:var(--color-accent-orange); }
+.iwm-thumb--active { box-shadow:0 0 0 2px rgba(207,69,0,.2); }
+
+.iwm-main { display:flex; flex-direction:column; gap:var(--space-5); }
+.iwm-canvas-section { display:flex; flex-direction:column; gap:var(--space-3); }
+.iwm-canvas-header { display:flex; align-items:center; justify-content:space-between; }
+.iwm-section-title { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); margin:0; }
+.iwm-nav { display:flex; align-items:center; gap:var(--space-2); }
+.iwm-nav-label { font-size:.8125rem; color:var(--color-ink-muted); min-width:40px; text-align:center; }
+.iwm-canvas-wrap { background:#f0f0f0; border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:200px; }
+.iwm-canvas { display:block; max-width:100%; height:auto; }
+
+.iwm-controls-panel { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+.iwm-ctrl-group { display:flex; flex-direction:column; gap:var(--space-2); }
+.iwm-ctrl-group--full { flex:1; }
+.iwm-ctrl-row { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
+.iwm-ctrl-row--checks { grid-template-columns:1fr; }
+.iwm-ctrl-row--download { grid-template-columns:auto 1fr; align-items:end; }
+@media(max-width:540px) { .iwm-ctrl-row { grid-template-columns:1fr; } }
+.iwm-label { font-size:.875rem; font-weight:600; color:var(--color-ink-secondary); }
+.iwm-color-wrap { display:flex; align-items:center; gap:var(--space-2); }
+.iwm-color-input { width:44px; height:38px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); padding:2px; cursor:pointer; background:none; }
+.iwm-color-label { font-size:.875rem; color:var(--color-ink-muted); font-family:monospace; }
+.iwm-range { width:100%; accent-color:var(--color-accent-orange); }
+.iwm-check-label { display:flex; align-items:center; gap:var(--space-2); font-size:.875rem; color:var(--color-ink-secondary); cursor:pointer; }
+
+.iwm-actions { display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; }
+.iwm-batch-info { font-size:.8125rem; color:var(--color-ink-muted); }
+.iwm-result { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-5); background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); border-radius:var(--radius-lg); flex-wrap:wrap; }
+.iwm-result__icon { width:44px; height:44px; background:rgba(34,197,94,.12); border-radius:50%; display:flex; align-items:center; justify-content:center; color:rgb(22,163,74); flex-shrink:0; }
+.iwm-result__text { flex:1; }
+.iwm-result__label { font-size:1rem; font-weight:700; color:var(--color-ink-primary); margin:0 0 4px; }
+.iwm-result__sub { font-size:.875rem; color:var(--color-ink-muted); margin:0; }
+</style>

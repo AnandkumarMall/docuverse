@@ -24,11 +24,14 @@ const urls = [
   { loc: '/image/to-pdf',        priority: '0.8', changefreq: 'monthly' },
   { loc: '/image/remove-exif',   priority: '0.8', changefreq: 'monthly' },
   { loc: '/image/color-picker',  priority: '0.8', changefreq: 'monthly' },
+  { loc: '/image/watermark',     priority: '0.8', changefreq: 'monthly' },
   // Smart utilities
   { loc: '/tools/ocr',               priority: '0.8', changefreq: 'monthly' },
   { loc: '/tools/svg-optimizer',     priority: '0.7', changefreq: 'monthly' },
   { loc: '/tools/image-to-base64',   priority: '0.7', changefreq: 'monthly' },
   { loc: '/tools/favicon-generator', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/tools/markdown-to-pdf',   priority: '0.8', changefreq: 'monthly' },
+  { loc: '/tools/excel-to-pdf',      priority: '0.8', changefreq: 'monthly' },
   // Legal & Info
   { loc: '/about',   priority: '0.6', changefreq: 'monthly' },
   { loc: '/privacy', priority: '0.4', changefreq: 'yearly' },

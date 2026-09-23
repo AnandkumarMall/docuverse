@@ -172,6 +172,20 @@ export const seoDataImage = {
       { question: "Are watermarks added to images during color picking?", answer: "No, this tool only reads data and does not modify your image." },
       { question: "Does the tool show visual color preview swatches?", answer: "Yes, a live color swatch box shows the exact color currently under your cursor." },
       { question: "Is there a size restriction on uploaded image files?", answer: "There is no strict limit, but extremely large images might take a moment to load onto the canvas." }
+    ]  },
+  watermark: {
+    keywords: "add watermark to image online, image watermark maker free, watermark photo online, stamp text on image browser, add text watermark to photo, image watermark tool no upload, watermark image free online, text watermark on photo, add watermark to picture free, batch image watermark online, photo watermark maker browser, watermark image client side, add watermark to jpg png free, image watermark no server, watermark photo private browser, add text to image watermark, watermark maker for photos free, image stamp tool online, watermark multiple images free, photo branding watermark tool",
+    faqs: [
+      { question: "How do I add a watermark to my image?", answer: "Upload your image, type your watermark text, adjust font, color, opacity, size, and position. The canvas updates live. Click Download to save." },
+      { question: "Is my image uploaded to a server?", answer: "No. Everything runs in your browser using the Canvas API. Your images never leave your device." },
+      { question: "Can I add a watermark to multiple images at once?", answer: "Yes. Upload multiple images, configure the watermark once, and batch download all watermarked images." },
+      { question: "What download formats are available?", answer: "You can download each watermarked image as PNG, JPEG, or WebP." },
+      { question: "Can I tile the watermark across the entire image?", answer: "Yes, enable the 'Repeat/Tile' option to repeat the watermark pattern across the whole image." },
+      { question: "Can I rotate the watermark text?", answer: "Yes, use the rotation slider to tilt the watermark at any angle from -90° to +90°." },
+      { question: "What fonts are available for the watermark text?", answer: "You can choose from several fonts including Inter, Georgia, Courier, Impact, Arial, and a handwriting-style font." },
+      { question: "Can I adjust watermark opacity?", answer: "Yes, an opacity slider lets you make the watermark as subtle or bold as you need." },
+      { question: "Is there a watermark position selector?", answer: "Yes, choose from Diagonal Center, Center, all four corners, or drag the watermark to a custom position on the canvas." },
+      { question: "Is the Image Watermark Maker free?", answer: "Yes, completely free with no account or signup required." }
     ]
   }
 };

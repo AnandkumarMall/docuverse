@@ -1,0 +1,386 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { seoDataTools } from '../../data/seo-tools';
+
+const howToSteps = [
+  { name: "Write or upload your Markdown", text: "Type directly in the editor or click 'Upload .md file' to load an existing Markdown document. A live preview renders on the right as you type." },
+  { name: "Choose theme and layout", text: "Pick a visual theme (GitHub, Plain, Academic, Dark-Print) and set paper size and orientation for the exported PDF." },
+  { name: "Download as PDF", text: "Click 'Download PDF' to generate and save your styled document. Everything runs in your browser — nothing is uploaded." },
+];
+---
+
+<BaseLayout
+  title="Markdown to PDF Converter Online Free — Live Editor with Preview"
+  description="Convert Markdown to PDF online free. Live split-pane editor with instant preview. Choose GitHub, Academic, or Plain themes. A4/Letter, portrait/landscape. No upload — runs in your browser."
+  keywords={seoDataTools['markdown-to-pdf'].keywords}
+>
+
+  <script type="application/ld+json" slot="head" set:text={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Markdown to PDF Converter",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web Browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Convert Markdown files to PDF online. Live editor with instant preview. No upload required."
+  })} />
+
+  <div class="md-tool-page">
+    <header class="md-header">
+      <div class="md-header__inner">
+        <div class="md-header__title">
+          <span class="md-header__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          </span>
+          <div>
+            <h1 class="md-header__h1">Markdown → PDF</h1>
+            <p class="md-header__tagline">Live editor · Themes · A4/Letter · 100% in your browser</p>
+          </div>
+        </div>
+        <div class="md-header__controls">
+          <div class="md-ctrl-group">
+            <label class="md-ctrl-label" for="md-theme">Theme</label>
+            <select id="md-theme" class="md-select">
+              <option value="github">GitHub</option>
+              <option value="plain">Plain</option>
+              <option value="academic">Academic</option>
+              <option value="dark-print">Dark Print</option>
+            </select>
+          </div>
+          <div class="md-ctrl-group">
+            <label class="md-ctrl-label" for="md-paper">Paper</label>
+            <select id="md-paper" class="md-select">
+              <option value="a4">A4</option>
+              <option value="letter">Letter</option>
+              <option value="a3">A3</option>
+            </select>
+          </div>
+          <div class="md-ctrl-group">
+            <label class="md-ctrl-label" for="md-orient">Orientation</label>
+            <select id="md-orient" class="md-select">
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </div>
+          <div class="md-header__actions">
+            <label class="btn md-btn-upload" for="md-file-input" title="Upload a .md file">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload .md
+            </label>
+            <input type="file" id="md-file-input" accept=".md,.markdown,.txt" class="sr-only" />
+            <button id="md-download-btn" class="btn btn-primary md-btn-download">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="md-split" id="md-split">
+      <div class="md-pane md-pane--editor" id="md-editor-pane">
+        <div class="md-pane__header">
+          <span class="md-pane__label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Markdown Editor
+          </span>
+          <span id="md-char-count" class="md-char-count">0 chars</span>
+        </div>
+        <textarea id="md-editor" class="md-editor__textarea" spellcheck="false" aria-label="Markdown editor"></textarea>
+      </div>
+      <div class="md-divider" id="md-divider" title="Drag to resize panes">
+        <div class="md-divider__handle"></div>
+      </div>
+      <div class="md-pane md-pane--preview" id="md-preview-pane">
+        <div class="md-pane__header">
+          <span class="md-pane__label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Live Preview
+          </span>
+          <span id="md-preview-status" class="md-preview-status">Ready</span>
+        </div>
+        <div class="md-preview__scroll">
+          <div id="md-preview" class="md-preview__content theme-github"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="md-statusbar">
+      <span id="md-status-msg" class="md-statusbar__msg">Start typing or upload a .md file to begin.</span>
+      <span id="md-pdf-status" class="md-pdf-status" style="display:none;"></span>
+    </div>
+
+    <section class="md-howto" aria-labelledby="how-to-heading">
+      <div class="md-howto__inner">
+        <h2 id="how-to-heading" class="md-howto__title">How to use Markdown → PDF</h2>
+        <div class="md-howto__steps">
+          {howToSteps.map((s, i) => (
+            <div class="md-howto__step">
+              <div class="md-howto__num">{i + 1}</div>
+              <div>
+                <strong class="md-howto__step-title">{s.name}</strong>
+                <p class="md-howto__step-text">{s.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="md-faq" aria-labelledby="faq-heading">
+      <div class="md-faq__inner">
+        <h2 id="faq-heading" class="md-faq__title">Frequently Asked Questions</h2>
+        <div class="md-faq__list">
+          {seoDataTools['markdown-to-pdf'].faqs.map((f) => (
+            <details class="md-faq__item">
+              <summary class="md-faq__q">{f.question}</summary>
+              <p class="md-faq__a">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+
+</BaseLayout>
+
+<script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script is:inline>
+(function() {
+  const editor = document.getElementById('md-editor');
+  const preview = document.getElementById('md-preview');
+  const themeSelect = document.getElementById('md-theme');
+  const paperSelect = document.getElementById('md-paper');
+  const orientSelect = document.getElementById('md-orient');
+  const downloadBtn = document.getElementById('md-download-btn');
+  const fileInput = document.getElementById('md-file-input');
+  const charCount = document.getElementById('md-char-count');
+  const previewStatus = document.getElementById('md-preview-status');
+  const statusMsg = document.getElementById('md-status-msg');
+  const pdfStatus = document.getElementById('md-pdf-status');
+
+  const SAMPLE = `# My Document
+
+Welcome to the **Markdown → PDF** converter. This editor supports full GitHub-Flavored Markdown.
+
+## Features
+
+- ✅ Live preview — updates as you type
+- ✅ Tables, code blocks, blockquotes
+- ✅ Multiple PDF themes
+- ✅ Choose paper size & orientation
+- ✅ 100% private — runs in your browser
+
+## Code Example
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
+
+## Table Example
+
+| Name       | Role        | Status  |
+|------------|-------------|---------|
+| Alice      | Designer    | Active  |
+| Bob        | Developer   | Active  |
+| Carol      | Manager     | Away    |
+
+> **Tip:** Drag the divider between editor and preview to resize panes.`;
+
+  if (editor) { editor.value = SAMPLE; render(); }
+
+  let renderTimer = null;
+  function render() {
+    if (!editor || !preview) return;
+    const md = editor.value;
+    if (charCount) charCount.textContent = md.length.toLocaleString() + ' chars';
+    if (previewStatus) previewStatus.textContent = 'Updating…';
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(() => {
+      try {
+        preview.innerHTML = window.marked ? marked.parse(md, { breaks: true, gfm: true }) : '<p>Loading parser…</p>';
+        applyTheme();
+        if (previewStatus) previewStatus.textContent = 'Ready';
+        if (statusMsg) statusMsg.textContent = 'Preview updated.';
+      } catch(e) {
+        if (previewStatus) previewStatus.textContent = 'Error';
+      }
+    }, 200);
+  }
+
+  editor && editor.addEventListener('input', render);
+
+  function applyTheme() {
+    if (!preview) return;
+    preview.className = 'md-preview__content theme-' + (themeSelect ? themeSelect.value : 'github');
+  }
+  themeSelect && themeSelect.addEventListener('change', applyTheme);
+
+  fileInput && fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      editor.value = ev.target.result;
+      render();
+      if (statusMsg) statusMsg.textContent = 'Loaded: ' + file.name;
+    };
+    reader.readAsText(file);
+  });
+
+  downloadBtn && downloadBtn.addEventListener('click', async () => {
+    if (!window.html2pdf) { alert('PDF library not loaded yet. Please wait a moment and try again.'); return; }
+    const content = editor ? editor.value.trim() : '';
+    if (!content) { if (statusMsg) statusMsg.textContent = 'Please write or upload some Markdown first.'; return; }
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'Generating…';
+    if (pdfStatus) { pdfStatus.textContent = '⏳ Building PDF…'; pdfStatus.style.display = 'inline'; }
+
+    const paper = paperSelect ? paperSelect.value : 'a4';
+    const orient = orientSelect ? orientSelect.value : 'portrait';
+    const theme = themeSelect ? themeSelect.value : 'github';
+
+    const clone = document.createElement('div');
+    clone.className = 'md-preview__content theme-' + theme;
+    clone.innerHTML = preview.innerHTML;
+    clone.style.cssText = 'padding:32px;box-sizing:border-box;width:100%;';
+    document.body.appendChild(clone);
+    clone.style.position = 'absolute';
+    clone.style.left = '-9999px';
+
+    const opt = {
+      margin: [15,15,15,15],
+      filename: 'document.pdf',
+      image: { type:'jpeg', quality:0.98 },
+      html2canvas: { scale:2, useCORS:true, letterRendering:true },
+      jsPDF: { unit:'mm', format:paper, orientation:orient },
+      pagebreak: { mode:['avoid-all','css','legacy'] }
+    };
+
+    try {
+      await html2pdf().set(opt).from(clone).save();
+      if (pdfStatus) pdfStatus.textContent = '✅ PDF downloaded!';
+      if (statusMsg) statusMsg.textContent = 'PDF saved successfully.';
+    } catch(e) {
+      if (pdfStatus) pdfStatus.textContent = '❌ Error';
+      if (statusMsg) statusMsg.textContent = 'PDF error: ' + e.message;
+    }
+    document.body.removeChild(clone);
+    downloadBtn.disabled = false;
+    downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
+    setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
+  });
+
+  // Resizable divider
+  const divider = document.getElementById('md-divider');
+  const split = document.getElementById('md-split');
+  const editorPane = document.getElementById('md-editor-pane');
+  const previewPane = document.getElementById('md-preview-pane');
+  if (divider && split && editorPane && previewPane) {
+    let dragging = false;
+    divider.addEventListener('mousedown', () => { dragging = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; });
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const rect = split.getBoundingClientRect();
+      const pct = ((e.clientX - rect.left) / rect.width) * 100;
+      const c = Math.max(25, Math.min(75, pct));
+      editorPane.style.flex = 'none'; editorPane.style.width = c + '%'; previewPane.style.flex = '1';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; });
+  }
+})();
+</script>
+
+<style is:global>
+.md-tool-page { display:flex; flex-direction:column; min-height:calc(100vh - 64px); background:var(--color-canvas-base); }
+.md-header { background:var(--color-canvas-soft); border-bottom:1px solid var(--color-border-hairline); padding:var(--space-3) var(--space-5); flex-shrink:0; }
+.md-header__inner { max-width:1600px; margin:0 auto; display:flex; align-items:center; gap:var(--space-4); flex-wrap:wrap; }
+.md-header__title { display:flex; align-items:center; gap:var(--space-3); flex-shrink:0; }
+.md-header__icon { width:40px; height:40px; background:linear-gradient(135deg,rgba(207,69,0,.12),rgba(207,69,0,.06)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--color-accent-orange); flex-shrink:0; }
+.md-header__h1 { font-size:1.125rem; font-weight:700; color:var(--color-ink-primary); margin:0; line-height:1.2; }
+.md-header__tagline { font-size:.75rem; color:var(--color-ink-muted); margin:0; }
+.md-header__controls { display:flex; align-items:flex-end; gap:var(--space-3); flex-wrap:wrap; flex:1; }
+.md-ctrl-group { display:flex; flex-direction:column; gap:4px; }
+.md-ctrl-label { font-size:.75rem; font-weight:600; color:var(--color-ink-muted); text-transform:uppercase; letter-spacing:.04em; }
+.md-select { font-size:.8125rem; padding:6px 10px; background:var(--color-canvas-base); border:1px solid var(--color-border-hairline); border-radius:var(--radius-sm); color:var(--color-ink-primary); cursor:pointer; }
+.md-header__actions { display:flex; align-items:flex-end; gap:var(--space-2); margin-left:auto; }
+.md-btn-upload { font-size:.8125rem; padding:7px 14px; background:var(--color-canvas-base); border:1px solid var(--color-border-hairline); border-radius:var(--radius-sm); color:var(--color-ink-secondary); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; text-decoration:none; }
+.md-btn-upload:hover { border-color:var(--color-accent-orange); color:var(--color-accent-orange); }
+.md-btn-download { font-size:.8125rem; padding:7px 16px; display:flex; align-items:center; gap:6px; }
+.md-split { display:flex; flex:1; overflow:hidden; height:calc(100vh - 130px); }
+.md-pane { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+.md-pane__header { display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--color-canvas-soft); border-bottom:1px solid var(--color-border-hairline); flex-shrink:0; }
+.md-pane__label { display:flex; align-items:center; gap:6px; font-size:.75rem; font-weight:600; color:var(--color-ink-muted); text-transform:uppercase; letter-spacing:.04em; }
+.md-char-count,.md-preview-status { font-size:.75rem; color:var(--color-ink-faint); font-family:monospace; }
+.md-editor__textarea { flex:1; width:100%; padding:20px; font-family:'Fira Code','Courier New',monospace; font-size:.9rem; line-height:1.7; border:none; outline:none; resize:none; background:var(--color-canvas-base); color:var(--color-ink-primary); tab-size:2; }
+.md-divider { width:5px; background:var(--color-border-hairline); cursor:col-resize; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+.md-divider:hover,.md-divider:active { background:var(--color-accent-orange); }
+.md-divider__handle { width:3px; height:32px; background:var(--color-border-default); border-radius:2px; }
+.md-divider:hover .md-divider__handle { background:#fff; }
+.md-preview__scroll { flex:1; overflow-y:auto; }
+/* Themes */
+.theme-github { padding:24px 32px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; font-size:16px; line-height:1.6; color:#24292f; background:#fff; }
+.theme-github h1,.theme-github h2 { border-bottom:1px solid #d0d7de; padding-bottom:.3em; }
+.theme-github h1 { font-size:2em; margin:0 0 16px; } .theme-github h2 { font-size:1.5em; margin:24px 0 16px; } .theme-github h3 { font-size:1.25em; margin:20px 0 12px; }
+.theme-github p { margin:0 0 16px; } .theme-github ul,.theme-github ol { padding-left:2em; margin:0 0 16px; }
+.theme-github code { background:#f6f8fa; border:1px solid #d0d7de; border-radius:6px; padding:.2em .4em; font-family:'SFMono-Regular',Consolas,monospace; font-size:85%; }
+.theme-github pre { background:#f6f8fa; border:1px solid #d0d7de; border-radius:6px; padding:16px; overflow:auto; margin:0 0 16px; }
+.theme-github pre code { background:none; border:none; padding:0; }
+.theme-github blockquote { color:#57606a; border-left:4px solid #d0d7de; padding:0 1em; margin:0 0 16px; }
+.theme-github table { border-collapse:collapse; width:100%; margin:0 0 16px; } .theme-github th,.theme-github td { border:1px solid #d0d7de; padding:6px 13px; } .theme-github th { background:#f6f8fa; font-weight:600; } .theme-github tr:nth-child(even) { background:#f6f8fa; }
+.theme-plain { padding:24px 32px; font-family:Georgia,serif; font-size:16px; line-height:1.6; color:#222; background:#fff; }
+.theme-plain h1,.theme-plain h2,.theme-plain h3 { font-weight:bold; margin:20px 0 12px; } .theme-plain p { margin:0 0 14px; } .theme-plain ul,.theme-plain ol { padding-left:1.5em; margin:0 0 14px; }
+.theme-plain code { font-family:monospace; background:#f4f4f4; border-radius:4px; padding:.1em .3em; } .theme-plain pre { font-family:monospace; background:#f4f4f4; border-radius:4px; padding:12px; overflow:auto; margin:0 0 14px; }
+.theme-plain table { border-collapse:collapse; width:100%; margin:0 0 14px; } .theme-plain th,.theme-plain td { border:1px solid #ccc; padding:6px 10px; } .theme-plain blockquote { border-left:3px solid #888; padding:0 1em; margin:0 0 14px; color:#555; }
+.theme-academic { padding:24px 40px; font-family:'Times New Roman',Times,serif; font-size:17px; line-height:1.8; color:#111; background:#fff; max-width:680px; margin:0 auto; }
+.theme-academic h1 { text-align:center; font-size:1.6em; margin-bottom:.3em; } .theme-academic h2 { font-size:1.25em; margin:28px 0 12px; } .theme-academic h3 { font-size:1.1em; margin:20px 0 8px; }
+.theme-academic p { margin:0 0 1em; text-align:justify; } .theme-academic ul,.theme-academic ol { padding-left:2em; margin:0 0 1em; }
+.theme-academic code { font-family:'Courier New',monospace; font-size:.9em; background:#f8f8f8; padding:.1em .3em; border-radius:2px; } .theme-academic pre { background:#f8f8f8; padding:14px; border-radius:4px; margin:0 0 1em; overflow:auto; }
+.theme-academic blockquote { font-style:italic; border-left:3px solid #999; padding:0 1em; margin:0 0 1em; color:#444; }
+.theme-academic table { border-collapse:collapse; width:100%; margin:0 0 1em; font-size:.95em; } .theme-academic th,.theme-academic td { border:1px solid #999; padding:5px 10px; }
+.theme-dark-print { padding:24px 32px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:16px; line-height:1.6; color:#e8eaf0; background:#1a1b26; }
+.theme-dark-print h1,.theme-dark-print h2,.theme-dark-print h3 { color:#c0c8ff; margin:20px 0 12px; }
+.theme-dark-print h1 { font-size:1.8em; border-bottom:1px solid #2e3048; padding-bottom:.3em; } .theme-dark-print h2 { font-size:1.3em; border-bottom:1px solid #2e3048; padding-bottom:.3em; }
+.theme-dark-print p { margin:0 0 14px; } .theme-dark-print ul,.theme-dark-print ol { padding-left:1.5em; margin:0 0 14px; }
+.theme-dark-print code { background:#2e3048; border-radius:4px; padding:.2em .4em; font-family:monospace; font-size:.88em; color:#a5d6ff; } .theme-dark-print pre { background:#2e3048; border-radius:6px; padding:16px; margin:0 0 14px; overflow:auto; }
+.theme-dark-print pre code { background:none; padding:0; color:#e8eaf0; }
+.theme-dark-print blockquote { border-left:4px solid #4a5080; padding:0 1em; margin:0 0 14px; color:#8892b0; }
+.theme-dark-print table { border-collapse:collapse; width:100%; margin:0 0 14px; } .theme-dark-print th,.theme-dark-print td { border:1px solid #2e3048; padding:6px 12px; } .theme-dark-print th { background:#2e3048; color:#c0c8ff; }
+/* Status bar */
+.md-statusbar { display:flex; align-items:center; justify-content:space-between; padding:6px 16px; background:var(--color-canvas-soft); border-top:1px solid var(--color-border-hairline); flex-shrink:0; }
+.md-statusbar__msg { font-size:.75rem; color:var(--color-ink-muted); }
+.md-pdf-status { font-size:.75rem; font-weight:600; color:var(--color-accent-orange); }
+/* How-to */
+.md-howto { background:var(--color-canvas-soft); border-top:1px solid var(--color-border-hairline); padding:var(--space-10) var(--space-5); }
+.md-howto__inner { max-width:900px; margin:0 auto; }
+.md-howto__title { font-size:1.25rem; font-weight:700; color:var(--color-ink-primary); margin:0 0 var(--space-6); }
+.md-howto__steps { display:flex; flex-direction:column; gap:var(--space-5); }
+.md-howto__step { display:flex; gap:var(--space-4); align-items:flex-start; }
+.md-howto__num { width:28px; height:28px; background:var(--color-accent-orange); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.8125rem; font-weight:700; flex-shrink:0; }
+.md-howto__step-title { display:block; font-size:.9375rem; font-weight:600; color:var(--color-ink-primary); margin-bottom:4px; }
+.md-howto__step-text { font-size:.875rem; color:var(--color-ink-muted); margin:0; }
+/* FAQ */
+.md-faq { padding:var(--space-10) var(--space-5); background:var(--color-canvas-base); border-top:1px solid var(--color-border-hairline); }
+.md-faq__inner { max-width:900px; margin:0 auto; }
+.md-faq__title { font-size:1.25rem; font-weight:700; color:var(--color-ink-primary); margin:0 0 var(--space-5); }
+.md-faq__list { display:flex; flex-direction:column; gap:var(--space-2); }
+.md-faq__item { border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); overflow:hidden; }
+.md-faq__q { padding:var(--space-4); font-size:.9375rem; font-weight:600; color:var(--color-ink-primary); cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; }
+.md-faq__q::after { content:'▾'; font-size:.75rem; color:var(--color-ink-muted); transition:transform .2s; }
+.md-faq__item[open] .md-faq__q::after { transform:rotate(-180deg); }
+.md-faq__a { padding:0 var(--space-4) var(--space-4); font-size:.875rem; color:var(--color-ink-muted); margin:0; }
+/* Mobile */
+@media (max-width:768px) {
+  .md-split { flex-direction:column; height:auto; }
+  .md-divider { width:100%; height:5px; cursor:row-resize; }
+  .md-divider__handle { width:32px; height:3px; }
+  .md-editor__textarea { min-height:280px; }
+  .md-header__controls { flex-direction:column; align-items:flex-start; }
+  .md-header__actions { margin-left:0; }
+}
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border-width:0; }
+</style>

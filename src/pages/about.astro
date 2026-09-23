@@ -24,6 +24,7 @@ const imageTools = [
   { name: "Image to PDF", href: getAssetPath("/image/to-pdf"), desc: "Compile sets of photos into formatted PDF documents." },
   { name: "Remove EXIF", href: getAssetPath("/image/remove-exif"), desc: "Strip GPS locations, camera serials, and timestamps from photos." },
   { name: "Color Picker", href: getAssetPath("/image/color-picker"), desc: "Inspect uploaded images with a magnifying loupe to copy HEX, RGB, or HSL." },
+  { name: "Watermark Image", href: getAssetPath("/image/watermark"), desc: "Stamp custom text watermarks on photos with font, opacity, tiling, and rotation controls." },
 ];
 
 const utilityTools = [
@@ -31,6 +32,8 @@ const utilityTools = [
   { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer"), desc: "Clean and minify SVG vectors to reduce file weight for web performance." },
   { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64"), desc: "Convert images to Base64 data strings and CSS background snippets." },
   { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator"), desc: "Generate complete favicon bundles (16px to 180px) in one click." },
+  { name: "Markdown to PDF", href: getAssetPath("/tools/markdown-to-pdf"), desc: "Live split-pane Markdown editor with instant preview — export to styled PDF in GitHub, Academic, or Plain themes." },
+  { name: "Excel to PDF", href: getAssetPath("/tools/excel-to-pdf"), desc: "Parse .xlsx, .xls, and .csv files with sheet preview tabs — export multi-sheet workbooks as paginated PDFs." },
 ];
 ---
 
@@ -59,7 +62,7 @@ const utilityTools = [
         </div>
         <h1 class="about-title">Built for privacy.<br />Engineered for speed.</h1>
         <p class="about-subtitle">
-          DocuVerse is a comprehensive suite of 22 document, image, and developer utilities. Every single tool runs <strong>100% locally inside your browser</strong> using WebAssembly and modern browser APIs. Your files never touch a remote server.
+          DocuVerse is a comprehensive suite of 25 document, image, and developer utilities. Every single tool runs <strong>100% locally inside your browser</strong> using WebAssembly and modern browser APIs. Your files never touch a remote server.
         </p>
       </header>
 

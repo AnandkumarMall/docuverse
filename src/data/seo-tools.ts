@@ -97,6 +97,35 @@ export const seoDataTools = {
       { question: "Can I use vector SVG graphics as my source file?", answer: "Yes, SVG is supported and will yield the sharpest possible output across all sizes." },
       { question: "Is account sign-up required to download the favicon ZIP file?", answer: "No sign-up or registration is required." },
       { question: "Are generated favicons compatible with WordPress and custom websites?", answer: "Yes, the icons and HTML provided are a universal standard compatible with any website." }
+    ]  },
+  'markdown-to-pdf': {
+    keywords: "markdown to pdf converter online, md to pdf online free, convert markdown file to pdf, markdown editor with pdf preview, markdown pdf exporter browser, live markdown preview pdf, md file to pdf download, markdown to pdf no upload, markdown renderer pdf, convert .md to pdf online",
+    faqs: [
+      { question: "How do I convert a Markdown file to PDF?", answer: "Either type your Markdown in the live editor or upload an existing .md file. A styled preview appears on the right. Click 'Download PDF' to export." },
+      { question: "Does the converter support tables and code blocks?", answer: "Yes, GitHub-flavored Markdown is fully supported, including tables, fenced code blocks, blockquotes, and nested lists." },
+      { question: "Is my document uploaded to a server?", answer: "No. All conversion happens entirely in your browser. Your text never leaves your device." },
+      { question: "Can I choose paper size and orientation?", answer: "Yes, you can select A4, Letter, or A3 and choose Portrait or Landscape before downloading." },
+      { question: "What themes are available?", answer: "GitHub style, Plain, Academic (serif), and Dark-Print themes." },
+      { question: "Can I upload an existing .md file?", answer: "Yes, click the 'Upload .md file' tab or drop a .md file onto the editor." },
+      { question: "Is the tool free?", answer: "Yes, completely free with no limits." },
+      { question: "How does the live preview work?", answer: "As you type, the editor re-renders your Markdown to styled HTML on the right side in real time." },
+      { question: "Can I export Markdown with images?", answer: "Images referenced by URL will render correctly. Local file paths may not load due to browser security restrictions." },
+      { question: "Does the PDF preserve code styling?", answer: "Code blocks are styled with a monospace font and background in the GitHub theme." }
+    ]
+  },
+  'excel-to-pdf': {
+    keywords: "excel to pdf converter online, xlsx to pdf online free, convert excel to pdf browser, spreadsheet to pdf no upload, excel to pdf with preview, xlsx to pdf free online, convert excel spreadsheet to pdf, excel pdf exporter browser, xls to pdf converter online, csv to pdf converter",
+    faqs: [
+      { question: "How do I convert an Excel file to PDF?", answer: "Upload your .xlsx, .xls, or .csv file. The tool renders each sheet as a table preview. Select layout options and click Download PDF." },
+      { question: "Is my Excel file uploaded to a server?", answer: "No. Everything runs in your browser. Your spreadsheet data never leaves your device." },
+      { question: "Does the tool support multiple sheets?", answer: "Yes. Each sheet appears as a separate tab. You can preview each and choose which ones to include in the exported PDF." },
+      { question: "Are Excel formulas supported?", answer: "Yes. SheetJS resolves formula results so computed values are shown correctly." },
+      { question: "Will charts appear in the PDF?", answer: "No. Only table data is exported. Charts and embedded images are not supported in browser-based conversion." },
+      { question: "Can I choose orientation?", answer: "Yes, you can select portrait or landscape and A4 or Letter paper size before exporting." },
+      { question: "Can I convert a CSV file?", answer: "Yes, .csv files are fully supported and render as a clean table in the PDF." },
+      { question: "Is there a row limit?", answer: "No hard limit, but very large spreadsheets may slow browser rendering." },
+      { question: "Can I select which sheets to include?", answer: "Yes, checkboxes let you select exactly which sheets to export." },
+      { question: "Is the tool free?", answer: "Yes, completely free with no account required." }
     ]
   }
 };

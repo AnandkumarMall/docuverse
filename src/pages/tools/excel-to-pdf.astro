@@ -1,0 +1,446 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataTools } from '../../data/seo-tools';
+
+const howToSteps = [
+  { name: "Upload your spreadsheet", text: "Drop or browse to select an .xlsx, .xls, or .csv file. No upload to any server — everything stays in your browser." },
+  { name: "Preview sheets and set layout", text: "Each sheet tab appears as a preview. Choose portrait or landscape, paper size, and which sheets to include in the export." },
+  { name: "Download as PDF", text: "Click 'Download PDF' to generate and save your spreadsheet as a clean, paginated PDF document." },
+];
+---
+
+<ToolLayout
+  title="Excel to PDF Converter Online Free — XLSX XLS CSV to PDF with Preview"
+  description="Convert Excel spreadsheets to PDF online free. Supports .xlsx, .xls, and .csv. Live sheet preview, multi-sheet selection, portrait/landscape, A4/Letter. No upload — runs in your browser."
+  canonicalPath="/tools/excel-to-pdf"
+  toolName="Excel to PDF"
+  toolTagline="Convert spreadsheets to PDF with sheet preview — portrait, landscape, A4 or Letter. Free, private, instant."
+  category="utility"
+  categoryLabel="Smart Utilities"
+  categoryHref="/#category-tools"
+  acceptedFormats=".xlsx, .xls, .csv · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={seoDataTools['excel-to-pdf'].keywords}
+  faqs={seoDataTools['excel-to-pdf'].faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an Excel or CSV file here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+        <line x1="9" y1="3" x2="9" y2="21"/>
+        <line x1="15" y1="3" x2="15" y2="21"/>
+      </svg>
+      <span class="drop-zone__text">Drop an Excel or CSV file here or click to browse</span>
+      <span class="drop-zone__hint">.xlsx · .xls · .csv · Files stay on your device</span>
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" class="sr-only" aria-label="Select Excel or CSV file" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="xl-file-info" style="display:none;" class="xl-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+      <span id="xl-file-name" class="xl-file-name"></span>
+      <span id="xl-file-meta" class="xl-file-meta"></span>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove file">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="xl-loading" style="display:none;" class="xl-loading">
+      <div class="xl-spinner"></div>
+      <span>Parsing spreadsheet…</span>
+    </div>
+    <div id="xl-warn" style="display:none;" class="xl-warn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Charts and embedded images in Excel are not supported — only table data will be exported.
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="xl-main" style="display:none;" class="xl-main">
+
+      <!-- Sheet tabs -->
+      <div class="xl-section">
+        <h3 class="xl-section-title">Sheets</h3>
+        <div id="xl-sheet-tabs" class="xl-sheet-tabs" role="tablist" aria-label="Sheet tabs"></div>
+      </div>
+
+      <!-- Layout controls -->
+      <div class="xl-controls-panel">
+        <h3 class="xl-section-title">Layout</h3>
+        <div class="xl-controls-row">
+          <div class="xl-ctrl-group">
+            <label class="xl-label" for="xl-paper">Paper Size</label>
+            <select id="xl-paper" class="input">
+              <option value="a4">A4</option>
+              <option value="letter">Letter</option>
+            </select>
+          </div>
+          <div class="xl-ctrl-group">
+            <label class="xl-label" for="xl-orient">Orientation</label>
+            <select id="xl-orient" class="input">
+              <option value="landscape">Landscape (recommended)</option>
+              <option value="portrait">Portrait</option>
+            </select>
+          </div>
+          <div class="xl-ctrl-group xl-ctrl-group--check">
+            <label class="xl-check-label">
+              <input type="checkbox" id="xl-fit-page" checked /> Fit to page width
+            </label>
+            <label class="xl-check-label">
+              <input type="checkbox" id="xl-show-header" checked /> Include sheet name as header
+            </label>
+          </div>
+        </div>
+
+        <!-- Sheet selection checkboxes (multi-sheet) -->
+        <div id="xl-sheet-select" class="xl-sheet-select" style="display:none;">
+          <p class="xl-label">Select sheets to export:</p>
+          <div id="xl-sheet-checkboxes" class="xl-sheet-checkboxes"></div>
+        </div>
+      </div>
+
+      <!-- Live table preview -->
+      <div class="xl-preview-section">
+        <h3 class="xl-section-title">
+          Table Preview
+          <span id="xl-preview-info" class="xl-preview-info"></span>
+        </h3>
+        <div class="xl-table-wrap" id="xl-table-wrap">
+          <div id="xl-table-container" class="xl-table-container"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div slot="actions" style="display:none;" id="xl-actions" class="xl-actions">
+    <button class="btn btn-primary btn-lg" id="xl-download-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </button>
+    <button class="btn btn-ghost" id="xl-clear-btn">Clear</button>
+  </div>
+
+  <div slot="result">
+    <div id="xl-result" style="display:none;" class="xl-result" aria-live="assertive">
+      <div class="xl-result__icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="xl-result__text">
+        <p class="xl-result__label">PDF generated!</p>
+        <p class="xl-result__sub" id="xl-result-sub"></p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="xl-restart-btn">Convert another</button>
+    </div>
+  </div>
+
+</ToolLayout>
+
+<!-- SheetJS CDN -->
+<script is:inline src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<!-- html2pdf CDN -->
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script is:inline>
+(function() {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('xl-file-info');
+  const fileName = document.getElementById('xl-file-name');
+  const fileMeta = document.getElementById('xl-file-meta');
+  const removeBtn = document.getElementById('remove-file');
+  const loadingEl = document.getElementById('xl-loading');
+  const warnEl = document.getElementById('xl-warn');
+  const mainEl = document.getElementById('xl-main');
+  const actionsEl = document.getElementById('xl-actions');
+  const sheetTabs = document.getElementById('xl-sheet-tabs');
+  const sheetSelect = document.getElementById('xl-sheet-select');
+  const sheetCheckboxes = document.getElementById('xl-sheet-checkboxes');
+  const tableContainer = document.getElementById('xl-table-container');
+  const previewInfo = document.getElementById('xl-preview-info');
+  const downloadBtn = document.getElementById('xl-download-btn');
+  const clearBtn = document.getElementById('xl-clear-btn');
+  const restartBtn = document.getElementById('xl-restart-btn');
+  const resultEl = document.getElementById('xl-result');
+  const resultSub = document.getElementById('xl-result-sub');
+  const paperSel = document.getElementById('xl-paper');
+  const orientSel = document.getElementById('xl-orient');
+  const fitPage = document.getElementById('xl-fit-page');
+  const showHeader = document.getElementById('xl-show-header');
+
+  let workbook = null;
+  let activeSheet = null;
+  let currentFile = null;
+
+  // Drop zone
+  dropZone && dropZone.addEventListener('click', () => fileInput && fileInput.click());
+  dropZone && dropZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput && fileInput.click(); } });
+  dropZone && dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone && dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone && dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drop-zone--active');
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+  });
+  fileInput && fileInput.addEventListener('change', (e) => {
+    if (e.target.files[0]) processFile(e.target.files[0]);
+  });
+
+  function processFile(file) {
+    currentFile = file;
+    dropZone.style.display = 'none';
+    fileInfo.style.display = 'flex';
+    fileName.textContent = file.name;
+    fileMeta.textContent = formatBytes(file.size);
+    loadingEl.style.display = 'flex';
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = new Uint8Array(ev.target.result);
+        workbook = XLSX.read(data, { type: 'array', cellFormula: false, cellHTML: false });
+        loadingEl.style.display = 'none';
+        warnEl.style.display = 'flex';
+        mainEl.style.display = 'block';
+        actionsEl.style.display = 'flex';
+        buildSheetTabs();
+      } catch(e) {
+        loadingEl.style.display = 'none';
+        alert('Could not parse this file. Make sure it is a valid .xlsx, .xls, or .csv file.');
+        resetUI();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function buildSheetTabs() {
+    const names = workbook.SheetNames;
+    sheetTabs.innerHTML = '';
+    names.forEach((name, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'xl-tab' + (i === 0 ? ' xl-tab--active' : '');
+      btn.textContent = name;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.xl-tab').forEach(t => { t.classList.remove('xl-tab--active'); t.setAttribute('aria-selected', 'false'); });
+        btn.classList.add('xl-tab--active');
+        btn.setAttribute('aria-selected', 'true');
+        activeSheet = name;
+        renderTable(name);
+      });
+      sheetTabs.appendChild(btn);
+    });
+
+    // Multi-sheet checkbox select
+    if (names.length > 1) {
+      sheetSelect.style.display = 'block';
+      sheetCheckboxes.innerHTML = '';
+      names.forEach(name => {
+        const lbl = document.createElement('label');
+        lbl.className = 'xl-check-label';
+        lbl.innerHTML = `<input type="checkbox" checked data-sheet="${name}" /> ${name}`;
+        sheetCheckboxes.appendChild(lbl);
+      });
+    } else {
+      sheetSelect.style.display = 'none';
+    }
+
+    activeSheet = names[0];
+    renderTable(names[0]);
+  }
+
+  function renderTable(sheetName) {
+    const ws = workbook.Sheets[sheetName];
+    if (!ws) return;
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+    if (!data || data.length === 0) {
+      tableContainer.innerHTML = '<p style="padding:16px;color:var(--color-ink-muted);">This sheet appears to be empty.</p>';
+      previewInfo.textContent = '0 rows';
+      return;
+    }
+
+    const rows = data.length;
+    const cols = Math.max(...data.map(r => r.length));
+    previewInfo.textContent = `${rows} rows × ${cols} cols`;
+
+    let html = '<table class="xl-table"><thead><tr>';
+    // First row as header
+    (data[0] || []).forEach(cell => { html += `<th>${escapeHtml(String(cell ?? ''))}</th>`; });
+    html += '</tr></thead><tbody>';
+    for (let i = 1; i < data.length; i++) {
+      html += '<tr>';
+      for (let j = 0; j < cols; j++) {
+        html += `<td>${escapeHtml(String(data[i][j] ?? ''))}</td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    tableContainer.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Download PDF
+  downloadBtn && downloadBtn.addEventListener('click', async () => {
+    if (!workbook || !window.html2pdf) return;
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'Generating…';
+
+    const paper = paperSel ? paperSel.value : 'a4';
+    const orient = orientSel ? orientSel.value : 'landscape';
+    const fit = fitPage ? fitPage.checked : true;
+    const includeHeader = showHeader ? showHeader.checked : true;
+
+    // Determine sheets to export
+    let sheetsToExport = workbook.SheetNames;
+    const checkboxEls = document.querySelectorAll('[data-sheet]');
+    if (checkboxEls.length > 0) {
+      sheetsToExport = Array.from(checkboxEls).filter(c => c.checked).map(c => c.dataset.sheet);
+    }
+    if (sheetsToExport.length === 0) {
+      alert('Please select at least one sheet to export.');
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = 'Download PDF';
+      return;
+    }
+
+    // Build combined HTML for all sheets
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;';
+
+    sheetsToExport.forEach((name, idx) => {
+      const ws = workbook.Sheets[name];
+      if (!ws) return;
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+      if (!data || data.length === 0) return;
+      const cols = Math.max(...data.map(r => r.length));
+
+      const section = document.createElement('div');
+      section.style.cssText = idx > 0 ? 'page-break-before:always;padding-top:8px;' : 'padding-top:8px;';
+
+      if (includeHeader) {
+        const h = document.createElement('h3');
+        h.textContent = name;
+        h.style.cssText = 'margin:0 0 8px;font-size:14px;font-weight:600;color:#1a1a1a;border-bottom:2px solid #cf4500;padding-bottom:4px;';
+        section.appendChild(h);
+      }
+
+      let thtml = '<table style="border-collapse:collapse;width:100%;' + (fit ? 'table-layout:fixed;' : '') + '">';
+      thtml += '<thead><tr>';
+      (data[0] || []).forEach(cell => {
+        thtml += `<th style="background:#f0f0f0;border:1px solid #ccc;padding:5px 8px;text-align:left;font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(String(cell ?? ''))}</th>`;
+      });
+      thtml += '</tr></thead><tbody>';
+      for (let i = 1; i < data.length; i++) {
+        const bg = i % 2 === 0 ? '#f9f9f9' : '#fff';
+        thtml += `<tr style="background:${bg}">`;
+        for (let j = 0; j < cols; j++) {
+          thtml += `<td style="border:1px solid #ddd;padding:4px 8px;font-size:11px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(String(data[i][j] ?? ''))}</td>`;
+        }
+        thtml += '</tr>';
+      }
+      thtml += '</tbody></table>';
+      section.innerHTML += thtml;
+      wrapper.appendChild(section);
+    });
+
+    document.body.appendChild(wrapper);
+    wrapper.style.position = 'absolute';
+    wrapper.style.left = '-9999px';
+
+    const baseName = (currentFile ? currentFile.name.replace(/\.[^.]+$/, '') : 'spreadsheet');
+    const opt = {
+      margin: [10,8,10,8],
+      filename: baseName + '.pdf',
+      image: { type:'jpeg', quality:0.95 },
+      html2canvas: { scale:2, useCORS:true },
+      jsPDF: { unit:'mm', format:paper, orientation:orient },
+      pagebreak: { before:'.page-break', avoid:'tr' }
+    };
+
+    try {
+      await html2pdf().set(opt).from(wrapper).save();
+      resultEl.style.display = 'flex';
+      resultSub.textContent = `${sheetsToExport.length} sheet(s) exported as ${paper.toUpperCase()} ${orient}`;
+    } catch(e) {
+      alert('PDF generation error: ' + e.message);
+    }
+
+    document.body.removeChild(wrapper);
+    downloadBtn.disabled = false;
+    downloadBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
+  });
+
+  // Clear / restart
+  function resetUI() {
+    workbook = null; activeSheet = null; currentFile = null;
+    dropZone.style.display = '';
+    fileInfo.style.display = 'none';
+    loadingEl.style.display = 'none';
+    warnEl.style.display = 'none';
+    mainEl.style.display = 'none';
+    actionsEl.style.display = 'none';
+    resultEl.style.display = 'none';
+    sheetTabs.innerHTML = '';
+    tableContainer.innerHTML = '';
+    if (fileInput) fileInput.value = '';
+  }
+  clearBtn && clearBtn.addEventListener('click', resetUI);
+  restartBtn && restartBtn.addEventListener('click', resetUI);
+  removeBtn && removeBtn.addEventListener('click', resetUI);
+
+  function formatBytes(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+    return (b/1048576).toFixed(1) + ' MB';
+  }
+})();
+</script>
+
+<style is:global>
+.xl-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,.04); border:1px solid rgba(207,69,0,.15); border-radius:var(--radius-md); margin-bottom:var(--space-3); }
+.xl-file-name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.xl-file-meta { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
+.xl-loading { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3); color:var(--color-ink-muted); font-size:.9rem; }
+.xl-spinner { width:18px; height:18px; border:2px solid rgba(207,69,0,.2); border-top-color:var(--color-accent-orange); border-radius:50%; animation:xl-spin .8s linear infinite; flex-shrink:0; }
+@keyframes xl-spin { to { transform:rotate(360deg); } }
+.xl-warn { display:flex; align-items:flex-start; gap:var(--space-2); padding:var(--space-3) var(--space-4); background:rgba(234,179,8,.08); border:1px solid rgba(234,179,8,.3); border-radius:var(--radius-md); margin-bottom:var(--space-3); font-size:.875rem; color:#92400e; }
+.xl-main { display:flex; flex-direction:column; gap:var(--space-5); }
+.xl-section { display:flex; flex-direction:column; gap:var(--space-3); }
+.xl-section-title { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); margin:0 0 var(--space-3); display:flex; align-items:center; gap:var(--space-2); }
+.xl-preview-info { font-size:.75rem; font-weight:400; color:var(--color-ink-muted); }
+.xl-sheet-tabs { display:flex; flex-wrap:wrap; gap:var(--space-2); }
+.xl-tab { padding:6px 14px; font-size:.8125rem; font-weight:500; border:1px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); color:var(--color-ink-secondary); cursor:pointer; transition:all .15s; }
+.xl-tab:hover { border-color:var(--color-accent-orange); color:var(--color-accent-orange); }
+.xl-tab--active { background:var(--color-accent-orange); border-color:var(--color-accent-orange); color:#fff; }
+.xl-controls-panel { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+.xl-controls-row { display:grid; grid-template-columns:1fr 1fr auto; gap:var(--space-4); align-items:start; }
+@media(max-width:640px) { .xl-controls-row { grid-template-columns:1fr; } }
+.xl-ctrl-group { display:flex; flex-direction:column; gap:var(--space-2); }
+.xl-ctrl-group--check { gap:var(--space-3); justify-content:flex-end; }
+.xl-label { font-size:.875rem; font-weight:600; color:var(--color-ink-secondary); }
+.xl-check-label { display:flex; align-items:center; gap:var(--space-2); font-size:.875rem; color:var(--color-ink-secondary); cursor:pointer; white-space:nowrap; }
+.xl-sheet-select { border-top:1px solid var(--color-border-hairline); padding-top:var(--space-4); }
+.xl-sheet-checkboxes { display:flex; flex-wrap:wrap; gap:var(--space-3); margin-top:var(--space-2); }
+.xl-preview-section { }
+.xl-table-wrap { overflow:auto; border:1px solid var(--color-border-hairline); border-radius:var(--radius-md); background:var(--color-canvas-base); max-height:500px; }
+.xl-table-container { min-width:max-content; }
+.xl-table { border-collapse:collapse; width:100%; font-size:.8125rem; }
+.xl-table th { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); padding:7px 12px; text-align:left; font-weight:600; color:var(--color-ink-primary); white-space:nowrap; position:sticky; top:0; z-index:1; }
+.xl-table td { border:1px solid var(--color-border-hairline); padding:5px 12px; color:var(--color-ink-secondary); white-space:nowrap; }
+.xl-table tr:nth-child(even) td { background:rgba(207,69,0,.02); }
+.xl-table tr:hover td { background:rgba(207,69,0,.05); }
+.xl-actions { display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; }
+.xl-result { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-5); background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); border-radius:var(--radius-lg); flex-wrap:wrap; }
+.xl-result__icon { width:44px; height:44px; background:rgba(34,197,94,.12); border-radius:50%; display:flex; align-items:center; justify-content:center; color:rgb(22,163,74); flex-shrink:0; }
+.xl-result__text { flex:1; }
+.xl-result__label { font-size:1rem; font-weight:700; color:var(--color-ink-primary); margin:0 0 4px; }
+.xl-result__sub { font-size:.875rem; color:var(--color-ink-muted); margin:0; }
+</style>
