@@ -328,7 +328,7 @@ const howToSteps = [
       if (includeHeader) {
         const h = document.createElement('h3');
         h.textContent = name;
-        h.style.cssText = 'margin:0 0 8px;font-size:14px;font-weight:600;color:#1a1a1a;border-bottom:2px solid #cf4500;padding-bottom:4px;';
+        h.style.cssText = 'margin:0 0 8px;font-size:14px;font-weight:600;color:#1a1a1a;border-bottom:2px solid var(--color-brand-primary);padding-bottom:4px;';
         section.appendChild(h);
       }
 
@@ -435,8 +435,8 @@ const howToSteps = [
 .xl-table { border-collapse:collapse; width:100%; font-size:.8125rem; }
 .xl-table th { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); padding:7px 12px; text-align:left; font-weight:600; color:var(--color-ink-primary); white-space:nowrap; position:sticky; top:0; z-index:1; }
 .xl-table td { border:1px solid var(--color-border-hairline); padding:5px 12px; color:var(--color-ink-secondary); white-space:nowrap; }
-.xl-table tr:nth-child(even) td { background:rgba(207,69,0,.02); }
-.xl-table tr:hover td { background:rgba(207,69,0,.05); }
+.xl-table tr:nth-child(even) td { background:var(--theme-alpha-04); }
+.xl-table tr:hover td { background:var(--theme-alpha-04); }
 .xl-actions { display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; }
 .xl-result { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-5); background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2); border-radius:var(--radius-lg); flex-wrap:wrap; }
 .xl-result__icon { width:44px; height:44px; background:rgba(34,197,94,.12); border-radius:50%; display:flex; align-items:center; justify-content:center; color:rgb(22,163,74); flex-shrink:0; }

@@ -151,7 +151,7 @@ const howToSteps = [
   .wm-page-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(500px,1fr)); gap:var(--space-6); }
   @media(max-width:768px){ .wm-page-grid { grid-template-columns:1fr; } }
   .wm-page-card { position:relative; border-radius:var(--radius-md); border:2px solid var(--color-border-hairline); overflow:hidden; background:var(--color-canvas-soft); transition:all var(--duration-fast) var(--ease-out); cursor:pointer; }
-  .wm-page-card:hover { border-color:rgba(207,69,0,0.4); box-shadow:var(--shadow-sm); }
+  .wm-page-card:hover { border-color:var(--theme-alpha-20); box-shadow:var(--shadow-sm); }
   .wm-page-card.wm-selected { border-color:var(--color-brand-primary); box-shadow:0 0 0 2px var(--theme-alpha-20); }
   .wm-page-canvas-wrap { position:relative; width:100%; background:#fff; }
   .wm-page-canvas-wrap canvas { display:block; width:100%; height:auto; }
