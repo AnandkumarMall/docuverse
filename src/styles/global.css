@@ -110,7 +110,27 @@ button {
   --color-error-text: #d1242f;
   --color-info-bg: #ddf4ff;
   --color-info-text: #0075de;
+}
 
+/* ── Category Theming ──────────────────────────────────────── */
+body[data-theme="pdf"] {
+  --color-brand-primary: var(--color-accent-red);
+  --color-accent-blue: var(--color-accent-red);
+  --color-accent-blue-hover: #b01a23;
+}
+
+body[data-theme="image"] {
+  --color-brand-primary: var(--color-accent-blue);
+  /* default accent is already blue */
+}
+
+body[data-theme="utility"] {
+  --color-brand-primary: var(--color-accent-green);
+  --color-accent-blue: var(--color-accent-green);
+  --color-accent-blue-hover: #0c6131;
+}
+
+:root {
   /* ▸ Shadows (Notion Barely-There Elevation) */
   --shadow-xs: 0 1px 1px rgba(0, 0, 0, 0.03);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);

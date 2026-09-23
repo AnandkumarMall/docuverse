@@ -50,7 +50,7 @@ const utilityTools = [
 
     <!-- Desktop Nav -->
     <nav class="header-nav" aria-label="Main navigation">
-      <div class="nav-dropdown">
+      <div class="nav-dropdown nav-theme--pdf">
         <button class="nav-trigger" aria-expanded="false" aria-haspopup="true" id="nav-pdf-trigger">
           <span>PDF Tools</span>
           <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -67,7 +67,7 @@ const utilityTools = [
         </div>
       </div>
 
-      <div class="nav-dropdown">
+      <div class="nav-dropdown nav-theme--image">
         <button class="nav-trigger" aria-expanded="false" aria-haspopup="true" id="nav-image-trigger">
           <span>Image Tools</span>
           <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -84,7 +84,7 @@ const utilityTools = [
         </div>
       </div>
 
-      <div class="nav-dropdown">
+      <div class="nav-dropdown nav-theme--utility">
         <button class="nav-trigger" aria-expanded="false" aria-haspopup="true" id="nav-utility-trigger">
           <span>Utilities</span>
           <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -334,6 +334,43 @@ const utilityTools = [
     font-size: 0.8125rem;
     color: var(--color-ink-muted);
     line-height: 1.35;
+  }
+
+  /* ── Category Theming for Navbar ────────────────────────── */
+  .nav-theme--pdf .nav-trigger:hover,
+  .nav-theme--pdf .nav-trigger[aria-expanded="true"] {
+    color: var(--color-accent-red);
+    background-color: rgba(209, 36, 47, 0.08);
+  }
+  .nav-theme--pdf .nav-panel__item:hover {
+    background-color: rgba(209, 36, 47, 0.08);
+  }
+  .nav-theme--pdf .nav-panel__item:hover .nav-panel__name {
+    color: var(--color-accent-red);
+  }
+
+  .nav-theme--image .nav-trigger:hover,
+  .nav-theme--image .nav-trigger[aria-expanded="true"] {
+    color: var(--color-accent-blue);
+    background-color: rgba(0, 117, 222, 0.08);
+  }
+  .nav-theme--image .nav-panel__item:hover {
+    background-color: rgba(0, 117, 222, 0.08);
+  }
+  .nav-theme--image .nav-panel__item:hover .nav-panel__name {
+    color: var(--color-accent-blue);
+  }
+
+  .nav-theme--utility .nav-trigger:hover,
+  .nav-theme--utility .nav-trigger[aria-expanded="true"] {
+    color: var(--color-accent-green);
+    background-color: rgba(15, 123, 63, 0.08);
+  }
+  .nav-theme--utility .nav-panel__item:hover {
+    background-color: rgba(15, 123, 63, 0.08);
+  }
+  .nav-theme--utility .nav-panel__item:hover .nav-panel__name {
+    color: var(--color-accent-green);
   }
 
   /* ── Right Actions ───────────────────────────────────────── */

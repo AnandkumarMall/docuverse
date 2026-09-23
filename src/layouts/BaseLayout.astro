@@ -32,6 +32,12 @@ const faviconSvg = getAssetPath('/favicon.svg');
 const faviconIco = getAssetPath('/favicon.ico');
 const appleTouchIcon = getAssetPath('/apple-touch-icon.png');
 const ogImagePath = ogImage.startsWith('http') ? ogImage : `${siteUrl}${getAssetPath(ogImage)}`;
+
+const pathname = Astro.url.pathname;
+let theme = 'default';
+if (pathname.includes('/pdf/')) theme = 'pdf';
+else if (pathname.includes('/image/')) theme = 'image';
+else if (pathname.includes('/tools/')) theme = 'utility';
 ---
 
 <!DOCTYPE html>
@@ -75,7 +81,7 @@ const ogImagePath = ogImage.startsWith('http') ? ogImage : `${siteUrl}${getAsset
     <slot name="head" />
   </head>
 
-  <body>
+  <body data-theme={theme}>
     <Header />
 
     <main id="main-content">
