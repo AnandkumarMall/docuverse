@@ -456,8 +456,8 @@ const howToSteps = [
 .iwm-thumb { display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; border-radius:var(--radius-sm); border:2px solid var(--color-border-hairline); overflow:hidden; background:var(--color-canvas-soft); padding:6px; transition:all .15s; width:80px; }
 .iwm-thumb img { width:64px; height:48px; object-fit:cover; border-radius:2px; }
 .iwm-thumb span { font-size:.65rem; color:var(--color-ink-muted); text-align:center; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.iwm-thumb:hover,.iwm-thumb--active { border-color:var(--color-accent-orange); }
-.iwm-thumb--active { box-shadow:0 0 0 2px rgba(207,69,0,.2); }
+.iwm-thumb:hover,.iwm-thumb--active { border-color:var(--color-brand-primary); }
+.iwm-thumb--active { box-shadow:0 0 0 2px var(--theme-alpha-20); }
 
 .iwm-main { display:flex; flex-direction:column; gap:var(--space-5); }
 .iwm-canvas-section { display:flex; flex-direction:column; gap:var(--space-3); }
@@ -479,7 +479,7 @@ const howToSteps = [
 .iwm-color-wrap { display:flex; align-items:center; gap:var(--space-2); }
 .iwm-color-input { width:44px; height:38px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); padding:2px; cursor:pointer; background:none; }
 .iwm-color-label { font-size:.875rem; color:var(--color-ink-muted); font-family:monospace; }
-.iwm-range { width:100%; accent-color:var(--color-accent-orange); }
+.iwm-range { width:100%; accent-color:var(--color-brand-primary); }
 .iwm-check-label { display:flex; align-items:center; gap:var(--space-2); font-size:.875rem; color:var(--color-ink-secondary); cursor:pointer; }
 
 .iwm-actions { display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; }

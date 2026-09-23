@@ -35,7 +35,7 @@ const howToSteps = [
 
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="ul-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span id="file-name" class="ul-file-info__name"></span>
       <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
@@ -76,7 +76,7 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-  .ul-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207, 69, 0, 0.04); border:1px solid rgba(207, 69, 0, 0.15); border-radius:var(--radius-md); }
+  .ul-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
   .ul-file-info__name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ul-options { display:flex; flex-direction:column; gap:var(--space-3); max-width:420px; }
   .ul-label { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); }

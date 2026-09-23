@@ -117,17 +117,31 @@ body[data-theme="pdf"] {
   --color-brand-primary: var(--color-accent-red);
   --color-accent-blue: var(--color-accent-red);
   --color-accent-blue-hover: #b01a23;
+  
+  --theme-alpha-04: rgba(209, 36, 47, 0.04);
+  --theme-alpha-08: rgba(209, 36, 47, 0.08);
+  --theme-alpha-15: rgba(209, 36, 47, 0.15);
+  --theme-alpha-20: rgba(209, 36, 47, 0.20);
 }
 
 body[data-theme="image"] {
   --color-brand-primary: var(--color-accent-blue);
-  /* default accent is already blue */
+  
+  --theme-alpha-04: rgba(0, 117, 222, 0.04);
+  --theme-alpha-08: rgba(0, 117, 222, 0.08);
+  --theme-alpha-15: rgba(0, 117, 222, 0.15);
+  --theme-alpha-20: rgba(0, 117, 222, 0.20);
 }
 
 body[data-theme="utility"] {
   --color-brand-primary: var(--color-accent-green);
   --color-accent-blue: var(--color-accent-green);
   --color-accent-blue-hover: #0c6131;
+  
+  --theme-alpha-04: rgba(15, 123, 63, 0.04);
+  --theme-alpha-08: rgba(15, 123, 63, 0.08);
+  --theme-alpha-15: rgba(15, 123, 63, 0.15);
+  --theme-alpha-20: rgba(15, 123, 63, 0.20);
 }
 
 :root {
@@ -151,6 +165,12 @@ body[data-theme="utility"] {
   --font-serif-display: "Newsreader", "Playfair Display", "Times New Roman", Georgia, serif;
   --font-sans-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
+  
+  /* ▸ Default Theme Alphas */
+  --theme-alpha-04: rgba(20, 20, 19, 0.04);
+  --theme-alpha-08: rgba(20, 20, 19, 0.08);
+  --theme-alpha-15: rgba(20, 20, 19, 0.15);
+  --theme-alpha-20: rgba(20, 20, 19, 0.20);
 
   /* ▸ Spacing Scale (8px grid) */
   --space-1: 4px;

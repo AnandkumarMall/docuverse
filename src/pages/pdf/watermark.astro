@@ -33,7 +33,7 @@ const howToSteps = [
 
   <div slot="file-list">
     <div id="wm-file-info" style="display:none;" class="wm-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span id="file-name" class="wm-file-name"></span>
       <span id="file-meta" class="wm-file-meta"></span>
       <button class="file-item__remove" id="remove-file" aria-label="Remove file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -126,11 +126,11 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-  .wm-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); margin-bottom:var(--space-3); }
+  .wm-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); margin-bottom:var(--space-3); }
   .wm-file-name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .wm-file-meta { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
   .wm-loading { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-4); color:var(--color-ink-muted); }
-  .wm-spinner { width:20px; height:20px; border:2px solid rgba(207,69,0,0.2); border-top-color:var(--color-accent-orange); border-radius:50%; animation:wm-spin 0.8s linear infinite; flex-shrink:0; }
+  .wm-spinner { width:20px; height:20px; border:2px solid var(--theme-alpha-20); border-top-color:var(--color-brand-primary); border-radius:50%; animation:wm-spin 0.8s linear infinite; flex-shrink:0; }
   @keyframes wm-spin { to { transform:rotate(360deg); } }
   .wm-loading__text { font-size:.9375rem; }
   .wm-main { display:flex; flex-direction:column; gap:var(--space-6); }
@@ -144,7 +144,7 @@ const howToSteps = [
   .wm-color-wrap { display:flex; align-items:center; gap:var(--space-2); }
   .wm-color-input { width:44px; height:38px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); padding:2px; cursor:pointer; background:none; }
   .wm-color-label { font-size:.875rem; color:var(--color-ink-muted); font-family:monospace; }
-  .wm-range { width:100%; accent-color:var(--color-accent-orange); }
+  .wm-range { width:100%; accent-color:var(--color-brand-primary); }
   .wm-page-controls { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-2); border-top:1px solid var(--color-border-hairline); padding-top:var(--space-4); }
   .wm-page-btns { display:flex; gap:var(--space-2); }
   .wm-preview-section { }
@@ -152,14 +152,14 @@ const howToSteps = [
   @media(max-width:768px){ .wm-page-grid { grid-template-columns:1fr; } }
   .wm-page-card { position:relative; border-radius:var(--radius-md); border:2px solid var(--color-border-hairline); overflow:hidden; background:var(--color-canvas-soft); transition:all var(--duration-fast) var(--ease-out); cursor:pointer; }
   .wm-page-card:hover { border-color:rgba(207,69,0,0.4); box-shadow:var(--shadow-sm); }
-  .wm-page-card.wm-selected { border-color:var(--color-accent-orange); box-shadow:0 0 0 2px rgba(207,69,0,0.2); }
+  .wm-page-card.wm-selected { border-color:var(--color-brand-primary); box-shadow:0 0 0 2px var(--theme-alpha-20); }
   .wm-page-canvas-wrap { position:relative; width:100%; background:#fff; }
   .wm-page-canvas-wrap canvas { display:block; width:100%; height:auto; }
   .wm-overlay-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
   .wm-page-footer { display:flex; align-items:center; justify-content:space-between; padding:var(--space-2) var(--space-3); background:var(--color-canvas-base); border-top:1px solid var(--color-border-hairline); }
   .wm-page-num { font-size:.75rem; font-weight:600; color:var(--color-ink-muted); }
-  .wm-page-check { width:18px; height:18px; accent-color:var(--color-accent-orange); cursor:pointer; }
-  .wm-selected-badge { display:inline-flex; align-items:center; padding:2px 8px; background:rgba(207,69,0,0.1); color:var(--color-accent-orange); border-radius:var(--radius-pill); font-size:.75rem; font-weight:600; margin-left:var(--space-2); }
+  .wm-page-check { width:18px; height:18px; accent-color:var(--color-brand-primary); cursor:pointer; }
+  .wm-selected-badge { display:inline-flex; align-items:center; padding:2px 8px; background:var(--theme-alpha-08); color:var(--color-brand-primary); border-radius:var(--radius-pill); font-size:.75rem; font-weight:600; margin-left:var(--space-2); }
   .wm-actions { display:flex; align-items:center; gap:var(--space-4); flex-wrap:wrap; }
   .wm-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
   .wm-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }

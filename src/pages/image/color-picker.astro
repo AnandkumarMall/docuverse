@@ -35,7 +35,7 @@ const howToSteps = [
 
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="color-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       <div class="color-file-info__text">
         <span id="file-name" class="color-file-info__name"></span>
         <span id="file-size-orig" class="color-file-info__size"></span>
@@ -114,7 +114,7 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-  .color-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .color-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
   .color-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
   .color-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .color-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }

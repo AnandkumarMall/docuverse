@@ -108,8 +108,8 @@ const howToSteps = [
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
-    background: rgba(207, 69, 0, 0.04);
-    border: 1px solid rgba(207, 69, 0, 0.15);
+    background: var(--theme-alpha-04);
+    border: 1px solid var(--theme-alpha-15);
     border-radius: var(--radius-md);
     cursor: grab;
     transition: box-shadow var(--duration-fast) var(--ease-out), border-color var(--duration-fast);
@@ -118,7 +118,7 @@ const howToSteps = [
 
   .pdf-file-item:active { cursor: grabbing; }
   .pdf-file-item.dragging { box-shadow: var(--shadow-lg); opacity: 0.7; }
-  .pdf-file-item.drag-over { border-color: var(--color-accent-orange); background: rgba(207, 69, 0, 0.08); }
+  .pdf-file-item.drag-over { border-color: var(--color-brand-primary); background: var(--theme-alpha-08); }
 
   .pdf-file-item__drag-handle {
     color: var(--color-ink-faint);
@@ -133,10 +133,10 @@ const howToSteps = [
     width: 28px;
     height: 28px;
     border-radius: var(--radius-pill);
-    background: rgba(207, 69, 0, 0.1);
+    background: var(--theme-alpha-08);
     font-size: 0.8125rem;
     font-weight: 700;
-    color: var(--color-accent-orange);
+    color: var(--color-brand-primary);
     flex-shrink: 0;
   }
 

@@ -281,7 +281,7 @@ const utilityTools = [
     margin-bottom: var(--space-8);
   }
   .breadcrumb a {
-    color: var(--color-accent-orange);
+    color: var(--color-brand-primary);
     text-decoration: none;
     font-weight: 500;
   }
@@ -302,12 +302,12 @@ const utilityTools = [
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-1) var(--space-4);
-    background: rgba(207, 69, 0, 0.08);
-    border: 1px solid rgba(207, 69, 0, 0.2);
+    background: var(--theme-alpha-08);
+    border: 1px solid var(--theme-alpha-20);
     border-radius: var(--radius-pill);
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-accent-orange);
+    color: var(--color-brand-primary);
     margin-bottom: var(--space-6);
   }
 
@@ -353,8 +353,8 @@ const utilityTools = [
   }
 
   .about-card--highlight {
-    background: radial-gradient(circle at top left, rgba(207, 69, 0, 0.04) 0%, var(--color-canvas-soft) 100%);
-    border-color: rgba(207, 69, 0, 0.15);
+    background: radial-gradient(circle at top left, var(--theme-alpha-04) 0%, var(--color-canvas-soft) 100%);
+    border-color: var(--theme-alpha-15);
   }
 
   .about-card p {
@@ -371,7 +371,7 @@ const utilityTools = [
   .about-emphasis {
     font-weight: 600;
     color: var(--color-ink-primary) !important;
-    border-left: 3px solid var(--color-accent-orange);
+    border-left: 3px solid var(--color-brand-primary);
     padding-left: var(--space-4);
     margin-top: var(--space-6);
   }
@@ -402,8 +402,8 @@ const utilityTools = [
     justify-content: center;
     width: 48px;
     height: 48px;
-    background: rgba(207, 69, 0, 0.08);
-    color: var(--color-accent-orange);
+    background: var(--theme-alpha-08);
+    color: var(--color-brand-primary);
     border-radius: var(--radius-md);
     margin-bottom: var(--space-4);
   }
@@ -499,7 +499,7 @@ const utilityTools = [
     border-radius: var(--radius-pill);
   }
 
-  .category-badge--pdf .category-badge__dot { background: var(--color-accent-orange); }
+  .category-badge--pdf .category-badge__dot { background: var(--color-brand-primary); }
   .category-badge--image .category-badge__dot { background: #3b82f6; }
   .category-badge--utility .category-badge__dot { background: #10b981; }
 
@@ -521,7 +521,7 @@ const utilityTools = [
   }
 
   .tool-compact-card:hover {
-    border-color: var(--color-accent-orange);
+    border-color: var(--color-brand-primary);
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
   }

@@ -34,7 +34,7 @@ const howToSteps = [
 
   <div slot="file-list">
     <div id="ed-file-info" style="display:none;" class="ed-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span id="ed-file-name" class="ed-file-name"></span>
       <span id="ed-file-meta" class="ed-file-meta"></span>
       <button class="file-item__remove" id="remove-file" aria-label="Remove file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -198,11 +198,11 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-.ed-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+.ed-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
 .ed-file-name { flex:1; font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ed-file-meta { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
 .ed-loading { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-4); color:var(--color-ink-muted); font-size:.9375rem; }
-.ed-spinner { width:20px; height:20px; border:2px solid rgba(207,69,0,0.2); border-top-color:var(--color-accent-orange); border-radius:50%; animation:ed-spin 0.8s linear infinite; flex-shrink:0; }
+.ed-spinner { width:20px; height:20px; border:2px solid var(--theme-alpha-20); border-top-color:var(--color-brand-primary); border-radius:50%; animation:ed-spin 0.8s linear infinite; flex-shrink:0; }
 @keyframes ed-spin { to { transform:rotate(360deg); } }
 
 .ed-workspace { display:flex; flex-direction:column; gap:var(--space-3); }
@@ -215,15 +215,15 @@ const howToSteps = [
 .ed-toolbar-spacer { flex:1; min-width:8px; }
 .ed-tool-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border:1.5px solid transparent; border-radius:var(--radius-sm); background:none; cursor:pointer; font-size:.8125rem; font-weight:500; color:var(--color-ink-secondary); transition:all var(--duration-fast); white-space:nowrap; line-height:1; }
 .ed-tool-btn svg { flex-shrink:0; }
-.ed-tool-btn:hover { background:rgba(207,69,0,0.07); color:var(--color-accent-orange); border-color:rgba(207,69,0,0.2); }
-.ed-tool-btn--active { background:rgba(207,69,0,0.1); color:var(--color-accent-orange); border-color:rgba(207,69,0,0.3); }
+.ed-tool-btn:hover { background:var(--theme-alpha-08); color:var(--color-brand-primary); border-color:var(--theme-alpha-20); }
+.ed-tool-btn--active { background:var(--theme-alpha-08); color:var(--color-brand-primary); border-color:var(--theme-alpha-20); }
 .ed-tool-btn--danger { color:#e53e3e; }
 .ed-tool-btn--danger:hover { background:rgba(229,62,62,0.08); border-color:rgba(229,62,62,0.25); }
 .ed-style-group { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
 .ed-select { padding:5px 8px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.8125rem; background:var(--color-canvas-base); color:var(--color-ink-primary); max-width:140px; }
 .ed-number-input { width:48px; padding:5px 4px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.8125rem; background:var(--color-canvas-base); color:var(--color-ink-primary); text-align:center; }
 .ed-style-btn { padding:5px 10px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.9rem; background:var(--color-canvas-base); cursor:pointer; color:var(--color-ink-primary); transition:all var(--duration-fast); }
-.ed-style-btn:hover, .ed-style-btn--active { background:rgba(207,69,0,0.08); border-color:var(--color-accent-orange); }
+.ed-style-btn:hover, .ed-style-btn--active { background:var(--theme-alpha-08); border-color:var(--color-brand-primary); }
 .ed-color-group { display:flex; align-items:center; }
 .ed-color-btn { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; }
 .ed-color-btn input[type=color] { width:30px; height:22px; border:1.5px solid var(--color-border-hairline); border-radius:3px; padding:1px; cursor:pointer; background:none; }
@@ -233,7 +233,7 @@ const howToSteps = [
 .ed-page-nav { display:flex; align-items:center; gap:var(--space-2); }
 .ed-page-indicator { font-size:.8125rem; color:var(--color-ink-secondary); white-space:nowrap; }
 .ed-nav-btn { min-width:28px; height:28px; padding:0 6px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--color-ink-secondary); font-size:1rem; font-weight:700; transition:all var(--duration-fast); }
-.ed-nav-btn:hover { border-color:var(--color-accent-orange); color:var(--color-accent-orange); }
+.ed-nav-btn:hover { border-color:var(--color-brand-primary); color:var(--color-brand-primary); }
 .ed-nav-btn:disabled { opacity:0.35; cursor:not-allowed; }
 .ed-zoom-group { display:flex; align-items:center; gap:var(--space-1); }
 .ed-zoom-label { font-size:.8125rem; font-weight:600; color:var(--color-ink-muted); min-width:3.5ch; text-align:center; }

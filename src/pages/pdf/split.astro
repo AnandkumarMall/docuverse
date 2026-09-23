@@ -41,7 +41,7 @@ const howToSteps = [
   <div slot="file-list">
     <div class="split-file-info" id="file-info" style="display:none;">
       <div class="split-file-info__row">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         <span id="file-name" class="split-file-info__name"></span>
         <span id="file-meta" class="split-file-info__meta"></span>
         <button class="file-item__remove" id="remove-file" aria-label="Remove file">
@@ -124,7 +124,7 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-  .split-file-info { background: rgba(207, 69, 0, 0.04); border: 1px solid rgba(207, 69, 0, 0.15); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
+  .split-file-info { background: var(--theme-alpha-04); border: 1px solid var(--theme-alpha-15); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
   .split-file-info__row { display: flex; align-items: center; gap: var(--space-3); }
   .split-file-info__name { flex: 1; font-size: .9375rem; font-weight: 500; color: var(--color-ink-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .split-file-info__meta { font-size: .8125rem; color: var(--color-ink-faint); white-space: nowrap; }
@@ -145,11 +145,11 @@ const howToSteps = [
   .split-visual-grid:empty { display: none; }
   .split-page { position: relative; cursor: pointer; user-select: none; border-radius: var(--radius-sm); border: 2px solid transparent; transition: all var(--duration-fast); padding: 4px; }
   .split-page:hover { border-color: rgba(207, 69, 0, 0.4); background: rgba(207, 69, 0, 0.02); }
-  .split-page--selected { border-color: var(--color-accent-orange); background: rgba(207, 69, 0, 0.06); }
+  .split-page--selected { border-color: var(--color-brand-primary); background: var(--theme-alpha-08); }
   .split-thumb { width: 100%; aspect-ratio: 3/4; background: #fff; border: 1px solid var(--color-border-hairline); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: var(--shadow-sm); }
   .split-page-num { display: block; text-align: center; font-size: 0.75rem; font-weight: 600; margin-top: 6px; color: var(--color-ink-muted); }
-  .split-page--selected .split-page-num { color: var(--color-accent-orange); }
-  .split-page--selected .split-thumb { border-color: var(--color-accent-orange); box-shadow: 0 0 0 2px rgba(207,69,0,0.2); }
+  .split-page--selected .split-page-num { color: var(--color-brand-primary); }
+  .split-page--selected .split-thumb { border-color: var(--color-brand-primary); box-shadow: 0 0 0 2px var(--theme-alpha-20); }
   
   .split-loading { margin-bottom: var(--space-4); }
   

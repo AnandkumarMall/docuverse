@@ -35,7 +35,7 @@ const howToSteps = [
 
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="exif-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       <div class="exif-file-info__text">
         <span id="file-name" class="exif-file-info__name"></span>
         <span id="file-size-orig" class="exif-file-info__size"></span>
@@ -94,7 +94,7 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-  .exif-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .exif-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
   .exif-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
   .exif-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .exif-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
@@ -106,7 +106,7 @@ const howToSteps = [
   .exif-panel { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
   .exif-header { display: flex; justify-content: space-between; align-items: center; }
   .exif-overline { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
-  .exif-badge { background: rgba(207,69,0,0.1); color: var(--color-accent-orange); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill); }
+  .exif-badge { background: var(--theme-alpha-08); color: var(--color-brand-primary); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill); }
 
   .exif-table-wrap { overflow-x: auto; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); background: var(--color-canvas-base); }
   .exif-table { width: 100%; border-collapse: collapse; text-align: left; }

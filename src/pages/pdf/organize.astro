@@ -62,9 +62,9 @@ const howToSteps = [
   .org-page{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);cursor:grab;user-select:none;}
   .org-page:active{cursor:grabbing;}
   .org-page.dragging{opacity:.4;}
-  .org-page.dragging .org-thumb{border-color:var(--color-accent-orange);box-shadow:var(--shadow-md);}
-  .org-page.drag-over>.org-thumb{border-color:var(--color-accent-orange);}
-  .org-thumb{width:100%;aspect-ratio:3/4;background:#fff;border:1.5px solid rgba(207,69,0,0.15);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color var(--duration-fast);box-shadow:var(--shadow-sm);}
+  .org-page.dragging .org-thumb{border-color:var(--color-brand-primary);box-shadow:var(--shadow-md);}
+  .org-page.drag-over>.org-thumb{border-color:var(--color-brand-primary);}
+  .org-thumb{width:100%;aspect-ratio:3/4;background:#fff;border:1.5px solid var(--theme-alpha-15);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color var(--duration-fast);box-shadow:var(--shadow-sm);}
   .org-thumb canvas,.org-thumb img{width:100%;height:100%;object-fit:contain;}
   .org-thumb-placeholder{font-size:.75rem;color:var(--color-ink-faint);}
   .org-controls{display:flex;gap:var(--space-1);}

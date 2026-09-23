@@ -35,7 +35,7 @@ const howToSteps = [
 
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="crop-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><image href=""/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       <div class="crop-file-info__text">
         <span id="file-name" class="crop-file-info__name"></span>
         <span id="file-size-orig" class="crop-file-info__size"></span>
@@ -120,7 +120,7 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
-  .crop-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:rgba(207,69,0,0.04); border:1px solid rgba(207,69,0,0.15); border-radius:var(--radius-md); }
+  .crop-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
   .crop-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
   .crop-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .crop-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
@@ -134,7 +134,7 @@ const howToSteps = [
   .ratio-btns { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
   .ratio-btn { padding: 6px 12px; border: 1.5px solid var(--color-border-hairline); border-radius: var(--radius-sm); font-size: 0.8125rem; font-weight: 600; color: var(--color-ink-secondary); background: var(--color-canvas-base); cursor: pointer; transition: all var(--duration-fast); }
   .ratio-btn:hover { border-color: rgba(207,69,0,0.4); color: var(--color-ink-primary); }
-  .ratio-btn--active { background: rgba(207,69,0,0.08); border-color: var(--color-accent-orange); color: var(--color-accent-orange); }
+  .ratio-btn--active { background: var(--theme-alpha-08); border-color: var(--color-brand-primary); color: var(--color-brand-primary); }
 
   .crop-canvas-container { padding:var(--space-4); background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; min-height: 400px; overflow: hidden; }
   .crop-canvas-wrap { position: relative; display: inline-block; user-select: none; }
@@ -143,7 +143,7 @@ const howToSteps = [
   .crop-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10; pointer-events: none; }
   .crop-box { position: absolute; border: 2px dashed #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); cursor: move; pointer-events: auto; }
   .crop-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: transparent; }
-  .crop-handle { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid var(--color-accent-orange); border-radius: 50%; z-index: 20; }
+  .crop-handle { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid var(--color-brand-primary); border-radius: 50%; z-index: 20; }
   .crop-handle--tl { top: -7px; left: -7px; cursor: nwse-resize; }
   .crop-handle--tr { top: -7px; right: -7px; cursor: nesw-resize; }
   .crop-handle--bl { bottom: -7px; left: -7px; cursor: nesw-resize; }
