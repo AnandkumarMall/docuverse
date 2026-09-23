@@ -107,5 +107,15 @@ export const seoDataTools: Record<string, { keywords: string, faqs: { question: 
       { question: "Can I select specific print areas or sheet ranges to export?", answer: "You can select which sheets to include using the sheet checkboxes. Exporting specific row or column ranges within a sheet is not currently supported — the full data of each selected sheet is exported." },
       { question: "Will charts and data graphs embedded in the sheet render cleanly?", answer: "No. Charts, graphs, and images embedded in Excel files are not supported and will not appear in the exported PDF. Only tabular cell data is exported. A warning message is displayed at the top of the tool to inform you of this limitation." }
     ]
+  },
+  'smart-compressor': {
+    keywords: "image compressor, target size image compressor, compress image to 100kb, compress image to 50kb, smart image compression, optimize image size, reduce image size kb, webp compressor, jpeg compressor, best image size reducer",
+    faqs: [
+      { question: "What makes this compressor 'smart'?", answer: "Instead of asking you to guess a 'Quality' percentage, you simply tell us your maximum file size (e.g., 100KB). The Smart Compressor tests various resolutions and compression levels in the background to find the absolute highest visual quality that fits within your exact limit." },
+      { question: "Are my images uploaded to a server?", answer: "No. The entire compression process, including all the trial-and-error iterations, happens 100% locally in your web browser. Your photos never leave your device." },
+      { question: "What image formats can I upload?", answer: "You can upload JPG, PNG, and WebP images." },
+      { question: "Can it compress to exactly 50KB or 20KB?", answer: "Yes! For ultra-small sizes like 20KB, it may automatically scale down the image dimensions or switch to a highly efficient WebP format to ensure it fits the constraint while maximizing clarity." },
+      { question: "Is this tool free to use?", answer: "Yes, the Smart Compressor is completely free with no usage limits, no watermarks, and no account required." }
+    ]
   }
 };

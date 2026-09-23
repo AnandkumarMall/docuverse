@@ -14,11 +14,11 @@ const howToSteps = [
   description="Compress images to a specific target file size with a real-time side-by-side quality preview. Perfect for government forms, email, and web. Free, private, instant."
   canonicalPath="/image/compress"
   toolName="Compress Image"
-  toolTagline="Shrink photos to any target size — see a live preview of exactly what you get. Free, instant, private."
+  toolTagline="Shrink photos to any target size with MozJPEG and OxiPNG — elite WASM compression in your browser."
   category="image"
   categoryLabel="Image Tools"
   categoryHref="/#category-image"
-  acceptedFormats="JPG, PNG, WebP · Files stay on your device"
+  acceptedFormats="JPG, PNG, WebP · Powered by MozJPEG & OxiPNG WASM"
   howToSteps={howToSteps}
   keywords={seoDataImage["compress"].keywords}
   faqs={seoDataImage["compress"].faqs}
@@ -28,7 +28,7 @@ const howToSteps = [
     <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an image here or click to browse">
       <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
       <span class="drop-zone__text">Drop an image here or click to browse</span>
-      <span class="drop-zone__hint">JPG, PNG, WebP · Files stay on your device</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP · Powered by MozJPEG & OxiPNG WASM</span>
       <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" aria-label="Select images" />
     </div>
   </div>
@@ -57,13 +57,22 @@ const howToSteps = [
       <div class="compress-target-section" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-wrap:wrap; align-items:flex-end; gap:var(--space-4); margin-bottom:var(--space-5);">
         <div style="flex:1; min-width:200px;">
           <label class="compress-slider-label" for="target-size-input" style="display:block; margin-bottom:var(--space-2);">Target File Size (Optional)</label>
-          <div style="display:flex; align-items:center; gap:var(--space-2);">
-            <div style="position:relative; max-width:120px;">
-              <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" min="1" step="1" style="width:100%; padding-right:40px;" />
-              <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:.875rem; color:var(--color-ink-muted);">KB</span>
-            </div>
-            <button class="btn btn-secondary" id="auto-compress-btn">Auto-Calculate</button>
+          <div style="position:relative; max-width:120px;">
+            <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" min="1" step="1" style="width:100%; padding-right:40px;" />
+            <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:.875rem; color:var(--color-ink-muted);">KB</span>
           </div>
+        </div>
+        <div style="flex:1; min-width:150px;">
+          <label class="compress-slider-label" for="output-format" style="display:block; margin-bottom:var(--space-2);">Output Format</label>
+          <select id="output-format" class="input" style="width:100%; height:38px; cursor:pointer; background:var(--color-canvas-base); border:1px solid var(--color-border-default);">
+            <option value="auto" id="auto-format-option">Original Format (Auto)</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
+            <option value="image/png">PNG</option>
+          </select>
+        </div>
+        <div>
+          <button class="btn btn-secondary" id="auto-compress-btn" style="height:38px; min-width:120px;">Compress</button>
         </div>
         <div style="flex:1; min-width:200px;">
           <p style="font-size: 0.8125rem; color: var(--color-ink-faint); margin: 0;">
@@ -93,7 +102,7 @@ const howToSteps = [
         <div class="compress-preview-card">
           <p class="compress-preview-label">Original (Previewing first image)</p>
           <div class="compress-preview-img-wrap">
-            <canvas id="orig-canvas" class="compress-preview-canvas"></canvas>
+            <img id="orig-img" class="compress-preview-canvas" alt="Original preview" />
           </div>
           <div class="compress-preview-meta">
             <span class="compress-estimate-card__size" id="orig-size-display">—</span>
@@ -102,7 +111,7 @@ const howToSteps = [
         <div class="compress-preview-card">
           <p class="compress-preview-label" style="color:var(--color-accent-green)">Compressed</p>
           <div class="compress-preview-img-wrap">
-            <canvas id="compressed-canvas" class="compress-preview-canvas"></canvas>
+            <img id="compressed-img" class="compress-preview-canvas" alt="Compressed preview" />
           </div>
           <div class="compress-preview-meta">
             <span class="compress-estimate-card__size" id="est-size-display" style="color:var(--color-accent-green)">
@@ -167,12 +176,16 @@ const howToSteps = [
 
 <script>
   import * as fflate from 'fflate';
+  import { encode as encodeJpeg } from '@jsquash/jpeg';
+  import { encode as encodeWebp } from '@jsquash/webp';
+  import { optimise as optimisePng } from '@jsquash/oxipng';
 
   let currentFiles: File[] = [];
   let currentImg: HTMLImageElement | null = null;
   let renderTimer: ReturnType<typeof setTimeout> | null = null;
   let latestBlobUrl: string | null = null;
   let isBatch = false;
+  let autoScale = 1.0;
 
   const dropZone        = document.getElementById('drop-zone') as HTMLElement;
   const fileInput       = document.getElementById('file-input') as HTMLInputElement;
@@ -198,15 +211,32 @@ const howToSteps = [
 
   const targetSizeInput = document.getElementById('target-size-input') as HTMLInputElement;
   const autoCompressBtn = document.getElementById('auto-compress-btn') as HTMLButtonElement;
+  const outputFormatEl  = document.getElementById('output-format') as HTMLSelectElement;
+  const autoFormatOption = document.getElementById('auto-format-option') as HTMLOptionElement;
 
-  const origCanvas      = document.getElementById('orig-canvas') as HTMLCanvasElement;
-  const compCanvas      = document.getElementById('compressed-canvas') as HTMLCanvasElement;
+  const origImg         = document.getElementById('orig-img') as HTMLImageElement;
+  const compImg         = document.getElementById('compressed-img') as HTMLImageElement;
 
   function fmt(b: number) {
     if (b < 1024) return b + ' B';
     if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
     return (b / 1048576).toFixed(2) + ' MB';
   }
+
+  function getTargetMimeType(originalMime: string) {
+    const val = outputFormatEl.value;
+    if (val !== 'auto') return val;
+    return originalMime;
+  }
+
+  outputFormatEl.addEventListener('change', () => {
+    if (currentImg) {
+      spinner.style.display = 'inline-block';
+      estSizeText.textContent = '...';
+      if (renderTimer) clearTimeout(renderTimer);
+      renderTimer = setTimeout(runCompression, 150);
+    }
+  });
 
   // ── Upload ───────────────────────────────────────────────
   dropZone.addEventListener('click', () => fileInput.click());
@@ -220,8 +250,19 @@ const howToSteps = [
     if(!files.length) return;
     currentFiles = files;
     isBatch = files.length > 1;
+    autoScale = 1.0;
     
     const firstFile = files[0];
+    
+    // Update auto option text to show original format
+    let ext = firstFile.type.split('/')[1];
+    if (ext === 'jpeg') ext = 'jpg';
+    if (ext) {
+      autoFormatOption.textContent = `Original Format (${ext.toUpperCase()})`;
+    } else {
+      autoFormatOption.textContent = `Original Format (Auto)`;
+    }
+    
     
     if (isBatch) {
       fileNameEl.textContent = `${files.length} images selected`;
@@ -245,9 +286,7 @@ const howToSteps = [
     currentImg = new Image();
     currentImg.onload = () => {
       // Render original
-      origCanvas.width = currentImg!.width;
-      origCanvas.height = currentImg!.height;
-      origCanvas.getContext('2d')!.drawImage(currentImg!, 0, 0);
+      origImg.src = url;
       runCompression();
     };
     currentImg.src = url;
@@ -255,6 +294,7 @@ const howToSteps = [
 
   // ── Slider ───────────────────────────────────────────────
   slider.addEventListener('input', () => {
+    autoScale = 1.0;
     pctLabel.textContent = slider.value + '%';
     spinner.style.display = 'inline-block';
     estSizeText.textContent = '...';
@@ -269,54 +309,97 @@ const howToSteps = [
     
     const quality = Number(slider.value) / 100;
     const firstFile = currentFiles[0];
-    compCanvas.width = currentImg.width;
-    compCanvas.height = currentImg.height;
+    
+    const compCanvas = document.createElement('canvas');
+    compCanvas.width = Math.max(1, Math.floor(currentImg.width * autoScale));
+    compCanvas.height = Math.max(1, Math.floor(currentImg.height * autoScale));
     const ctx = compCanvas.getContext('2d')!;
     
     // Fill white bg in case of transparent png -> jpeg
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, compCanvas.width, compCanvas.height);
-    ctx.drawImage(currentImg, 0, 0);
+    ctx.drawImage(currentImg, 0, 0, compCanvas.width, compCanvas.height);
 
-    const type = firstFile.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
+    const type = getTargetMimeType(firstFile.type);
     
-    compCanvas.toBlob((blob) => {
-      spinner.style.display = 'none';
-      if(!blob) return;
-      
-      if(latestBlobUrl) URL.revokeObjectURL(latestBlobUrl);
-      latestBlobUrl = URL.createObjectURL(blob);
-      
-      const newSize = blob.size;
-      const origSize = firstFile.size;
-      
-      estSizeText.textContent = fmt(newSize);
-      
-      const savedPct = Math.round((1 - newSize / origSize) * 100);
-      if (savedPct > 0) {
-        estSavings.textContent = `${savedPct}% smaller`;
-        estSavings.style.color = 'var(--color-accent-green)';
-      } else {
-        estSavings.textContent = `Larger than original`;
-        estSavings.style.color = 'var(--color-ink-faint)';
+    const imageData = ctx.getImageData(0, 0, compCanvas.width, compCanvas.height);
+    
+    (async () => {
+      spinner.style.display = 'inline-block';
+      try {
+        let buffer: ArrayBuffer;
+        if (type === 'image/jpeg') {
+          buffer = await encodeJpeg(imageData, { quality: Math.floor(quality * 100) });
+        } else if (type === 'image/webp') {
+          buffer = await encodeWebp(imageData, { quality: Math.floor(quality * 100) });
+        } else {
+          // PNG - oxipng doesn't use quality, it's lossless. We just pass it through.
+          // Wait, oxipng requires Uint8Array of the *already encoded* PNG, or raw imageData?
+          // Let's use canvas.toBlob for PNG and then optimise it.
+          const blob = await new Promise<Blob | null>(resolve => compCanvas.toBlob(resolve, 'image/png'));
+          if (!blob) throw new Error('PNG encode failed');
+          const arrayBuffer = await blob.arrayBuffer();
+          buffer = await optimisePng(arrayBuffer, { level: 2 });
+        }
+        
+        const blob = new Blob([buffer], { type });
+        spinner.style.display = 'none';
+        
+        if(latestBlobUrl) URL.revokeObjectURL(latestBlobUrl);
+        latestBlobUrl = URL.createObjectURL(blob);
+        compImg.src = latestBlobUrl;
+        
+        const newSize = blob.size;
+        const origSize = firstFile.size;
+        
+        estSizeText.textContent = fmt(newSize);
+        
+        const savedPct = Math.round((1 - newSize / origSize) * 100);
+        if (savedPct > 0) {
+          estSavings.textContent = `${savedPct}% smaller`;
+          estSavings.style.color = 'var(--color-accent-green)';
+        } else {
+          estSavings.textContent = `Larger than original`;
+          estSavings.style.color = 'var(--color-ink-faint)';
+        }
+      } catch (err) {
+        console.error(err);
+        spinner.style.display = 'none';
+        estSizeText.textContent = 'Error';
       }
-    }, type, quality);
+    })();
   }
 
   // ── Auto Calculate ───────────────────────────────────────
-  async function testCompressionSize(quality: number): Promise<number> {
-    return new Promise((resolve) => {
-      const c = document.createElement('canvas');
-      c.width = currentImg!.width; c.height = currentImg!.height;
-      const cx = c.getContext('2d')!;
-      cx.fillStyle = '#ffffff';
-      cx.fillRect(0,0,c.width,c.height);
-      cx.drawImage(currentImg!, 0, 0);
-      const type = currentFiles[0].type === 'image/webp' ? 'image/webp' : 'image/jpeg';
-      c.toBlob(blob => {
-        resolve(blob ? blob.size : Infinity);
-      }, type, quality);
-    });
+  async function testCompressionSize(quality: number, scale: number): Promise<number> {
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.floor(currentImg!.width * scale));
+    c.height = Math.max(1, Math.floor(currentImg!.height * scale));
+    const cx = c.getContext('2d')!;
+    cx.fillStyle = '#ffffff';
+    cx.fillRect(0,0,c.width,c.height);
+    cx.drawImage(currentImg!, 0, 0, c.width, c.height);
+    const type = getTargetMimeType(currentFiles[0].type);
+    const imageData = cx.getImageData(0, 0, c.width, c.height);
+
+    try {
+      if (type === 'image/jpeg') {
+        const buf = await encodeJpeg(imageData, { quality: Math.floor(quality * 100) });
+        return buf.byteLength;
+      } else if (type === 'image/webp') {
+        const buf = await encodeWebp(imageData, { quality: Math.floor(quality * 100) });
+        return buf.byteLength;
+      } else {
+        const blob = await new Promise<Blob | null>(resolve => c.toBlob(resolve, 'image/png'));
+        if (!blob) return Infinity;
+        const arrayBuffer = await blob.arrayBuffer();
+        const buf = await optimisePng(arrayBuffer, { level: 2 });
+        return buf.byteLength;
+      }
+    } catch (e) {
+      console.error(e);
+      return Infinity;
+    }
   }
 
   autoCompressBtn.addEventListener('click', async () => {
@@ -328,27 +411,72 @@ const howToSteps = [
     const originalText = autoCompressBtn.textContent;
     autoCompressBtn.textContent = 'Calculating...';
     
+    if (outputFormatEl.value === 'image/png') {
+       (window as any).showToast('PNG is a lossless format, so target sizes may not be strictly achievable.', 'error');
+    }
+
     const targetBytes = targetKB * 1024;
     
-    let low = 1;
-    let high = 100;
     let bestQuality = 1;
     let bestSize = Infinity;
+    let bestScale = 1.0;
     
-    for(let i=0; i<7; i++) { 
-      if (low > high) break;
-      const mid = Math.floor((low + high) / 2);
-      const size = await testCompressionSize(mid / 100);
+    // We want to avoid JPEG quality dropping so low that the image turns into blocky garbage.
+    const MIN_ACCEPTABLE_QUALITY = 60; 
+    let fallbackQuality = 1;
+    let fallbackScale = 1.0;
+    let fallbackSize = Infinity;
+    
+    const scalesToTest = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+
+    for(let s of scalesToTest) {
+      let low = 1;
+      let high = 100;
+      let localBestQuality = 0;
+      let localBestSize = Infinity;
       
-      if (size <= targetBytes) {
-        bestQuality = mid;
-        bestSize = size;
-        low = mid + 1; 
-      } else {
-        high = mid - 1;
+      for(let i=0; i<7; i++) { 
+        if (low > high) break;
+        const mid = Math.floor((low + high) / 2);
+        const size = await testCompressionSize(mid / 100, s);
+        
+        if (size <= targetBytes) {
+          localBestQuality = mid;
+          localBestSize = size;
+          low = mid + 1; // Try to push for higher quality
+        } else {
+          high = mid - 1; // Need lower quality
+        }
+      }
+      
+      if (localBestQuality > 0) {
+        // We found a quality that fits the target size at this scale!
+        // Is it acceptable visually?
+        if (localBestQuality >= MIN_ACCEPTABLE_QUALITY) {
+          bestQuality = localBestQuality;
+          bestSize = localBestSize;
+          bestScale = s;
+          break; // We found the sweet spot! Stop searching.
+        } else {
+          // The quality is too low (e.g., 4%). It fits, but will look terrible.
+          // Save it as a fallback, but continue to a smaller scale to try for better quality.
+          if (localBestQuality > fallbackQuality) {
+            fallbackQuality = localBestQuality;
+            fallbackScale = s;
+            fallbackSize = localBestSize;
+          }
+        }
       }
     }
     
+    // If we never found a quality >= MIN_ACCEPTABLE_QUALITY that fit, use the best fallback we got
+    if (bestQuality === 1 && fallbackQuality > 1) {
+      bestQuality = fallbackQuality;
+      bestScale = fallbackScale;
+      bestSize = fallbackSize;
+    }
+    
+    autoScale = bestScale;
     slider.value = String(bestQuality);
     pctLabel.textContent = bestQuality + '%';
     
@@ -367,25 +495,39 @@ const howToSteps = [
     return new Promise((resolve) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
-      img.onload = () => {
+      img.onload = async () => {
         const c = document.createElement('canvas');
-        c.width = img.width; c.height = img.height;
+        c.width = Math.max(1, Math.floor(img.width * autoScale));
+        c.height = Math.max(1, Math.floor(img.height * autoScale));
         const cx = c.getContext('2d')!;
         cx.fillStyle = '#ffffff';
         cx.fillRect(0,0,c.width,c.height);
-        cx.drawImage(img, 0, 0);
+        cx.drawImage(img, 0, 0, c.width, c.height);
         
-        const type = file.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
-        c.toBlob(blob => {
-          URL.revokeObjectURL(url);
-          if(!blob) return resolve({name: file.name, data: new Uint8Array()});
-          
-          blob.arrayBuffer().then(buf => {
-            let ext = type === 'image/webp' ? 'webp' : 'jpg';
-            let name = file.name.split('.')[0] + '.' + ext;
-            resolve({name, data: new Uint8Array(buf)});
-          });
-        }, type, quality);
+        const type = getTargetMimeType(file.type);
+        const imageData = cx.getImageData(0, 0, c.width, c.height);
+        
+        URL.revokeObjectURL(url);
+        let ext = type.split('/')[1];
+        if (ext === 'jpeg') ext = 'jpg';
+        let name = file.name.split('.')[0] + '.' + ext;
+        
+        try {
+          let buffer: ArrayBuffer;
+          if (type === 'image/jpeg') {
+            buffer = await encodeJpeg(imageData, { quality: Math.floor(quality * 100) });
+          } else if (type === 'image/webp') {
+            buffer = await encodeWebp(imageData, { quality: Math.floor(quality * 100) });
+          } else {
+            const blob = await new Promise<Blob | null>(res => c.toBlob(res, 'image/png'));
+            const arrayBuffer = await blob!.arrayBuffer();
+            buffer = await optimisePng(arrayBuffer, { level: 2 });
+          }
+          resolve({name, data: new Uint8Array(buffer)});
+        } catch(e) {
+          console.error(e);
+          resolve({name, data: new Uint8Array()});
+        }
       };
       img.src = url;
     });
@@ -437,7 +579,9 @@ const howToSteps = [
       if(!latestBlobUrl) return;
       const a = document.createElement('a');
       a.href = latestBlobUrl;
-      const ext = currentFiles[0].type === 'image/webp' ? 'webp' : 'jpg';
+      const type = getTargetMimeType(currentFiles[0].type);
+      let ext = type.split('/')[1];
+      if (ext === 'jpeg') ext = 'jpg';
       a.download = `compressed-${currentFiles[0].name.split('.')[0]}.${ext}`;
       document.body.appendChild(a);
       a.click();
@@ -450,6 +594,9 @@ const howToSteps = [
     currentFiles = [];
     currentImg = null;
     latestBlobUrl = null;
+    autoScale = 1.0;
+    origImg.src = '';
+    compImg.src = '';
     
     dropZone.style.display = 'flex';
     fileInfo.style.display = 'none';
