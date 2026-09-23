@@ -6,6 +6,7 @@ const today = new Date().toISOString().split('T')[0];
 const urls = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
   // PDF tools
+  { loc: '/pdf/editor',     priority: '0.9', changefreq: 'monthly' },
   { loc: '/pdf/merge',      priority: '0.9', changefreq: 'monthly' },
   { loc: '/pdf/split',      priority: '0.9', changefreq: 'monthly' },
   { loc: '/pdf/compress',   priority: '0.9', changefreq: 'monthly' },
@@ -34,6 +35,7 @@ const urls = [
   { loc: '/tools/excel-to-pdf',      priority: '0.8', changefreq: 'monthly' },
   // Legal & Info
   { loc: '/about',   priority: '0.6', changefreq: 'monthly' },
+  { loc: '/contact', priority: '0.6', changefreq: 'monthly' },
   { loc: '/privacy', priority: '0.4', changefreq: 'yearly' },
   { loc: '/terms',   priority: '0.4', changefreq: 'yearly' },
 ];

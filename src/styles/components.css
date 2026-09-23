@@ -215,8 +215,8 @@
 
 .drop-zone:hover,
 .drop-zone--active {
-  border-color: var(--color-accent-blue);
-  background-color: var(--color-info-bg);
+  border-color: var(--color-brand-primary);
+  background-color: var(--theme-alpha-04);
 }
 
 .drop-zone__icon {

@@ -97,7 +97,13 @@ const howToSteps = [
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             Live Preview
           </span>
-          <span id="md-preview-status" class="md-preview-status">Ready</span>
+          <div class="md-pane__status-group">
+            <span id="md-preview-status" class="md-preview-status">Ready</span>
+            <button id="md-force-render-btn" class="md-btn-upload" style="padding: 4px 8px; font-size: 0.7rem;" title="Force update preview">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Update
+            </button>
+          </div>
         </div>
         <div class="md-preview__scroll">
           <div id="md-preview" class="md-preview__content theme-github"></div>
@@ -144,24 +150,22 @@ const howToSteps = [
 
 </BaseLayout>
 
-<script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script type="module">
+import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 
-<script is:inline>
-(function() {
-  const editor = document.getElementById('md-editor');
-  const preview = document.getElementById('md-preview');
-  const themeSelect = document.getElementById('md-theme');
-  const paperSelect = document.getElementById('md-paper');
-  const orientSelect = document.getElementById('md-orient');
-  const downloadBtn = document.getElementById('md-download-btn');
-  const fileInput = document.getElementById('md-file-input');
-  const charCount = document.getElementById('md-char-count');
-  const previewStatus = document.getElementById('md-preview-status');
-  const statusMsg = document.getElementById('md-status-msg');
-  const pdfStatus = document.getElementById('md-pdf-status');
+const editor = document.getElementById('md-editor');
+const preview = document.getElementById('md-preview');
+const themeSelect = document.getElementById('md-theme');
+const paperSelect = document.getElementById('md-paper');
+const orientSelect = document.getElementById('md-orient');
+const downloadBtn = document.getElementById('md-download-btn');
+const fileInput = document.getElementById('md-file-input');
+const charCount = document.getElementById('md-char-count');
+const previewStatus = document.getElementById('md-preview-status');
+const statusMsg = document.getElementById('md-status-msg');
+const pdfStatus = document.getElementById('md-pdf-status');
 
-  const SAMPLE = `# My Document
+const SAMPLE = `# My Document
 
 Welcome to the **Markdown → PDF** converter. This editor supports full GitHub-Flavored Markdown.
 
@@ -191,108 +195,122 @@ function greet(name) {
 
 > **Tip:** Drag the divider between editor and preview to resize panes.`;
 
-  if (editor) { editor.value = SAMPLE; render(); }
+let renderTimer = null;
+let lastRenderedMd = null;
 
-  let renderTimer = null;
-  function render() {
-    if (!editor || !preview) return;
-    const md = editor.value;
-    if (charCount) charCount.textContent = md.length.toLocaleString() + ' chars';
-    if (previewStatus) previewStatus.textContent = 'Updating…';
-    clearTimeout(renderTimer);
-    renderTimer = setTimeout(() => {
-      try {
-        preview.innerHTML = window.marked ? marked.parse(md, { breaks: true, gfm: true }) : '<p>Loading parser…</p>';
-        applyTheme();
-        if (previewStatus) previewStatus.textContent = 'Ready';
-        if (statusMsg) statusMsg.textContent = 'Preview updated.';
-      } catch(e) {
-        if (previewStatus) previewStatus.textContent = 'Error';
-      }
-    }, 200);
-  }
+if (editor) { editor.value = SAMPLE; render(); }
 
-  editor && editor.addEventListener('input', render);
-
-  function applyTheme() {
-    if (!preview) return;
-    preview.className = 'md-preview__content theme-' + (themeSelect ? themeSelect.value : 'github');
-  }
-  themeSelect && themeSelect.addEventListener('change', applyTheme);
-
-  fileInput && fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      editor.value = ev.target.result;
-      render();
-      if (statusMsg) statusMsg.textContent = 'Loaded: ' + file.name;
-    };
-    reader.readAsText(file);
-  });
-
-  downloadBtn && downloadBtn.addEventListener('click', async () => {
-    if (!window.html2pdf) { alert('PDF library not loaded yet. Please wait a moment and try again.'); return; }
-    const content = editor ? editor.value.trim() : '';
-    if (!content) { if (statusMsg) statusMsg.textContent = 'Please write or upload some Markdown first.'; return; }
-    downloadBtn.disabled = true;
-    downloadBtn.textContent = 'Generating…';
-    if (pdfStatus) { pdfStatus.textContent = '⏳ Building PDF…'; pdfStatus.style.display = 'inline'; }
-
-    const paper = paperSelect ? paperSelect.value : 'a4';
-    const orient = orientSelect ? orientSelect.value : 'portrait';
-    const theme = themeSelect ? themeSelect.value : 'github';
-
-    const clone = document.createElement('div');
-    clone.className = 'md-preview__content theme-' + theme;
-    clone.innerHTML = preview.innerHTML;
-    clone.style.cssText = 'padding:32px;box-sizing:border-box;width:100%;';
-    document.body.appendChild(clone);
-    clone.style.position = 'absolute';
-    clone.style.left = '-9999px';
-
-    const opt = {
-      margin: [15,15,15,15],
-      filename: 'document.pdf',
-      image: { type:'jpeg', quality:0.98 },
-      html2canvas: { scale:2, useCORS:true, letterRendering:true },
-      jsPDF: { unit:'mm', format:paper, orientation:orient },
-      pagebreak: { mode:['avoid-all','css','legacy'] }
-    };
-
+function render() {
+  if (!editor || !preview) return;
+  const md = editor.value;
+  if (md === lastRenderedMd) return; // Prevent unnecessary re-renders
+  
+  if (charCount) charCount.textContent = md.length.toLocaleString() + ' chars';
+  if (previewStatus) previewStatus.textContent = 'Updating…';
+  
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(() => {
     try {
-      await html2pdf().set(opt).from(clone).save();
-      if (pdfStatus) pdfStatus.textContent = '✅ PDF downloaded!';
-      if (statusMsg) statusMsg.textContent = 'PDF saved successfully.';
+      const html = marked.parse(md, { breaks: true, gfm: true });
+      preview.innerHTML = html;
+      applyTheme();
+      lastRenderedMd = md;
+      if (previewStatus) previewStatus.textContent = 'Ready';
+      if (statusMsg) statusMsg.textContent = 'Preview updated.';
     } catch(e) {
-      if (pdfStatus) pdfStatus.textContent = '❌ Error';
-      if (statusMsg) statusMsg.textContent = 'PDF error: ' + e.message;
+      if (previewStatus) previewStatus.textContent = 'Error: ' + e.message;
+      if (statusMsg) statusMsg.textContent = String(e);
+      console.error(e);
     }
-    document.body.removeChild(clone);
-    downloadBtn.disabled = false;
-    downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
-    setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
-  });
+  }, 200);
+}
 
-  // Resizable divider
-  const divider = document.getElementById('md-divider');
-  const split = document.getElementById('md-split');
-  const editorPane = document.getElementById('md-editor-pane');
-  const previewPane = document.getElementById('md-preview-pane');
-  if (divider && split && editorPane && previewPane) {
-    let dragging = false;
-    divider.addEventListener('mousedown', () => { dragging = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; });
-    document.addEventListener('mousemove', (e) => {
-      if (!dragging) return;
-      const rect = split.getBoundingClientRect();
-      const pct = ((e.clientX - rect.left) / rect.width) * 100;
-      const c = Math.max(25, Math.min(75, pct));
-      editorPane.style.flex = 'none'; editorPane.style.width = c + '%'; previewPane.style.flex = '1';
-    });
-    document.addEventListener('mouseup', () => { dragging = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; });
+const forceRenderBtn = document.getElementById('md-force-render-btn');
+forceRenderBtn && forceRenderBtn.addEventListener('click', () => {
+  lastRenderedMd = null; // Force render even if text hasn't changed
+  render();
+});
+
+editor && editor.addEventListener('input', render);
+
+function applyTheme() {
+  if (!preview) return;
+  preview.className = 'md-preview__content theme-' + (themeSelect ? themeSelect.value : 'github');
+}
+themeSelect && themeSelect.addEventListener('change', applyTheme);
+
+fileInput && fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    editor.value = ev.target.result;
+    render();
+    if (statusMsg) statusMsg.textContent = 'Loaded: ' + file.name;
+  };
+  reader.readAsText(file);
+});
+
+downloadBtn && downloadBtn.addEventListener('click', async () => {
+  if (!window.html2pdf) { alert('PDF library not loaded yet. Please wait a moment and try again.'); return; }
+  const content = editor ? editor.value.trim() : '';
+  if (!content) { if (statusMsg) statusMsg.textContent = 'Please write or upload some Markdown first.'; return; }
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = 'Generating…';
+  if (pdfStatus) { pdfStatus.textContent = '⏳ Building PDF…'; pdfStatus.style.display = 'inline'; }
+
+  const paper = paperSelect ? paperSelect.value : 'a4';
+  const orient = orientSelect ? orientSelect.value : 'portrait';
+  const theme = themeSelect ? themeSelect.value : 'github';
+
+  const clone = document.createElement('div');
+  clone.className = 'md-preview__content theme-' + theme;
+  clone.innerHTML = preview.innerHTML;
+  clone.style.cssText = 'padding:32px;box-sizing:border-box;width:100%;';
+  document.body.appendChild(clone);
+  clone.style.position = 'absolute';
+  clone.style.left = '-9999px';
+
+  const opt = {
+    margin: [15,15,15,15],
+    filename: 'document.pdf',
+    image: { type:'jpeg', quality:0.98 },
+    html2canvas: { scale:2, useCORS:true, letterRendering:true },
+    jsPDF: { unit:'mm', format:paper, orientation:orient },
+    pagebreak: { mode:['avoid-all','css','legacy'] }
+  };
+
+  try {
+    await html2pdf().set(opt).from(clone).save();
+    if (pdfStatus) pdfStatus.textContent = '✅ PDF downloaded!';
+    if (statusMsg) statusMsg.textContent = 'PDF saved successfully.';
+  } catch(e) {
+    if (pdfStatus) pdfStatus.textContent = '❌ Error';
+    if (statusMsg) statusMsg.textContent = 'PDF error: ' + e.message;
   }
-})();
+  document.body.removeChild(clone);
+  downloadBtn.disabled = false;
+  downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
+  setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
+});
+
+// Resizable divider
+const divider = document.getElementById('md-divider');
+const split = document.getElementById('md-split');
+const editorPane = document.getElementById('md-editor-pane');
+const previewPane = document.getElementById('md-preview-pane');
+if (divider && split && editorPane && previewPane) {
+  let dragging = false;
+  divider.addEventListener('mousedown', () => { dragging = true; document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const rect = split.getBoundingClientRect();
+    const pct = ((e.clientX - rect.left) / rect.width) * 100;
+    const c = Math.max(25, Math.min(75, pct));
+    editorPane.style.flex = 'none'; editorPane.style.width = c + '%'; previewPane.style.flex = '1';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; });
+}
 </script>
 
 <style is:global>
@@ -311,10 +329,11 @@ function greet(name) {
 .md-btn-upload { font-size:.8125rem; padding:7px 14px; background:var(--color-canvas-base); border:1px solid var(--color-border-hairline); border-radius:var(--radius-sm); color:var(--color-ink-secondary); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; text-decoration:none; }
 .md-btn-upload:hover { border-color:var(--color-brand-primary); color:var(--color-brand-primary); }
 .md-btn-download { font-size:.8125rem; padding:7px 16px; display:flex; align-items:center; gap:6px; }
-.md-split { display:flex; flex:1; overflow:hidden; height:calc(100vh - 130px); }
+.md-split { display:flex; flex:1; overflow:hidden; min-height:calc(100vh - 130px); flex-shrink:0; }
 .md-pane { display:flex; flex-direction:column; flex:1; overflow:hidden; }
 .md-pane__header { display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--color-canvas-soft); border-bottom:1px solid var(--color-border-hairline); flex-shrink:0; }
 .md-pane__label { display:flex; align-items:center; gap:6px; font-size:.75rem; font-weight:600; color:var(--color-ink-muted); text-transform:uppercase; letter-spacing:.04em; }
+.md-pane__status-group { display:flex; align-items:center; gap:12px; }
 .md-char-count,.md-preview-status { font-size:.75rem; color:var(--color-ink-faint); font-family:monospace; }
 .md-editor__textarea { flex:1; width:100%; padding:20px; font-family:'Fira Code','Courier New',monospace; font-size:.9rem; line-height:1.7; border:none; outline:none; resize:none; background:var(--color-canvas-base); color:var(--color-ink-primary); tab-size:2; }
 .md-divider { width:5px; background:var(--color-border-hairline); cursor:col-resize; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background .15s; }
