@@ -108,6 +108,12 @@ const utilityTools = [
 
     <!-- Right Actions -->
     <div class="header-actions">
+      <!-- Theme Toggle -->
+      <button class="btn-icon theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+
       <button class="btn-icon header-search-btn" aria-label="Search tools (Ctrl+K)" id="search-trigger">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <kbd class="header-kbd">⌘K</kbd>
@@ -195,6 +201,32 @@ const utilityTools = [
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--color-border-hairline);
   }
+
+  html.dark .site-header {
+    background: rgba(36, 36, 35, 0.92);
+  }
+
+  .theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: var(--color-ink-muted);
+    transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+    border-radius: var(--radius-sm);
+  }
+
+  .theme-toggle-btn:hover {
+    color: var(--color-ink-primary);
+    background-color: var(--color-surface-hover);
+  }
+
+  /* Show/hide icons based on theme */
+  html.dark .sun-icon { display: block; }
+  html.dark .moon-icon { display: none; }
+  html:not(.dark) .sun-icon { display: none; }
+  html:not(.dark) .moon-icon { display: block; }
 
   .header-inner {
     display: flex;
@@ -810,6 +842,21 @@ const utilityTools = [
       mobileDrawer.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
       mobileToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
       document.body.style.overflow = isOpen ? '' : 'hidden';
+    });
+  }
+
+  // Theme toggle
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        window.localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        window.localStorage.setItem('theme', 'dark');
+      }
     });
   }
 
