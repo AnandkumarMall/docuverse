@@ -118,7 +118,12 @@ const faqs = [
     
     const pdfjsLib = await import('pdfjs-dist');
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
-    const loadingTask = pdfjsLib.getDocument({ data: buf.slice(0) });
+    const loadingTask = pdfjsLib.getDocument({ 
+      data: buf.slice(0),
+      cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`
+    });
     const pdfDoc = await loadingTask.promise;
     const numPages = pdfDoc.numPages;
 
@@ -148,10 +153,13 @@ const faqs = [
       let lastY = -1;
       
       for (const item of textContent.items as any[]) {
-        if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 10) {
+        if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 5) {
            pageText += '\n';
         }
-        pageText += item.str;
+        pageText += item.str || '';
+        if (item.hasEOL) {
+           pageText += '\n';
+        }
         lastY = item.transform[5];
       }
       
