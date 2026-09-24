@@ -123,10 +123,10 @@ html.dark {
   --color-border-subtle: #333333;
 
   /* ▸ Ink & Text */
-  --color-ink-primary: #f8f8f8;
-  --color-ink-secondary: #e6e6e6;
-  --color-ink-muted: #a0a09f;
-  --color-ink-faint: #6c6c6b;
+  --color-ink-primary: #ffffff;
+  --color-ink-secondary: #f0f0f0;
+  --color-ink-muted: #c0c0c0;
+  --color-ink-faint: #909090;
   --color-ink-inverse: #000000;
 
   /* ▸ Brand Accents */
