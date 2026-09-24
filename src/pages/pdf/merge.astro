@@ -434,55 +434,61 @@ const howToSteps = [
     progressLabel.textContent = 'Preparing files...';
     
     try {
-        // Load all required PDF documents into memory
+        const sourceFilesObj = {};
         for (const [id, sf] of sourceFiles.entries()) {
-            if (!sf.pdfLibDoc) {
-                sf.pdfLibDoc = await PDFDocument.load(sf.buffer);
+            sourceFilesObj[id] = sf.buffer;
+        }
+        
+        const worker = new Worker(new URL('../../workers/pdfWorker.ts', import.meta.url), { type: 'module' });
+        
+        worker.onmessage = (e) => {
+            const { type, payload } = e.data;
+            if (type === 'PROGRESS') {
+                progressFill.style.width = `${payload.progress}%`;
+                progressLabel.textContent = payload.text;
+            } else if (type === 'SUCCESS') {
+                const bytes = payload.pdfBytes;
+                
+                progressFill.style.width = '100%';
+                setTimeout(() => { progressEl.setAttribute('aria-hidden', 'true'); progressFill.style.width = '0%'; }, 500);
+                
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                
+                resultSize.textContent = fmt(blob.size);
+                downloadBtn.href = url;
+                
+                const distinctFiles = new Set(pages.map(p => p.fileId)).size;
+                downloadBtn.download = distinctFiles > 1 ? `merged-${distinctFiles}-files.pdf` : `merged-arranged.pdf`;
+                
+                mergeActions.style.display = 'none';
+                addMoreZone.style.display = 'none';
+                pageGrid.style.display = 'none';
+                mergeResult.style.display = 'flex';
+                
+                worker.terminate();
+                mergeBtn.disabled = false;
+            } else if (type === 'ERROR') {
+                console.error(payload.error);
+                (window as any).showToast?.('Error merging PDFs', 'error');
+                progressEl.setAttribute('aria-hidden', 'true');
+                worker.terminate();
+                mergeBtn.disabled = false;
             }
-        }
+        };
         
-        progressFill.style.width = '40%';
-        progressLabel.textContent = 'Merging pages...';
-        
-        const outPdf = await PDFDocument.create();
-        
-        for (let i = 0; i < pages.length; i++) {
-            progressFill.style.width = `${40 + (i / pages.length) * 50}%`;
-            const p = pages[i];
-            const sf = sourceFiles.get(p.fileId)!;
-            
-            const [copiedPage] = await outPdf.copyPages(sf.pdfLibDoc!, [p.pageIndex]);
-            outPdf.addPage(copiedPage);
-        }
-        
-        progressFill.style.width = '95%';
-        progressLabel.textContent = 'Saving PDF...';
-        
-        const bytes = await outPdf.save();
-        
-        progressFill.style.width = '100%';
-        setTimeout(() => { progressEl.setAttribute('aria-hidden', 'true'); progressFill.style.width = '0%'; }, 500);
-        
-        const blob = new Blob([bytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        
-        resultSize.textContent = fmt(blob.size);
-        downloadBtn.href = url;
-        
-        // Count how many distinct files were merged
-        const distinctFiles = new Set(pages.map(p => p.fileId)).size;
-        downloadBtn.download = distinctFiles > 1 ? `merged-${distinctFiles}-files.pdf` : `merged-arranged.pdf`;
-        
-        mergeActions.style.display = 'none';
-        addMoreZone.style.display = 'none';
-        pageGrid.style.display = 'none';
-        mergeResult.style.display = 'flex';
+        worker.postMessage({
+            type: 'MERGE_PDFS',
+            payload: {
+                sourceFiles: sourceFilesObj,
+                pages: pages.map(p => ({ fileId: p.fileId, pageIndex: p.pageIndex }))
+            }
+        });
         
     } catch (err) {
         console.error(err);
-        (window as any).showToast?.('Error merging PDFs', 'error');
+        (window as any).showToast?.('Error starting merge', 'error');
         progressEl.setAttribute('aria-hidden', 'true');
-    } finally {
         mergeBtn.disabled = false;
     }
   });

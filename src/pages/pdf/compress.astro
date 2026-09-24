@@ -455,6 +455,7 @@ const howToSteps = [
                const jpg = await encodeJpeg(p.imageData, { quality: q });
                currentJpegs.push(new Uint8Array(jpg));
                totalBytes += jpg.byteLength;
+                await new Promise(r => setTimeout(r, 10)); // Yield to UI thread
             }
             
             const estimatedOverhead = numPages * 1024; // 1KB per page overhead

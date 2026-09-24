@@ -92,9 +92,14 @@ const faqSchema = faqs.length > 0 ? {
     acceptedAnswer: { '@type': 'Answer', text: f.answer },
   })),
 } : null;
+
+// Calculate dynamic OG Image path
+let cleanPath = canonicalPath;
+if (cleanPath.startsWith('/')) cleanPath = cleanPath.slice(1);
+const ogImagePath = `/og/${cleanPath.split('/').join('-')}.png`;
 ---
 
-<BaseLayout {title} {description} {keywords} canonicalUrl={canonicalUrl}>
+<BaseLayout {title} {description} {keywords} canonicalUrl={canonicalUrl} ogImage={ogImagePath}>
 
   <!-- JSON-LD injection -->
   <script type="application/ld+json" slot="head" set:text={JSON.stringify(webAppSchema)} />
