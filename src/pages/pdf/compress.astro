@@ -3,547 +3,454 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
 import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
-  { name: "Upload your PDF", text: "Drop or select the PDF you want to compress. The original file size is shown instantly." },
-  { name: "Set compression strength", text: "Drag the slider to choose how aggressively to compress. The estimated output size updates in real-time so you can hit your target." },
-  { name: "Compress and Download", text: "Click 'Compress PDF'. Your browser processes the file instantly. Download the smaller PDF immediately." },
+  { name: "Upload your PDF", text: "Select or drag-and-drop the PDF file you want to compress. The original size is displayed instantly." },
+  { name: "Choose a Mode", text: "Select 'Standard' to preserve text quality, or 'Extreme' to hit a strict target file size by flattening the document." },
+  { name: "Compress & Download", text: "Set your desired compression level or target size and click Compress. The optimized PDF is generated instantly in your browser." },
 ];
 ---
 
 <ToolLayout
-  title="Compress PDF Free Online — Reduce PDF File Size Instantly"
-  description="Compress PDF files online for free. Drag a slider to set compression strength and see the estimated output size in real-time. No uploads, runs 100% in your browser."
+  title="Compress PDF Online Free — Target Size & Preserve Text"
+  description="Shrink your PDF file size locally in the browser. Choose between preserving text perfectly or targeting an exact KB size for government portals."
   canonicalPath="/pdf/compress"
   toolName="Compress PDF"
-  toolTagline="Reduce your PDF file size — drag to choose compression strength, see size estimates in real-time."
+  toolTagline="Reduce PDF file sizes locally. Choose Standard mode to preserve text, or Extreme mode to hit strict KB limits."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
-  acceptedFormats="One PDF file · No size limit"
+  seoKeywords={seoDataPdf.compress.keywords}
+  faqs={seoDataPdf.compress.faqs}
   howToSteps={howToSteps}
-  keywords={seoDataPdf["compress"].keywords}
-  faqs={seoDataPdf["compress"].faqs}
 >
-
   <div slot="drop-zone">
-    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop a PDF here or click to browse">
-      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
-      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
-      <span class="drop-zone__hint">One PDF · No size limit · Files stay on your device</span>
-      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" aria-label="Select PDF" />
-    </div>
-  </div>
-
-  <div slot="file-list">
-    <div id="file-info" style="display:none;" class="compress-file-info">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      <div class="compress-file-info__text">
-        <span id="file-name" class="compress-file-info__name"></span>
-        <span id="file-size-orig" class="compress-file-info__size"></span>
-      </div>
-      <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <!-- Upload Area -->
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      <span class="drop-zone__text">Click to select or drop a PDF here</span>
+      <span class="drop-zone__hint">Up to 100MB</span>
+      <input type="file" id="file-input" accept="application/pdf" class="sr-only" aria-label="Select PDF" />
     </div>
   </div>
 
   <div slot="options">
-    <div id="compress-options" style="display:none;" class="compress-options-panel">
-
-      <div class="compress-target-section" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-wrap:wrap; align-items:flex-end; gap:var(--space-4); margin-bottom:var(--space-5);">
-        <div style="flex:1; min-width:200px;">
-          <label class="compress-slider-label" for="target-size-input" style="display:block; margin-bottom:var(--space-2);">Target File Size (Optional)</label>
-          <div style="display:flex; align-items:center; gap:var(--space-2);">
-            <div style="position:relative; max-width:120px;">
-              <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" min="1" step="1" style="width:100%; padding-right:40px;" />
-              <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:.875rem; color:var(--color-ink-muted);">KB</span>
-            </div>
-            <button class="btn btn-secondary" id="auto-compress-btn">Auto-Calculate</button>
-          </div>
+    <!-- Main Workspace -->
+    <div id="file-info" style="display:none; flex-direction:column; gap:var(--space-5); margin-bottom:var(--space-6);">
+      
+      <!-- Big Progress Bar (Above grid) -->
+      <div id="calc-progress-container" style="display:none; width:100%; background:var(--color-canvas-soft); border:1px solid var(--color-border-subtle); border-radius:var(--radius-lg); padding:var(--space-4); flex-direction:column; align-items:center; justify-content:center;">
+        <h3 style="margin-bottom:var(--space-3); font-size:1.1rem; font-weight:600; color:var(--color-ink-primary);">Compressing PDF...</h3>
+        <div style="width:100%; max-width:500px; height:12px; background:var(--color-border-hairline); border-radius:6px; overflow:hidden;">
+          <div id="calc-progress-bar" style="width:0%; height:100%; background:var(--color-accent-blue); transition:width 0.1s; border-radius:6px;"></div>
         </div>
-        <div style="flex:1; min-width:200px;">
-          <p style="font-size: 0.8125rem; color: var(--color-ink-faint); margin: 0;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            Unused objects, hidden layers, and EXIF metadata are stripped first.
-          </p>
-        </div>
+        <p id="calc-progress-text" style="font-size:0.875rem; color:var(--color-ink-muted); margin-top:var(--space-2);">Initializing...</p>
       </div>
 
-      <div class="compress-slider-section">
-        <div class="compress-slider-header">
-          <label class="compress-slider-label" for="compress-slider">Compression Strength</label>
-          <span class="compress-slider-pct" id="compress-pct-label">70%</span>
-        </div>
-        <div class="compress-slider-track-wrap">
-          <input type="range" id="compress-slider" min="0" max="100" value="70" step="1" class="compress-slider" aria-label="Compression strength percentage" />
-          <div class="compress-slider-marks">
-            <span>Light</span>
-            <span>Medium</span>
-            <span>Aggressive (Rasterized)</span>
-            <span>Extreme</span>
+      <div style="display:flex; flex-wrap:wrap; gap:var(--space-5);">
+        
+        <!-- Controls Column -->
+        <div style="flex:1; min-width:300px; background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5);">
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+            <h3 style="margin:0; font-size:1.125rem; font-weight:600;">File Selected</h3>
+            <button class="btn btn-ghost" id="clear-btn" style="height:32px; padding:0 var(--space-3); font-size:0.875rem;">Clear</button>
           </div>
+          <p id="file-name" style="margin:0 0 var(--space-1) 0; font-weight:500; word-break:break-all;"></p>
+          <p id="file-size" style="margin:0 0 var(--space-5) 0; font-size:0.875rem; color:var(--color-ink-muted);"></p>
+
+          <hr style="border:none; border-top:1px solid var(--color-border-hairline); margin-bottom:var(--space-5);" />
+          
+          <h3 style="margin:0 0 var(--space-3) 0; font-size:1rem; font-weight:600;">1. Select Mode</h3>
+          
+          <!-- Mode Toggles -->
+          <div style="display:flex; flex-direction:column; gap:var(--space-3); margin-bottom:var(--space-5);">
+            <label style="display:flex; align-items:flex-start; gap:var(--space-3); padding:var(--space-3); border:1px solid var(--color-accent-blue); border-radius:var(--radius-md); background:var(--color-info-bg); cursor:pointer;">
+              <input type="radio" name="compress-mode" value="standard" checked style="margin-top:4px;" />
+              <div>
+                <strong style="display:block; color:var(--color-ink-primary);">Standard (Preserve Text)</strong>
+                <span style="font-size:0.8125rem; color:var(--color-ink-muted);">Shrinks embedded images but perfectly preserves vector text and layout. Best for standard documents.</span>
+              </div>
+            </label>
+            
+            <label style="display:flex; align-items:flex-start; gap:var(--space-3); padding:var(--space-3); border:1px solid var(--color-border-subtle); border-radius:var(--radius-md); cursor:pointer;">
+              <input type="radio" name="compress-mode" value="extreme" style="margin-top:4px;" />
+              <div>
+                <strong style="display:block; color:var(--color-ink-primary);">Extreme (Scanned / Target Size)</strong>
+                <span style="font-size:0.8125rem; color:var(--color-ink-muted);">Flattens all pages to hit an exact KB size limit. Best for uploading scans to strict portals.</span>
+              </div>
+            </label>
+          </div>
+
+          <hr style="border:none; border-top:1px solid var(--color-border-hairline); margin-bottom:var(--space-5);" />
+          
+          <h3 style="margin:0 0 var(--space-3) 0; font-size:1rem; font-weight:600;">2. Settings</h3>
+
+          <!-- Standard Settings -->
+          <div id="settings-standard" style="display:block; margin-bottom:var(--space-5);">
+            <label for="standard-level" style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:var(--space-2);">Compression Preset</label>
+            <select id="standard-level" class="input" style="width:100%; height:38px; cursor:pointer;">
+              <option value="balanced" selected>Balanced (Good quality, medium size)</option>
+              <option value="max">Maximum (Lower quality, smallest size)</option>
+              <option value="lossless">Lossless (Best quality, minor size reduction)</option>
+            </select>
+          </div>
+
+          <!-- Extreme Settings -->
+          <div id="settings-extreme" style="display:none; margin-bottom:var(--space-5);">
+             <label for="target-size-input" style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:var(--space-2);">Target Size (KB)</label>
+             <div style="display:flex; align-items:center; gap:var(--space-3);">
+                <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" style="flex:1; height:38px;" />
+                <span style="color:var(--color-ink-muted); font-size:0.875rem;">KB</span>
+             </div>
+             <p style="font-size:0.75rem; color:var(--color-warning-text); margin-top:var(--space-2);">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block; vertical-align:middle;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Warning: Text will become an image.
+             </p>
+          </div>
+
+          <button class="btn btn-secondary" id="compress-btn" style="width:100%; height:44px; font-weight:600;">Compress PDF</button>
+
         </div>
-        <p style="font-size: 0.8125rem; color: var(--color-ink-faint); margin-top: 4px;">
-          * Compression > 40% will rasterize pages into images for maximum file size reduction, removing text searchability.
-        </p>
+
+        <!-- Result Column -->
+        <div style="flex:1; min-width:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); text-align:center;">
+          
+          <div id="result-empty" style="display:flex; flex-direction:column; align-items:center;">
+             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-border-subtle)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:var(--space-4);"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+             <p style="color:var(--color-ink-muted); margin:0;">Configure settings and click Compress to see the result.</p>
+          </div>
+
+          <div id="result-success" style="display:none; flex-direction:column; align-items:center; width:100%;">
+             <h3 style="margin:0 0 var(--space-4) 0; font-size:1.25rem; font-weight:600; color:var(--color-success-text);">Compression Complete!</h3>
+             
+             <div style="display:flex; gap:var(--space-5); margin-bottom:var(--space-5);">
+                <div style="text-align:center;">
+                   <span style="display:block; font-size:0.75rem; color:var(--color-ink-muted); text-transform:uppercase; letter-spacing:0.5px;">Original</span>
+                   <strong id="result-orig-size" style="font-size:1.125rem; color:var(--color-ink-primary);">--</strong>
+                </div>
+                <div style="text-align:center;">
+                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-ink-faint); margin-top:8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </div>
+                <div style="text-align:center;">
+                   <span style="display:block; font-size:0.75rem; color:var(--color-accent-green); text-transform:uppercase; letter-spacing:0.5px;">Compressed</span>
+                   <strong id="result-new-size" style="font-size:1.125rem; color:var(--color-success-text);">--</strong>
+                </div>
+             </div>
+
+             <div id="savings-badge" style="display:inline-block; padding:4px 12px; background:var(--color-success-bg); color:var(--color-success-text); border-radius:100px; font-weight:600; font-size:0.875rem; margin-bottom:var(--space-6);">
+                Saved --%
+             </div>
+
+             <button class="btn btn-primary btn-lg" id="download-btn" style="width:100%;">
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+               Download PDF
+             </button>
+          </div>
+
+        </div>
+
       </div>
-
-      <!-- Live size estimate panel -->
-      <div class="compress-preview-grid">
-        <div class="compress-preview-card">
-          <p class="compress-preview-label">Original (First Page)</p>
-          <div class="compress-preview-img-wrap">
-            <canvas id="orig-canvas" class="compress-preview-canvas"></canvas>
-          </div>
-          <div class="compress-preview-meta">
-            <span class="compress-estimate-card__size" id="original-size-display">—</span>
-          </div>
-        </div>
-        <div class="compress-preview-card">
-          <p class="compress-preview-label" style="color:var(--color-accent-green)">Compressed Preview</p>
-          <div class="compress-preview-img-wrap">
-            <canvas id="compressed-canvas" class="compress-preview-canvas"></canvas>
-          </div>
-          <div class="compress-preview-meta">
-            <span class="compress-estimate-card__size" id="estimated-size-display" style="color:var(--color-accent-green)">
-              <span class="compress-spinner" id="spinner" style="display:none;"></span>
-              <span id="est-size-text">—</span>
-            </span>
-            <span class="compress-estimate-card__savings" id="estimated-savings-display"></span>
-          </div>
-        </div>
-      </div>
-
-      <p class="compress-note">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        Estimates are calculated in real-time. Actual compression may vary.
-      </p>
-    </div>
-  </div>
-
-  <div slot="actions" class="compress-actions" id="compress-actions" style="display:none;">
-    <button class="btn btn-primary btn-lg" id="compress-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
-      Compress PDF
-    </button>
-    <button class="btn btn-ghost" id="clear-btn">Clear</button>
-  </div>
-
-  <div slot="result">
-    <div id="compress-result" style="display:none;" aria-live="assertive" class="compress-result">
-      <div class="compress-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="compress-result__stats">
-        <p class="compress-result__label">Compression complete!</p>
-        <p class="compress-result__savings" id="savings-text"></p>
-      </div>
-      <a class="btn btn-accent" id="download-btn" download="compressed.pdf">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Compressed PDF
-      </a>
-      <button class="btn btn-ghost btn-sm" id="restart-btn">Compress another</button>
     </div>
   </div>
 </ToolLayout>
 
-<style is:global>
-  .compress-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
-  .compress-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
-  .compress-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .compress-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
-
-  .compress-options-panel { display:flex; flex-direction:column; gap:var(--space-5); }
-
-  .compress-slider-section { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
-  .compress-slider-header { display:flex; align-items:center; justify-content:space-between; }
-  .compress-slider-label { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); }
-  .compress-slider-pct { font-size:1.5rem; font-weight:800; color:var(--color-brand-primary); font-variant-numeric:tabular-nums; min-width:4ch; text-align:right; }
-  .compress-slider-track-wrap { display:flex; flex-direction:column; gap:var(--space-2); }
-  .compress-slider { width:100%; height:6px; accent-color:var(--color-brand-primary); cursor:pointer; }
-  .compress-slider-marks { display:flex; justify-content:space-between; }
-  .compress-slider-marks span { font-size:.6875rem; color:var(--color-ink-faint); font-weight:500; }
-
-  .compress-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
-  @media (max-width: 600px) { .compress-preview-grid { grid-template-columns: 1fr; } }
-  .compress-preview-card { display: flex; flex-direction: column; gap: var(--space-2); padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-md); background:var(--color-canvas-soft); }
-  .compress-preview-label { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-muted); }
-  .compress-preview-img-wrap {
-    background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px;
-    border: 1px solid var(--color-border-hairline);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    height: 320px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .compress-preview-canvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow:0 0 8px rgba(0,0,0,0.1); }
-  .compress-preview-meta { display:flex; flex-direction:column; gap:2px; margin-top:var(--space-2); }
-  .compress-estimate-card__size { font-size:1.5rem; font-weight:800; color:var(--color-ink-primary); display:flex; align-items:center; gap:var(--space-2); font-variant-numeric:tabular-nums; }
-  .compress-estimate-card__savings { font-size:.8125rem; font-weight:600; color:var(--color-accent-green); }
-
-  .compress-spinner { width:20px; height:20px; border:2px solid rgba(15,123,63,0.2); border-top-color:var(--color-accent-green); border-radius:50%; animation:compress-spin 0.8s linear infinite; display:inline-block; }
-  @keyframes compress-spin { to { transform:rotate(360deg); } }
-
-  .compress-note { font-size:.8125rem; color:var(--color-ink-faint); display:flex; align-items:center; gap:var(--space-2); }
-
-  .compress-actions { display:flex; align-items:center; gap:var(--space-4); }
-  .compress-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
-  .compress-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .compress-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
-  .compress-result__savings { font-size:.875rem; color:var(--color-ink-muted); margin-top:2px; }
-  .compress-result__stats { flex:1; min-width:120px; }
-</style>
-
 <script>
-  import { PDFDocument } from 'pdf-lib';
-  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
-
+  import { compress } from '@quicktoolsone/pdf-compress';
+  
+  // Elements
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl = document.getElementById('file-size') as HTMLElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  
+  const modeRadios = document.querySelectorAll('input[name="compress-mode"]');
+  const settingsStandard = document.getElementById('settings-standard') as HTMLElement;
+  const settingsExtreme = document.getElementById('settings-extreme') as HTMLElement;
+  
+  const compressBtn = document.getElementById('compress-btn') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLButtonElement;
+  
+  const resultEmpty = document.getElementById('result-empty') as HTMLElement;
+  const resultSuccess = document.getElementById('result-success') as HTMLElement;
+  const resultOrigSize = document.getElementById('result-orig-size') as HTMLElement;
+  const resultNewSize = document.getElementById('result-new-size') as HTMLElement;
+  const savingsBadge = document.getElementById('savings-badge') as HTMLElement;
+  
+  const progressContainer = document.getElementById('calc-progress-container') as HTMLElement;
+  const progressBar = document.getElementById('calc-progress-bar') as HTMLElement;
+  const progressText = document.getElementById('calc-progress-text') as HTMLElement;
+  
   let currentFile: File | null = null;
-  let originalBuf: ArrayBuffer | null = null;
-  let estimateTimer: ReturnType<typeof setTimeout> | null = null;
-
-  const dropZone        = document.getElementById('drop-zone') as HTMLElement;
-  const fileInput       = document.getElementById('file-input') as HTMLInputElement;
-  const fileInfo        = document.getElementById('file-info') as HTMLElement;
-  const fileNameEl      = document.getElementById('file-name') as HTMLElement;
-  const fileSizeEl      = document.getElementById('file-size-orig') as HTMLElement;
-  const removeBtn       = document.getElementById('remove-file') as HTMLButtonElement;
-  const compressOptions = document.getElementById('compress-options') as HTMLElement;
-  const compressActions = document.getElementById('compress-actions') as HTMLElement;
-  const compressBtn     = document.getElementById('compress-btn') as HTMLButtonElement;
-  const clearBtn        = document.getElementById('clear-btn') as HTMLButtonElement;
-  const compressResult  = document.getElementById('compress-result') as HTMLElement;
-  const downloadBtn     = document.getElementById('download-btn') as HTMLAnchorElement;
-  const savingsText     = document.getElementById('savings-text') as HTMLElement;
-  const restartBtn      = document.getElementById('restart-btn') as HTMLButtonElement;
-  const progressEl      = document.getElementById('tool-progress') as HTMLElement;
-  const progressFill    = document.getElementById('progress-fill') as HTMLElement;
-  const progressLabel   = document.getElementById('progress-label') as HTMLElement;
-
-  const slider          = document.getElementById('compress-slider') as HTMLInputElement;
-  const pctLabel        = document.getElementById('compress-pct-label') as HTMLElement;
-  const origSizeDisplay = document.getElementById('original-size-display') as HTMLElement;
-  const estSizeText     = document.getElementById('est-size-text') as HTMLElement;
-  const estSavingsDisplay= document.getElementById('estimated-savings-display') as HTMLElement;
-  const spinner         = document.getElementById('spinner') as HTMLElement;
-
-  const targetSizeInput = document.getElementById('target-size-input') as HTMLInputElement;
-  const autoCompressBtn = document.getElementById('auto-compress-btn') as HTMLButtonElement;
-
-  const origCanvas      = document.getElementById('orig-canvas') as HTMLCanvasElement;
-  const compCanvas      = document.getElementById('compressed-canvas') as HTMLCanvasElement;
-  let pdfJsDocGlobal: any = null;
-
+  let compressedBlobUrl: string | null = null;
+  
   function fmt(b: number) {
     if (b < 1024) return b + ' B';
     if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
     return (b / 1048576).toFixed(2) + ' MB';
   }
 
-  // ── Upload ───────────────────────────────────────────────
+  // File Upload
   dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
-  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
-  fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
-
-  async function load(f: File) {
-    currentFile = f;
-    fileNameEl.textContent = f.name;
-    fileSizeEl.textContent = fmt(f.size);
-    fileInfo.style.display = 'flex';
-    dropZone.style.display = 'none';
-    compressOptions.style.display = 'flex';
-    compressActions.style.display = 'flex';
-    compressResult.style.display = 'none';
-    origSizeDisplay.textContent = fmt(f.size);
-    showSpinner();
-    originalBuf = await f.arrayBuffer();
-    
-    // Render first page to origCanvas
-    try {
-      const pdfjs = await loadPdfJs();
-      pdfJsDocGlobal = await getPdfDoc(pdfjs, originalBuf);
-      const { canvas } = await renderPageToCanvas(pdfJsDocGlobal, 1, 1.5);
-      origCanvas.width = canvas.width;
-      origCanvas.height = canvas.height;
-      origCanvas.getContext('2d')!.drawImage(canvas, 0, 0);
-    } catch(e) { console.error("Error rendering original preview", e); }
-    
-    runEstimate();
-  }
-
-  // ── Slider ───────────────────────────────────────────────
-  slider.addEventListener('input', () => {
-    const v = slider.value;
-    pctLabel.textContent = v + '%';
-    showSpinner();
-    if (estimateTimer) clearTimeout(estimateTimer);
-    estimateTimer = setTimeout(runEstimate, 300);
+  dropZone.addEventListener('drop', (e) => { 
+    e.preventDefault(); 
+    dropZone.classList.remove('drop-zone--active'); 
+    if (e.dataTransfer?.files?.[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files?.[0]) handleFile(fileInput.files[0]);
   });
 
-  function showSpinner() {
-    spinner.style.display = 'inline-block';
-    estSizeText.textContent = '...';
-    estSavingsDisplay.textContent = '';
-  }
-
-  // Helper to calculate params based on strength 0-100
-  // Strength > 40 means rasterize
-  function getCompressionParams(strength: number) {
-    let rasterize = strength > 40;
-    let scale = 1.5;
-    let quality = 0.8;
-    
-    if (rasterize) {
-        if (strength > 90) {
-            // Extreme compression
-            const factor = (strength - 90) / 10; // 0 to 1
-            scale = 0.8 - (factor * 0.4); // drops down to 0.4
-            quality = 0.3 - (factor * 0.2); // drops down to 0.1
-        } else {
-            // Map 41-90 to scale (1.5 -> 0.8) and quality (0.7 -> 0.3)
-            const factor = (strength - 40) / 50; // 0 to 1
-            scale = 1.5 - (factor * 0.7); // min 0.8 scale (~57 DPI)
-            quality = 0.7 - (factor * 0.4); // min 0.3 quality
-        }
-    }
-    
-    return { rasterize, scale, quality };
-  }
-
-  async function runEstimate() {
-    if (!originalBuf || !currentFile) return;
-    const strength = Number(slider.value); 
-    const params = getCompressionParams(strength);
-
-    try {
-      let newSize = 0;
-      
-      if (!params.rasterize) {
-        // Lossless logic (like before)
-        const buf = originalBuf.slice(0);
-        const useObjectStreams = true;
-        const pdf = await PDFDocument.load(buf, { updateMetadata: false });
-        pdf.setTitle(''); pdf.setAuthor(''); pdf.setSubject(''); pdf.setKeywords([]); pdf.setProducer(''); pdf.setCreator('');
-        const outBytes = await pdf.save({ useObjectStreams });
-        newSize = outBytes.byteLength;
-        
-        // Draw lossless preview (identical to orig)
-        compCanvas.width = origCanvas.width;
-        compCanvas.height = origCanvas.height;
-        compCanvas.getContext('2d')!.drawImage(origCanvas, 0, 0);
-        
-      } else {
-        // Rasterization estimate: render page 1, multiply by numPages
-        if (!pdfJsDocGlobal) {
-          const pdfjs = await loadPdfJs();
-          pdfJsDocGlobal = await getPdfDoc(pdfjs, originalBuf);
-        }
-        const numPages = pdfJsDocGlobal.numPages;
-        
-        const { canvas } = await renderPageToCanvas(pdfJsDocGlobal, 1, params.scale);
-        const dataUrl = canvas.toDataURL('image/jpeg', params.quality);
-        const base64Len = dataUrl.length - dataUrl.indexOf(',') - 1;
-        const byteLen = Math.ceil(base64Len * 0.75);
-        
-        newSize = byteLen * numPages;
-        newSize += numPages * 500 + 1024;
-        
-        // Draw degraded preview
-        const img = new Image();
-        img.onload = () => {
-          compCanvas.width = img.width;
-          compCanvas.height = img.height;
-          compCanvas.getContext('2d')!.drawImage(img, 0, 0);
-        };
-        img.src = dataUrl;
-      }
-      
-      const origSize = currentFile.size;
-      const savedPct = Math.max(0, Math.round((1 - newSize / origSize) * 100));
-
-      spinner.style.display = 'none';
-      estSizeText.textContent = fmt(newSize);
-      if (savedPct > 0) {
-        estSavingsDisplay.textContent = `${savedPct}% smaller`;
-        estSavingsDisplay.style.color = 'var(--color-accent-green)';
-      } else if (newSize > origSize) {
-        const pctBigger = Math.round((newSize / origSize - 1) * 100);
-        estSavingsDisplay.textContent = `${pctBigger}% larger`;
-        estSavingsDisplay.style.color = 'var(--color-ink-faint)';
-      } else {
-        estSavingsDisplay.textContent = 'Minimal reduction';
-        estSavingsDisplay.style.color = 'var(--color-ink-faint)';
-      }
-    } catch(e) {
-      spinner.style.display = 'none';
-      estSizeText.textContent = '—';
-      estSavingsDisplay.textContent = 'Estimate unavailable';
-    }
-  }
-  
-  // ── Auto Calculate ───────────────────────────────────────
-  autoCompressBtn.addEventListener('click', async () => {
-    if (!currentFile || !originalBuf) return;
-    const targetKB = Number(targetSizeInput.value);
-    if (!targetKB || targetKB <= 0) return;
-    
-    autoCompressBtn.disabled = true;
-    const originalText = autoCompressBtn.textContent;
-    autoCompressBtn.textContent = 'Calculating...';
-    
-    const targetBytes = targetKB * 1024;
-    const origSize = currentFile.size;
-    
-    if (origSize <= targetBytes) {
-      slider.value = "0"; // Lightest compression
-      pctLabel.textContent = '0%';
-      runEstimate();
-      autoCompressBtn.textContent = originalText;
-      autoCompressBtn.disabled = false;
+  function handleFile(file: File) {
+    if (!file.type.includes('pdf')) {
+      (window as any).showToast('Please upload a PDF file.', 'error');
       return;
     }
+    currentFile = file;
+    fileNameEl.textContent = file.name;
+    fileSizeEl.textContent = fmt(file.size);
     
-    // Quick test points
-    const testPoints = [0, 40, 60, 80, 95, 100];
-    let bestStrength = 100;
-    
-    // Simple linear scan of key points for speed, rather than full rendering binary search (which is slow for PDF)
-    // In a real app we'd just estimate mathematically based on the first page, which is what runEstimate does!
-    // So we can just use the same logic as runEstimate without the canvas drawing part to find the strength.
-    
-    if (!pdfJsDocGlobal) {
-       const pdfjs = await loadPdfJs();
-       pdfJsDocGlobal = await getPdfDoc(pdfjs, originalBuf);
-    }
-    
-    let found = false;
-    for (let strength = 45; strength <= 100; strength += 5) {
-       const params = getCompressionParams(strength);
-       const { canvas } = await renderPageToCanvas(pdfJsDocGlobal, 1, params.scale);
-       const dataUrl = canvas.toDataURL('image/jpeg', params.quality);
-       const base64Len = dataUrl.length - dataUrl.indexOf(',') - 1;
-       const byteLen = Math.ceil(base64Len * 0.75);
-       const estSize = (byteLen * pdfJsDocGlobal.numPages) + (pdfJsDocGlobal.numPages * 500) + 1024;
-       
-       if (estSize <= targetBytes) {
-         bestStrength = strength;
-         found = true;
-         break;
-       }
-    }
-    
-    slider.value = String(bestStrength);
-    pctLabel.textContent = bestStrength + '%';
-    
-    if (!found) {
-       (window as any).showToast('Target size could not be reached. Showing lowest possible size.', 'error');
-    }
-    
-    runEstimate(); // update preview
-    autoCompressBtn.textContent = originalText;
-    autoCompressBtn.disabled = false;
-  });
-
-  // ── Compress ─────────────────────────────────────────────
-  compressBtn.addEventListener('click', async () => {
-    if (!currentFile || !originalBuf) return;
-    const strength = Number(slider.value);
-    const params = getCompressionParams(strength);
-
-    compressBtn.disabled = true;
-    progressEl.setAttribute('aria-hidden','false');
-    progressFill.style.width = '10%';
-    progressLabel.textContent = 'Preparing…';
-
-    try {
-      let outBytes: Uint8Array;
-      
-      if (!params.rasterize) {
-          progressFill.style.width = '60%';
-          progressLabel.textContent = 'Compressing lossless…';
-          const buf = originalBuf.slice(0);
-          const pdf = await PDFDocument.load(buf, { updateMetadata: false });
-          pdf.setTitle(''); pdf.setAuthor(''); pdf.setSubject(''); pdf.setKeywords([]); pdf.setProducer(''); pdf.setCreator('');
-          outBytes = await pdf.save({ useObjectStreams: true });
-      } else {
-          // Full Rasterization compression
-          progressLabel.textContent = 'Loading PDF.js…';
-          const pdfjs = await loadPdfJs();
-          const pdfJsDoc = await getPdfDoc(pdfjs, originalBuf);
-          const numPages = pdfJsDoc.numPages;
-          
-          const newPdf = await PDFDocument.create();
-          
-          for(let i=1; i<=numPages; i++) {
-              progressFill.style.width = `${10 + Math.round((i/numPages)*80)}%`;
-              progressLabel.textContent = `Compressing page ${i} of ${numPages}…`;
-              
-              const { canvas } = await renderPageToCanvas(pdfJsDoc, i, params.scale);
-              const dataUrl = canvas.toDataURL('image/jpeg', params.quality);
-              
-              const imgBytes = Uint8Array.from(atob(dataUrl.split(',')[1]), c => c.charCodeAt(0));
-              const img = await newPdf.embedJpg(imgBytes);
-              
-              // Original page dimensions from PDF.js
-              const page = await pdfJsDoc.getPage(i);
-              const vp = page.getViewport({ scale: 1 });
-              
-              const newPage = newPdf.addPage([vp.width, vp.height]);
-              newPage.drawImage(img, {
-                  x: 0,
-                  y: 0,
-                  width: vp.width,
-                  height: vp.height
-              });
-          }
-          
-          progressFill.style.width = '95%';
-          progressLabel.textContent = 'Saving PDF…';
-          outBytes = await newPdf.save();
-      }
-
-      progressFill.style.width = '100%';
-      progressLabel.textContent = 'Done!';
-
-      setTimeout(() => { progressEl.setAttribute('aria-hidden','true'); progressFill.style.width = '0%'; }, 400);
-
-      const origSize = currentFile.size;
-      const newSize = outBytes.byteLength;
-      const savedPct = Math.max(0, Math.round((1 - newSize / origSize) * 100));
-
-      const blob = new Blob([outBytes], { type: 'application/pdf' });
-      downloadBtn.href = URL.createObjectURL(blob);
-      downloadBtn.download = `compressed-${currentFile.name}`;
-      savingsText.textContent = `${fmt(origSize)} → ${fmt(newSize)} · ${savedPct > 0 ? savedPct + '% smaller' : 'no reduction'}`;
-      compressResult.style.display = 'flex';
-      compressActions.style.display = 'none';
-      compressBtn.disabled = false;
-    } catch(e) {
-      console.error(e);
-      (window as any).showToast('Error during compression.', 'error');
-      compressBtn.disabled = false;
-      progressEl.setAttribute('aria-hidden','true');
-    }
-  });
-
-  function reset() {
-    currentFile = null;
-    originalBuf = null;
-    dropZone.style.display = 'flex';
-    fileInfo.style.display = 'none';
-    compressOptions.style.display = 'none';
-    compressActions.style.display = 'none';
-    compressResult.style.display = 'none';
-    slider.value = '70';
-    pctLabel.textContent = '70%';
-    origSizeDisplay.textContent = '—';
-    spinner.style.display = 'inline-block';
-    estSizeText.textContent = '...';
-    estSavingsDisplay.textContent = '';
-    
-    // clear canvases
-    origCanvas.getContext('2d')?.clearRect(0,0,origCanvas.width,origCanvas.height);
-    compCanvas.getContext('2d')?.clearRect(0,0,compCanvas.width,compCanvas.height);
+    dropZone.style.display = 'none';
+    fileInfo.style.display = 'flex';
+    resultEmpty.style.display = 'flex';
+    resultSuccess.style.display = 'none';
+    if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
   }
-  clearBtn.addEventListener('click', reset);
-  restartBtn.addEventListener('click', reset);
-  removeBtn.addEventListener('click', reset);
+  
+  clearBtn.addEventListener('click', () => {
+    currentFile = null;
+    fileInput.value = '';
+    fileInfo.style.display = 'none';
+    dropZone.style.display = 'flex';
+    if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
+  });
+  
+  // Mode Toggle UI
+  modeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const val = (e.target as HTMLInputElement).value;
+      
+      // Reset borders
+      modeRadios.forEach(r => {
+         const parent = r.parentElement;
+         if (parent) {
+            parent.style.borderColor = 'var(--color-border-subtle)';
+            parent.style.background = 'transparent';
+         }
+      });
+      // Highlight selected
+      const selectedParent = (e.target as HTMLInputElement).parentElement;
+      if (selectedParent) {
+         selectedParent.style.borderColor = 'var(--color-accent-blue)';
+         selectedParent.style.background = 'var(--color-info-bg)';
+      }
+      
+      if (val === 'standard') {
+        settingsStandard.style.display = 'block';
+        settingsExtreme.style.display = 'none';
+      } else {
+        settingsStandard.style.display = 'none';
+        settingsExtreme.style.display = 'block';
+      }
+    });
+  });
+
+  // Compress Action
+  compressBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    
+    const mode = (document.querySelector('input[name="compress-mode"]:checked') as HTMLInputElement).value;
+    
+    // UI Setup
+    compressBtn.disabled = true;
+    const oldText = compressBtn.textContent;
+    compressBtn.textContent = 'Compressing...';
+    
+    progressContainer.style.display = 'flex';
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Initializing...';
+    
+    resultEmpty.style.display = 'flex';
+    resultSuccess.style.display = 'none';
+    
+    await new Promise(r => setTimeout(r, 50));
+    
+    try {
+      let compressedBytes: Uint8Array;
+      
+      if (mode === 'standard') {
+         progressText.textContent = 'Processing PDF...';
+         progressBar.style.width = '0%';
+         
+         const preset = (document.getElementById('standard-level') as HTMLSelectElement).value;
+         const arrayBuffer = await currentFile.arrayBuffer();
+         
+         // Using standard compression library
+         const result = await compress(arrayBuffer, {
+            preset: preset as any,
+            onProgress: (p) => {
+               progressBar.style.width = `${p.progress}%`;
+               progressText.textContent = `Processing (${Math.round(p.progress)}%)`;
+            }
+         });
+         compressedBytes = new Uint8Array(result.pdf);
+         
+      } else {
+         // Extreme Mode (Rasterize to target size)
+         progressText.textContent = 'Loading Engine...';
+         const targetKB = Number((document.getElementById('target-size-input') as HTMLInputElement).value);
+         if (!targetKB || targetKB <= 0) throw new Error('Please enter a valid target size (KB).');
+         const targetBytes = targetKB * 1024;
+         const arrayBuffer = await currentFile.arrayBuffer();
+
+         const pdfjsLib = await import('pdfjs-dist');
+         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
+         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+         const pdf = await loadingTask.promise;
+         const numPages = pdf.numPages;
+
+         progressText.textContent = `Rasterizing ${numPages} pages...`;
+         
+         // 1. Render all pages to memory
+         const pageImages: { imageData: ImageData, width: number, height: number }[] = [];
+         
+         for (let i = 1; i <= numPages; i++) {
+            progressBar.style.width = `${(i / numPages) * 30}%`;
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 2.0 }); // Render at 2x for quality
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            
+            pageImages.push({
+               imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
+               width: canvas.width,
+               height: canvas.height
+            });
+         }
+         
+         progressText.textContent = 'Searching for optimal compression...';
+         const { encode: encodeJpeg } = await import('@jsquash/jpeg');
+         
+         // 2. Binary search over qualities
+         let bestJpegs: Uint8Array[] | null = null;
+         let bestSize = Infinity;
+         const qualities = [90, 80, 70, 60, 50, 40, 30, 20, 10];
+         let found = false;
+         
+         for (let i = 0; i < qualities.length; i++) {
+            const q = qualities[i];
+            progressBar.style.width = `${30 + ((i / qualities.length) * 40)}%`;
+            progressText.textContent = `Testing compression strength (${100 - q}%)...`;
+            
+            let totalBytes = 0;
+            const currentJpegs: Uint8Array[] = [];
+            
+            for (const p of pageImages) {
+               const jpg = await encodeJpeg(p.imageData, { quality: q });
+               currentJpegs.push(new Uint8Array(jpg));
+               totalBytes += jpg.byteLength;
+            }
+            
+            const estimatedOverhead = numPages * 1024; // 1KB per page overhead
+            const estPdfSize = totalBytes + estimatedOverhead;
+            
+            // Keep the smallest we've seen if we don't hit target
+            if (estPdfSize < bestSize) {
+               bestSize = estPdfSize;
+               bestJpegs = currentJpegs;
+            }
+            
+            if (estPdfSize <= targetBytes) {
+               found = true;
+               break;
+            }
+         }
+         
+         if (!found) {
+            console.warn("Could not reach strict target size, using max compression.");
+            (window as any).showToast('Target size extremely small. Applied maximum compression.', 'error');
+         }
+         
+         progressText.textContent = 'Rebuilding PDF...';
+         progressBar.style.width = '80%';
+         
+         // 3. Rebuild PDF
+         const { PDFDocument } = await import('pdf-lib');
+         const newPdf = await PDFDocument.create();
+         
+         for (let i = 0; i < bestJpegs!.length; i++) {
+            progressBar.style.width = `${80 + ((i / bestJpegs!.length) * 20)}%`;
+            const jpgBytes = bestJpegs![i];
+            const origImage = pageImages[i];
+            
+            const embeddedJpg = await newPdf.embedJpg(jpgBytes);
+            // Add page at original size (we scaled by 2.0 when rendering)
+            const page = newPdf.addPage([origImage.width / 2, origImage.height / 2]);
+            page.drawImage(embeddedJpg, {
+               x: 0,
+               y: 0,
+               width: origImage.width / 2,
+               height: origImage.height / 2,
+            });
+         }
+         
+         compressedBytes = await newPdf.save();
+      }
+      
+      progressBar.style.width = '100%';
+      progressText.textContent = 'Finalizing...';
+      
+      const newBlob = new Blob([compressedBytes], { type: 'application/pdf' });
+      
+      if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
+      compressedBlobUrl = URL.createObjectURL(newBlob);
+      
+      // Update UI with results
+      resultOrigSize.textContent = fmt(currentFile.size);
+      resultNewSize.textContent = fmt(newBlob.size);
+      
+      const savedPct = Math.max(0, Math.round((1 - newBlob.size / currentFile.size) * 100));
+      savingsBadge.textContent = `Saved ${savedPct}%`;
+      if (savedPct === 0) savingsBadge.textContent = `No savings`;
+      
+      setTimeout(() => {
+         progressContainer.style.display = 'none';
+         resultEmpty.style.display = 'none';
+         resultSuccess.style.display = 'flex';
+      }, 500);
+
+    } catch (err: any) {
+      console.error(err);
+      (window as any).showToast(err.message || 'Compression failed', 'error');
+      progressContainer.style.display = 'none';
+    } finally {
+      compressBtn.disabled = false;
+      compressBtn.textContent = oldText;
+    }
+  });
+  
+  downloadBtn.addEventListener('click', () => {
+    if (!compressedBlobUrl || !currentFile) return;
+    const a = document.createElement('a');
+    a.href = compressedBlobUrl;
+    a.download = currentFile.name.replace('.pdf', '_compressed.pdf');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+  
 </script>
