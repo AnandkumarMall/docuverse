@@ -39,15 +39,6 @@ const howToSteps = [
     <!-- Main Workspace -->
     <div id="file-info" style="display:none; flex-direction:column; gap:var(--space-5); margin-bottom:var(--space-6);">
       
-      <!-- Big Progress Bar (Above grid) -->
-      <div id="calc-progress-container" style="display:none; width:100%; background:var(--color-canvas-soft); border:1px solid var(--color-border-subtle); border-radius:var(--radius-lg); padding:var(--space-4); flex-direction:column; align-items:center; justify-content:center;">
-        <h3 style="margin-bottom:var(--space-3); font-size:1.1rem; font-weight:600; color:var(--color-ink-primary);">Compressing PDF...</h3>
-        <div style="width:100%; max-width:500px; height:12px; background:var(--color-border-hairline); border-radius:6px; overflow:hidden;">
-          <div id="calc-progress-bar" style="width:0%; height:100%; background:var(--color-accent-blue); transition:width 0.1s; border-radius:6px;"></div>
-        </div>
-        <p id="calc-progress-text" style="font-size:0.875rem; color:var(--color-ink-muted); margin-top:var(--space-2);">Initializing...</p>
-      </div>
-
       <div style="display:flex; flex-wrap:wrap; gap:var(--space-5);">
         
         <!-- Controls Column -->
@@ -117,36 +108,61 @@ const howToSteps = [
         <!-- Result Column -->
         <div style="flex:1; min-width:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); text-align:center;">
           
-          <div id="result-empty" style="display:flex; flex-direction:column; align-items:center;">
+          <div id="result-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:400px; height:100%;">
              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-border-subtle)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:var(--space-4);"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-             <p style="color:var(--color-ink-muted); margin:0;">Configure settings and click Compress to see the result.</p>
+             <p style="color:var(--color-ink-muted); margin:0;">Upload a PDF to see the preview.</p>
           </div>
 
-          <div id="result-success" style="display:none; flex-direction:column; align-items:center; width:100%;">
-             <h3 style="margin:0 0 var(--space-4) 0; font-size:1.25rem; font-weight:600; color:var(--color-success-text);">Compression Complete!</h3>
-             
-             <div style="display:flex; gap:var(--space-5); margin-bottom:var(--space-5);">
-                <div style="text-align:center;">
-                   <span style="display:block; font-size:0.75rem; color:var(--color-ink-muted); text-transform:uppercase; letter-spacing:0.5px;">Original</span>
-                   <strong id="result-orig-size" style="font-size:1.125rem; color:var(--color-ink-primary);">--</strong>
-                </div>
-                <div style="text-align:center;">
-                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-ink-faint); margin-top:8px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </div>
-                <div style="text-align:center;">
-                   <span style="display:block; font-size:0.75rem; color:var(--color-accent-green); text-transform:uppercase; letter-spacing:0.5px;">Compressed</span>
-                   <strong id="result-new-size" style="font-size:1.125rem; color:var(--color-success-text);">--</strong>
-                </div>
+          <div id="pdf-preview-workspace" style="display:none; flex-direction:column; width:100%;">
+            
+             <!-- Preview Canvas -->
+             <div style="width:100%; aspect-ratio:1/1.4; background:#fff; border:1px solid var(--color-border-subtle); border-radius:var(--radius-md); overflow:hidden; position:relative; margin-bottom:var(--space-4);">
+               <canvas id="pdf-preview-canvas" style="width:100%; height:100%; object-fit:contain; transition: filter 0.4s ease, opacity 0.4s ease;"></canvas>
+               <div id="pdf-preview-loading" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.8); align-items:center; justify-content:center; font-weight:600; color:var(--color-ink-primary);">Loading page...</div>
+               
+               <!-- Controls -->
+               <div style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:16px; background:rgba(0,0,0,0.8); padding:6px 16px; border-radius:100px; box-shadow:var(--shadow-md);">
+                 <button id="prev-page-btn" style="color:white; background:none; border:none; cursor:pointer; font-size:18px; line-height:1; padding:0; display:flex;">&lt;</button>
+                 <span id="page-indicator" style="color:white; font-size:14px; font-weight:500; min-width:40px; text-align:center;">1 / 1</span>
+                 <button id="next-page-btn" style="color:white; background:none; border:none; cursor:pointer; font-size:18px; line-height:1; padding:0; display:flex;">&gt;</button>
+               </div>
+               
+               <!-- Compression Progress Overlay -->
+               <div id="calc-progress-container" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.4); flex-direction:column; align-items:center; justify-content:center; padding:var(--space-5);">
+                 <div style="width:100%; max-width:400px; background:var(--color-canvas-base); border:1px solid var(--color-border-subtle); border-radius:var(--radius-lg); padding:var(--space-4); box-shadow:var(--shadow-lg); text-align:center;">
+                   <h3 style="margin:0 0 var(--space-3) 0; font-size:1.1rem; font-weight:600; color:var(--color-ink-primary);">Compressing PDF...</h3>
+                   <div style="width:100%; height:12px; background:var(--color-border-hairline); border-radius:6px; overflow:hidden;">
+                     <div id="calc-progress-bar" style="width:0%; height:100%; background:var(--color-brand-primary); transition:width 0.2s ease; border-radius:6px;"></div>
+                   </div>
+                   <p id="calc-progress-text" style="font-size:0.875rem; color:var(--color-ink-muted); margin:0; margin-top:var(--space-3);">Initializing...</p>
+                 </div>
+               </div>
              </div>
 
-             <div id="savings-badge" style="display:inline-block; padding:4px 12px; background:var(--color-success-bg); color:var(--color-success-text); border-radius:100px; font-weight:600; font-size:0.875rem; margin-bottom:var(--space-6);">
-                Saved --%
+             <!-- Compression Stats -->
+             <div id="result-success" style="display:none; flex-direction:column; align-items:center; width:100%; background:var(--color-success-bg); border:1px solid rgba(15, 123, 63, 0.2); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-4);">
+                <h3 style="margin:0 0 var(--space-3) 0; font-size:1.125rem; font-weight:600; color:var(--color-success-text);">Compression Complete!</h3>
+                <div style="display:flex; gap:var(--space-4); margin-bottom:var(--space-3);">
+                   <div style="text-align:center;">
+                      <span style="display:block; font-size:0.65rem; color:var(--color-ink-muted); text-transform:uppercase;">Original</span>
+                      <strong id="result-orig-size" style="font-size:1rem; color:var(--color-ink-primary);">--</strong>
+                   </div>
+                   <div style="text-align:center; padding-top:4px;">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-ink-faint);"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                   </div>
+                   <div style="text-align:center;">
+                      <span style="display:block; font-size:0.65rem; color:var(--color-accent-green); text-transform:uppercase;">Compressed</span>
+                      <strong id="result-new-size" style="font-size:1rem; color:var(--color-success-text);">--</strong>
+                   </div>
+                </div>
+                <div id="savings-badge" style="display:inline-block; padding:2px 10px; background:rgba(15, 123, 63, 0.1); color:var(--color-success-text); border-radius:100px; font-weight:600; font-size:0.75rem;">Saved --%</div>
              </div>
 
-             <button class="btn btn-primary btn-lg" id="download-btn" style="width:100%;">
+             <button class="btn btn-primary btn-lg" id="download-btn" style="width:100%; display:none;">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                Download PDF
              </button>
+             
           </div>
 
         </div>
@@ -184,8 +200,20 @@ const howToSteps = [
   const progressBar = document.getElementById('calc-progress-bar') as HTMLElement;
   const progressText = document.getElementById('calc-progress-text') as HTMLElement;
   
+  const previewWorkspace = document.getElementById('pdf-preview-workspace') as HTMLElement;
+  const previewCanvas = document.getElementById('pdf-preview-canvas') as HTMLCanvasElement;
+  const previewLoading = document.getElementById('pdf-preview-loading') as HTMLElement;
+  const pageIndicator = document.getElementById('page-indicator') as HTMLElement;
+  const prevPageBtn = document.getElementById('prev-page-btn') as HTMLButtonElement;
+  const nextPageBtn = document.getElementById('next-page-btn') as HTMLButtonElement;
+  
   let currentFile: File | null = null;
   let compressedBlobUrl: string | null = null;
+  
+  // Preview State
+  let pdfPreviewDoc: any = null;
+  let pdfPreviewNumPages = 0;
+  let currentPreviewPage = 1;
   
   function fmt(b: number) {
     if (b < 1024) return b + ' B';
@@ -206,7 +234,7 @@ const howToSteps = [
     if (fileInput.files?.[0]) handleFile(fileInput.files[0]);
   });
 
-  function handleFile(file: File) {
+  async function handleFile(file: File) {
     if (!file.type.includes('pdf')) {
       (window as any).showToast('Please upload a PDF file.', 'error');
       return;
@@ -217,16 +245,75 @@ const howToSteps = [
     
     dropZone.style.display = 'none';
     fileInfo.style.display = 'flex';
-    resultEmpty.style.display = 'flex';
+    
+    resultEmpty.style.display = 'none';
+    previewWorkspace.style.display = 'flex';
     resultSuccess.style.display = 'none';
+    downloadBtn.style.display = 'none';
+    
     if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
+    
+    pdfPreviewDoc = null;
+    await renderPreview(file, 1);
   }
+
+  async function renderPreview(file: File, pageNum: number) {
+    previewLoading.style.display = 'flex';
+    try {
+      if (!pdfPreviewDoc) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
+        pdfPreviewDoc = await loadingTask.promise;
+        pdfPreviewNumPages = pdfPreviewDoc.numPages;
+      }
+      
+      currentPreviewPage = pageNum;
+      pageIndicator.textContent = `${currentPreviewPage} / ${pdfPreviewNumPages}`;
+      
+      const page = await pdfPreviewDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 1.5 }); // Crisp rendering
+      
+      previewCanvas.width = viewport.width;
+      previewCanvas.height = viewport.height;
+      const ctx = previewCanvas.getContext('2d')!;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+      
+      await page.render({ canvasContext: ctx, viewport }).promise;
+    } catch(e) {
+      console.error(e);
+    } finally {
+      previewLoading.style.display = 'none';
+    }
+  }
+
+  prevPageBtn.addEventListener('click', async () => {
+    if (currentPreviewPage > 1) {
+      const fileToRender = compressedBlobUrl ? await fetch(compressedBlobUrl).then(r => r.blob()).then(b => new File([b], 'c.pdf')) : currentFile;
+      if (fileToRender) renderPreview(fileToRender, currentPreviewPage - 1);
+    }
+  });
+  nextPageBtn.addEventListener('click', async () => {
+    if (currentPreviewPage < pdfPreviewNumPages) {
+      const fileToRender = compressedBlobUrl ? await fetch(compressedBlobUrl).then(r => r.blob()).then(b => new File([b], 'c.pdf')) : currentFile;
+      if (fileToRender) renderPreview(fileToRender, currentPreviewPage + 1);
+    }
+  });
   
   clearBtn.addEventListener('click', () => {
     currentFile = null;
     fileInput.value = '';
     fileInfo.style.display = 'none';
     dropZone.style.display = 'flex';
+    
+    pdfPreviewDoc = null;
+    previewWorkspace.style.display = 'none';
+    resultEmpty.style.display = 'flex';
+    resultSuccess.style.display = 'none';
+    downloadBtn.style.display = 'none';
+    
     if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
   });
   
@@ -275,8 +362,13 @@ const howToSteps = [
     progressBar.style.width = '0%';
     progressText.textContent = 'Initializing...';
     
-    resultEmpty.style.display = 'flex';
+    previewCanvas.style.filter = 'blur(6px) grayscale(50%)';
+    previewCanvas.style.opacity = '0.5';
+    previewWorkspace.style.pointerEvents = 'none';
+    
+    resultEmpty.style.display = 'none';
     resultSuccess.style.display = 'none';
+    downloadBtn.style.display = 'none';
     
     await new Promise(r => setTimeout(r, 50));
     
@@ -427,10 +519,24 @@ const howToSteps = [
       savingsBadge.textContent = `Saved ${savedPct}%`;
       if (savedPct === 0) savingsBadge.textContent = `No savings`;
       
-      setTimeout(() => {
+      setTimeout(async () => {
          progressContainer.style.display = 'none';
-         resultEmpty.style.display = 'none';
+         
+         previewCanvas.style.filter = 'none';
+         previewCanvas.style.opacity = '1';
+         previewWorkspace.style.pointerEvents = 'auto';
+         
          resultSuccess.style.display = 'flex';
+         downloadBtn.style.display = 'flex';
+         
+         // Reload preview with the compressed PDF so the user sees the visual difference
+         try {
+            pdfPreviewDoc = null;
+            const compressedFile = new File([newBlob], "compressed.pdf");
+            await renderPreview(compressedFile, Math.min(currentPreviewPage, pdfPreviewNumPages));
+         } catch (e) {
+            console.error("Failed to render compressed preview", e);
+         }
       }, 500);
 
     } catch (err: any) {
@@ -438,6 +544,10 @@ const howToSteps = [
       (window as any).showToast(err.message || 'Compression failed', 'error');
       progressContainer.style.display = 'none';
     } finally {
+      previewCanvas.style.filter = 'none';
+      previewCanvas.style.opacity = '1';
+      previewWorkspace.style.pointerEvents = 'auto';
+      
       compressBtn.disabled = false;
       compressBtn.textContent = oldText;
     }
