@@ -98,7 +98,17 @@ const howToSteps = [
       </div>
 
       <!-- Side-by-side preview -->
-      <div class="compress-preview-grid">
+      <div style="position:relative; width: 100%; border-radius: var(--radius-lg); overflow: hidden;">
+        
+        <!-- Big Progress Overlay -->
+        <div id="calc-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10; flex-direction:column; align-items:center; justify-content:center; color:white; transition: opacity 0.2s;">
+          <h3 style="margin-bottom:var(--space-4); font-size:1.25rem; font-weight:600; color:white;">Calculating Best Compression...</h3>
+          <div style="width:60%; max-width:400px; height:12px; background:rgba(255,255,255,0.2); border-radius:6px; overflow:hidden;">
+            <div id="calc-overlay-bar" style="width:0%; height:100%; background:#3b82f6; transition:width 0.1s; border-radius:6px;"></div>
+          </div>
+        </div>
+
+        <div class="compress-preview-grid">
         <div class="compress-preview-card">
           <p class="compress-preview-label">Original (Previewing first image)</p>
           <div class="compress-preview-img-wrap">
@@ -120,6 +130,7 @@ const howToSteps = [
             </span>
             <span class="compress-estimate-card__savings" id="est-savings-display"></span>
           </div>
+        </div>
         </div>
       </div>
 
@@ -211,6 +222,8 @@ const howToSteps = [
 
   const targetSizeInput = document.getElementById('target-size-input') as HTMLInputElement;
   const autoCompressBtn = document.getElementById('auto-compress-btn') as HTMLButtonElement;
+  const calcOverlay = document.getElementById('calc-overlay') as HTMLElement;
+  const calcOverlayBar = document.getElementById('calc-overlay-bar') as HTMLElement;
   const outputFormatEl  = document.getElementById('output-format') as HTMLSelectElement;
   const autoFormatOption = document.getElementById('auto-format-option') as HTMLOptionElement;
 
@@ -411,6 +424,13 @@ const howToSteps = [
     const originalText = autoCompressBtn.textContent;
     autoCompressBtn.textContent = 'Calculating...';
     
+    calcOverlay.style.display = 'flex';
+    calcOverlayBar.style.width = '0%';
+    
+    // Yield to the main thread so the browser can paint the "Calculating..." text
+    // before the heavy WebAssembly loop blocks the UI.
+    await new Promise(r => setTimeout(r, 50));
+    
     if (outputFormatEl.value === 'image/png') {
        (window as any).showToast('PNG is a lossless format, so target sizes may not be strictly achievable.', 'error');
     }
@@ -428,6 +448,8 @@ const howToSteps = [
     let fallbackSize = Infinity;
     
     const scalesToTest = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+    const totalSteps = scalesToTest.length * 7;
+    let currentStep = 0;
 
     for(let s of scalesToTest) {
       let low = 1;
@@ -436,7 +458,15 @@ const howToSteps = [
       let localBestSize = Infinity;
       
       for(let i=0; i<7; i++) { 
-        if (low > high) break;
+        if (low > high) {
+          currentStep += (7 - i); // skip remaining steps for this scale
+          break;
+        }
+        
+        currentStep++;
+        calcOverlayBar.style.width = `${Math.min(100, (currentStep / totalSteps) * 100)}%`;
+        await new Promise(r => setTimeout(r, 0)); // yield paint for progress bar
+        
         const mid = Math.floor((low + high) / 2);
         const size = await testCompressionSize(mid / 100, s);
         
@@ -484,6 +514,11 @@ const howToSteps = [
        (window as any).showToast('Target size could not be reached. Showing lowest possible size.', 'error');
     }
     
+    calcOverlayBar.style.width = '100%';
+    setTimeout(() => {
+      calcOverlay.style.display = 'none';
+    }, 200);
+
     runCompression();
     autoCompressBtn.textContent = originalText;
     autoCompressBtn.disabled = false;
