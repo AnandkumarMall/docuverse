@@ -74,7 +74,6 @@ const faqs = [
 
 <script>
   import { PDFDocument } from 'pdf-lib';
-  import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 
   let currentFile: File | null = null;
   const dropZone = document.getElementById('drop-zone') as HTMLElement;
@@ -118,6 +117,8 @@ const faqs = [
 
     progressFill.style.width = '60%';
     progressLabel.textContent = 'Building Word document…';
+
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx');
 
     // Extract text using pdf-lib context (basic - gets embedded text strings)
     const paragraphs: Paragraph[] = [];
