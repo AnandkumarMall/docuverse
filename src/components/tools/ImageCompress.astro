@@ -59,13 +59,13 @@ const howToSteps = [
         <div style="width:100%;">
           <label class="compress-slider-label" for="target-size-input" style="display:block; margin-bottom:var(--space-2);">Target File Size (Optional)</label>
           <div style="position:relative; max-width:120px;">
-            <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" min="1" step="1" style="width:100%; padding-right:40px;" />
+            <input type="number" id="target-size-input" class="input" placeholder="e.g. 100" min="1" step="1" value={defaultTargetSize || ""} style="width:100%; padding-right:40px;" />
             <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:.875rem; color:var(--color-ink-muted);">KB</span>
           </div>
         </div>
         <div style="width:100%;">
           <label class="compress-slider-label" for="output-format" style="display:block; margin-bottom:var(--space-2);">Output Format</label>
-          <select id="output-format" class="input" style="width:100%; height:38px; cursor:pointer; background:var(--color-canvas-base); border:1px solid var(--color-border-default);">
+          <select id="output-format" class="input" data-default={defaultFormat || "auto"} style="width:100%; height:38px; cursor:pointer; background:var(--color-canvas-base); border:1px solid var(--color-border-default);">
             <option value="auto" id="auto-format-option">Original Format (Auto)</option>
             <option value="image/jpeg">JPEG</option>
             <option value="image/webp">WebP</option>
@@ -256,6 +256,12 @@ const howToSteps = [
     }
   });
 
+  // Initialize default format if provided
+  const defFmt = outputFormatEl.getAttribute('data-default');
+  if (defFmt && defFmt !== 'auto') {
+    outputFormatEl.value = defFmt;
+  }
+
   // ── Upload ───────────────────────────────────────────────
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
@@ -305,7 +311,12 @@ const howToSteps = [
     currentImg.onload = () => {
       // Render original
       origImg.src = url;
-      runCompression();
+      const defaultTargetSize = Number(targetSizeInput.value);
+      if (defaultTargetSize > 0) {
+        setTimeout(() => autoCompressBtn.click(), 100);
+      } else {
+        runCompression();
+      }
     };
     currentImg.src = url;
   }
