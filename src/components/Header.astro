@@ -92,7 +92,7 @@ const utilityTools = [
           <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="nav-panel" id="nav-image-panel" role="menu">
-          <div class="nav-panel__grid">
+          <div class="nav-panel__grid nav-panel__grid--wide">
             {imageTools.map(tool => (
               <a href={tool.href} class="nav-panel__item" role="menuitem">
                 <span class="nav-panel__name">{tool.name}</span>
@@ -358,6 +358,10 @@ const utilityTools = [
   .nav-panel__grid--narrow {
     grid-template-columns: 1fr;
     min-width: 280px;
+  }
+  .nav-panel__grid--wide {
+    grid-template-columns: repeat(3, 1fr);
+    min-width: 820px;
   }
 
   .nav-panel__item {
