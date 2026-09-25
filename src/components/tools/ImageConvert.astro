@@ -59,7 +59,7 @@ const howToSteps = [
         <div class="convert-controls">
           <p class="convert-overline-text">Convert To</p>
           
-          <div class="convert-grid" role="radiogroup">
+          <div class="convert-grid" role="radiogroup" id="format-options-grid">
             <label class="convert-option">
               <input type="radio" name="format" value="image/jpeg" checked />
               <div class="convert-option__card">
@@ -86,6 +86,13 @@ const howToSteps = [
               <div class="convert-option__card">
                 <span class="convert-option__title">BMP</span>
                 <span class="convert-option__desc">Uncompressed bitmap</span>
+              </div>
+            </label>
+            <label class="convert-option">
+              <input type="radio" name="format" value="application/pdf" />
+              <div class="convert-option__card">
+                <span class="convert-option__title">PDF</span>
+                <span class="convert-option__desc">Document format</span>
               </div>
             </label>
           </div>
@@ -280,12 +287,34 @@ const howToSteps = [
       else if (p === 'PNG') targetFormat = 'image/png';
       else if (p === 'WEBP') targetFormat = 'image/webp';
       else if (p === 'BMP') targetFormat = 'image/bmp';
+      else if (p === 'PDF') targetFormat = 'application/pdf';
     } else {
       if (firstFile.type === 'image/jpeg') targetFormat = 'image/png';
     }
     
-    const rb = document.querySelector(`input[name="format"][value="${targetFormat}"]`) as HTMLInputElement;
-    if(rb) rb.checked = true;
+    const optionsGrid = document.getElementById('format-options-grid');
+    if (optionsGrid) {
+      const labels = optionsGrid.querySelectorAll('.convert-option');
+      let firstVisible: HTMLInputElement | null = null;
+      labels.forEach(lbl => {
+        const input = lbl.querySelector('input');
+        if (input) {
+          if (firstFile.type === input.value) {
+            (lbl as HTMLElement).style.display = 'none';
+          } else {
+            (lbl as HTMLElement).style.display = '';
+            if (!firstVisible) firstVisible = input;
+          }
+        }
+      });
+      
+      const rb = document.querySelector(`input[name="format"][value="${targetFormat}"]`) as HTMLInputElement;
+      if (rb && rb.parentElement?.style.display !== 'none') {
+        rb.checked = true;
+      } else if (firstVisible) {
+        firstVisible.checked = true;
+      }
+    }
   }
 
   // ── Action ──────────────────────────────────────────────
@@ -307,7 +336,48 @@ const howToSteps = [
 
       const img = new Image();
       const url = URL.createObjectURL(processBlob);
-      img.onload = () => {
+      img.onload = async () => {
+        if (format === 'application/pdf') {
+          try {
+            const { PDFDocument } = await import('pdf-lib');
+            const pdfDoc = await PDFDocument.create();
+            let imgObj;
+            
+            // convert processBlob to JPG if it's not PNG or JPG, since pdf-lib only accepts those
+            if (processBlob.type === 'image/jpeg') {
+              const buf = await processBlob.arrayBuffer();
+              imgObj = await pdfDoc.embedJpg(buf);
+            } else if (processBlob.type === 'image/png') {
+              const buf = await processBlob.arrayBuffer();
+              imgObj = await pdfDoc.embedPng(buf);
+            } else {
+              const c = document.createElement('canvas');
+              c.width = img.width; c.height = img.height;
+              const cx = c.getContext('2d')!;
+              cx.fillStyle = '#ffffff';
+              cx.fillRect(0,0,c.width,c.height);
+              cx.drawImage(img, 0, 0);
+              const jpgBlob = await new Promise<Blob|null>(r => c.toBlob(r, 'image/jpeg', 0.95));
+              if (jpgBlob) {
+                const buf = await jpgBlob.arrayBuffer();
+                imgObj = await pdfDoc.embedJpg(buf);
+              }
+            }
+            
+            if (imgObj) {
+              const page = pdfDoc.addPage([imgObj.width, imgObj.height]);
+              page.drawImage(imgObj, { x: 0, y: 0, width: imgObj.width, height: imgObj.height });
+              const pdfBytes = await pdfDoc.save();
+              let name = file.name.split('.')[0] + '.pdf';
+              return resolve({name, data: pdfBytes});
+            }
+          } catch(e) {
+            console.error(e);
+          }
+          URL.revokeObjectURL(url);
+          return resolve({name: file.name, data: new Uint8Array()});
+        }
+
         const c = document.createElement('canvas');
         c.width = img.width; c.height = img.height;
         const cx = c.getContext('2d')!;
@@ -389,6 +459,7 @@ const howToSteps = [
       if(format === 'image/png') ext = 'png';
       else if(format === 'image/webp') ext = 'webp';
       else if(format === 'image/bmp') ext = 'bmp';
+      else if(format === 'application/pdf') ext = 'pdf';
       
       const res = await convertSingleImage(currentFiles[0], format);
       const blob = new Blob([res.data], { type: format });
