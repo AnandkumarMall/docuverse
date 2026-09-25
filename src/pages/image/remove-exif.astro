@@ -189,9 +189,33 @@ const howToSteps = [
         exifBody.innerHTML = '';
         keys.forEach(k => {
           let val = output[k];
-          if(typeof val === 'object') val = JSON.stringify(val);
+          
+          // Handle binary data gracefully
+          if (val instanceof Uint8Array || val instanceof ArrayBuffer || (val && val.buffer instanceof ArrayBuffer)) {
+            val = `[Binary Data — ${val.length || val.byteLength} bytes]`;
+          } else if (val instanceof Date) {
+            val = val.toLocaleString();
+          } else if (typeof val === 'object' && val !== null) {
+            try {
+              // Some objects might be arrays of numbers or custom objects
+              if (Array.isArray(val) && val.length > 10) {
+                val = `[Array — ${val.length} items]`;
+              } else {
+                val = JSON.stringify(val);
+              }
+            } catch(e) {
+              val = '[Object]';
+            }
+          }
+          
+          // Format numerical keys to Hex for professionalism (e.g. '59932' -> 'Tag 0xEA1C')
+          let keyName = k;
+          if (/^\d+$/.test(k)) {
+            keyName = 'Tag 0x' + Number(k).toString(16).toUpperCase();
+          }
+
           const tr = document.createElement('tr');
-          tr.innerHTML = `<th>${k}</th><td>${val}</td>`;
+          tr.innerHTML = `<th>${keyName}</th><td style="word-break:break-all;">${val}</td>`;
           exifBody.appendChild(tr);
         });
       } else {
