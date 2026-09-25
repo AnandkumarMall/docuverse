@@ -16,19 +16,22 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       <strong>Note on Offline Conversion:</strong> Because your files never leave your device, we cannot render images or complex slide layouts. This tool extracts <strong>all text</strong> from your presentation and generates a clean text-based PDF.
     </div>
 
-    <div class="upload-area" id="drop-zone">
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <rect x="2" y="13" width="10" height="7" rx="1"></rect>
+        <path d="M6 13v-2a2 2 0 0 1 4 0v2"></path>
+      </svg>
+      <span class="drop-zone__text">Drop your PPTX file here or click to browse</span>
+      <span class="drop-zone__hint">Extracts presentation text to PDF offline</span>
       <input type="file" id="file-input" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" class="sr-only" />
-      <div class="upload-prompt">
-        <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <rect x="2" y="13" width="10" height="7" rx="1"></rect>
-          <path d="M6 13v-2a2 2 0 0 1 4 0v2"></path>
-        </svg>
-        <span class="upload-title">Drop your PPTX file here</span>
-        <span class="upload-subtitle">or click to browse</span>
-      </div>
     </div>
+  </div>
+  
+  <div slot="options">
+    <div class="tool-content">
     
     <div id="loading-area" class="hidden" style="text-align: center; padding: 3rem;">
       <p>Unzipping presentation and extracting text...</p>
@@ -42,6 +45,7 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       <div class="action-buttons">
         <button id="download-btn" class="btn btn-primary">Download PDF</button>
         <button id="reset-btn" class="btn btn-secondary">Convert Another</button>
+      </div>
       </div>
     </div>
   </div>
