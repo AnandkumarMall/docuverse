@@ -90,7 +90,7 @@ const footerLinks = {
       <!-- Link columns -->
       <div class="footer-links-col">
         <p class="footer-col-title">PDF Tools</p>
-        <ul class="footer-link-list">
+        <ul class="footer-link-list footer-link-list--split">
           {footerLinks.pdf.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
@@ -99,7 +99,7 @@ const footerLinks = {
 
       <div class="footer-links-col">
         <p class="footer-col-title">Image Tools</p>
-        <ul class="footer-link-list">
+        <ul class="footer-link-list footer-link-list--split">
           {footerLinks.image.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
@@ -218,6 +218,17 @@ const footerLinks = {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+  }
+
+  .footer-link-list--split {
+    display: block;
+    column-count: 2;
+    column-gap: var(--space-8);
+  }
+
+  .footer-link-list--split li {
+    break-inside: avoid;
+    margin-bottom: var(--space-1);
   }
 
   .footer-link-list a {
