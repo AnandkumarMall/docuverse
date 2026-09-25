@@ -16,13 +16,12 @@ const footerLinks = {
     { name: "Watermark PDF", href: getAssetPath("/pdf/watermark") },
     { name: "Sign PDF", href: getAssetPath("/pdf/sign") },
     { name: "Organize PDF", href: getAssetPath("/pdf/organize") },
-
     { name: "Combine PDF", href: getAssetPath("/pdf/combine-pdf") },
     { name: "Reduce PDF Size", href: getAssetPath("/pdf/reduce-pdf-size") },
     { name: "PDF to JPG", href: getAssetPath("/pdf/to-jpg") },
     { name: "PDF to PNG", href: getAssetPath("/pdf/to-png") },
   ],
-  image: [
+  imageCore: [
     { name: "Crop Image", href: getAssetPath("/image/crop") },
     { name: "Compress Image", href: getAssetPath("/image/compress") },
     { name: "Resize Image", href: getAssetPath("/image/resize") },
@@ -31,20 +30,23 @@ const footerLinks = {
     { name: "Remove EXIF", href: getAssetPath("/image/remove-exif") },
     { name: "Color Picker", href: getAssetPath("/image/color-picker") },
     { name: "Watermark Image", href: getAssetPath("/image/watermark") },
-
+  ],
+  imageConverters: [
     { name: "JPG to PDF", href: getAssetPath("/image/jpg-to-pdf") },
     { name: "PNG to PDF", href: getAssetPath("/image/png-to-pdf") },
     { name: "WebP to JPG", href: getAssetPath("/image/webp-to-jpg") },
     { name: "PNG to JPG", href: getAssetPath("/image/png-to-jpg") },
     { name: "JPG to PNG", href: getAssetPath("/image/jpg-to-png") },
     { name: "AVIF to JPG", href: getAssetPath("/image/avif-to-jpg") },
+    { name: "HEIC to JPG", href: getAssetPath("/image/heic-to-jpg") },
+    { name: "SVG to PNG", href: getAssetPath("/image/svg-to-png") },
+  ],
+  imageCompressors: [
     { name: "Compress JPEG", href: getAssetPath("/image/compress-jpeg") },
     { name: "Compress PNG", href: getAssetPath("/image/compress-png") },
     { name: "Compress to 20KB", href: getAssetPath("/image/compress-image-to-20kb") },
     { name: "Compress to 30KB", href: getAssetPath("/image/compress-image-to-30kb") },
     { name: "Compress to 50KB", href: getAssetPath("/image/compress-image-to-50kb") },
-    { name: "HEIC to JPG", href: getAssetPath("/image/heic-to-jpg") },
-    { name: "SVG to PNG", href: getAssetPath("/image/svg-to-png") },
   ],
   utilities: [
     { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr") },
@@ -90,7 +92,7 @@ const footerLinks = {
       <!-- Link columns -->
       <div class="footer-links-col">
         <p class="footer-col-title">PDF Tools</p>
-        <ul class="footer-link-list footer-link-list--split">
+        <ul class="footer-link-list">
           {footerLinks.pdf.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
@@ -98,9 +100,27 @@ const footerLinks = {
       </div>
 
       <div class="footer-links-col">
-        <p class="footer-col-title">Image Tools</p>
-        <ul class="footer-link-list footer-link-list--split">
-          {footerLinks.image.map(link => (
+        <p class="footer-col-title">Image Editing</p>
+        <ul class="footer-link-list">
+          {footerLinks.imageCore.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <p class="footer-col-title">Converters</p>
+        <ul class="footer-link-list">
+          {footerLinks.imageConverters.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <p class="footer-col-title">Compressors</p>
+        <ul class="footer-link-list">
+          {footerLinks.imageCompressors.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
@@ -156,7 +176,7 @@ const footerLinks = {
 
   @media (min-width: 1024px) {
     .footer-grid {
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
     }
   }
 
@@ -218,17 +238,6 @@ const footerLinks = {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-  }
-
-  .footer-link-list--split {
-    display: block;
-    column-count: 2;
-    column-gap: var(--space-8);
-  }
-
-  .footer-link-list--split li {
-    break-inside: avoid;
-    margin-bottom: var(--space-1);
   }
 
   .footer-link-list a {
