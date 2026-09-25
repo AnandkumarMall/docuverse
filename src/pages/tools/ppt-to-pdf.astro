@@ -11,12 +11,11 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
   category="utilities"
   categoryLabel="Utilities"
 >
-  <div class="tool-content">
+  <div slot="drop-zone">
     <div class="alert alert-warning" style="margin-bottom: var(--space-6); padding: var(--space-4); background-color: var(--color-warning-subtle); border: 1px solid var(--color-warning-muted); border-radius: 8px;">
       <strong>Note on Offline Conversion:</strong> Because your files never leave your device, we cannot render images or complex slide layouts. This tool extracts <strong>all text</strong> from your presentation and generates a clean text-based PDF.
     </div>
 
-  <div slot="drop-zone">
     <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
       <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path>
