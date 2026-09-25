@@ -43,11 +43,6 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
   </div>
 
   <script>
-    import * as pdfjsLib from 'pdfjs-dist';
-    
-    // Set worker src to use local worker script or CDN
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
     const fileInput = document.getElementById('file-input');
     const dropZone = document.getElementById('drop-zone');
     const outputArea = document.getElementById('output-area');
@@ -108,6 +103,9 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       loadingArea.classList.remove('hidden');
       
       try {
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         
@@ -120,8 +118,6 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
           let pageText = '';
           let lastY = -1;
           
-          // Very basic heuristic formatting:
-          // If Y coordinate changes significantly, add a newline.
           textContent.items.forEach(item => {
             if (lastY !== item.transform[5] && lastY !== -1) {
               pageText += '\n';
