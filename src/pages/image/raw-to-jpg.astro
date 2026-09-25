@@ -32,11 +32,11 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
   <div slot="options">
     <div class="tool-content">
     
-    <div id="loading-area" class="hidden" style="text-align: center; padding: 3rem;">
+    <div id="loading-area" style="display:none; text-align: center; padding: 3rem;">
       <p>Decoding RAW image data... this may take a moment.</p>
     </div>
 
-    <div id="output-area" class="hidden">
+    <div id="output-area" style="display:none;">
       <div class="preview-container" style="max-width: 400px; margin: 0 auto var(--space-6);">
         <img id="image-preview" style="width: 100%; border-radius: 8px; border: 1px solid var(--color-border-subtle);" />
       </div>
@@ -44,7 +44,6 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       <div class="action-buttons">
         <button id="download-btn" class="btn btn-primary">Download JPG</button>
         <button id="reset-btn" class="btn btn-secondary">Convert Another</button>
-      </div>
       </div>
     </div>
   </div>
@@ -85,8 +84,8 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
     resetBtn.addEventListener('click', () => {
       fileInput.value = '';
       processedBlob = null;
-      outputArea.classList.add('hidden');
-      dropZone.classList.remove('hidden');
+      outputArea.style.display = 'none';
+      dropZone.style.display = 'block';
     });
 
     downloadBtn.addEventListener('click', () => {
@@ -101,8 +100,8 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
 
     async function handleFile(file) {
       fileName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-      dropZone.classList.add('hidden');
-      loadingArea.classList.remove('hidden');
+      dropZone.style.display = 'none';
+      loadingArea.style.display = 'block';
       
       try {
         const url = URL.createObjectURL(file);
@@ -126,14 +125,14 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
         
         imagePreview.src = URL.createObjectURL(processedBlob);
         
-        loadingArea.classList.add('hidden');
-        outputArea.classList.remove('hidden');
+        loadingArea.style.display = 'none';
+        outputArea.style.display = 'block';
         URL.revokeObjectURL(url);
         
       } catch (err) {
         console.error(err);
         alert(err.message + ' Please try a standard format or use a desktop application for this specific camera RAW file.');
-        loadingArea.classList.add('hidden');
+        loadingArea.style.display = 'none';
         resetBtn.click();
       }
     }

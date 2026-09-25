@@ -33,11 +33,11 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
   <div slot="options">
     <div class="tool-content">
     
-    <div id="loading-area" class="hidden" style="text-align: center; padding: 3rem;">
+    <div id="loading-area" style="display:none; text-align: center; padding: 3rem;">
       <p>Unzipping presentation and extracting text...</p>
     </div>
 
-    <div id="output-area" class="hidden">
+    <div id="output-area" style="display:none;">
       <div class="success-banner">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Conversion Complete!
@@ -45,7 +45,6 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       <div class="action-buttons">
         <button id="download-btn" class="btn btn-primary">Download PDF</button>
         <button id="reset-btn" class="btn btn-secondary">Convert Another</button>
-      </div>
       </div>
     </div>
   </div>
@@ -88,8 +87,8 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
     resetBtn.addEventListener('click', () => {
       fileInput.value = '';
       pdfBytes = null;
-      outputArea.classList.add('hidden');
-      dropZone.classList.remove('hidden');
+      outputArea.style.display = 'none';
+      dropZone.style.display = 'block';
     });
 
     downloadBtn.addEventListener('click', () => {
@@ -133,8 +132,8 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       }
 
       fileName = file.name.replace(/\.[^/.]+$/, "") + ".pdf";
-      dropZone.classList.add('hidden');
-      loadingArea.classList.remove('hidden');
+      dropZone.style.display = 'none';
+      loadingArea.style.display = 'block';
       
       try {
         const arrayBuffer = await file.arrayBuffer();
@@ -212,13 +211,13 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
         }
         
         pdfBytes = await pdfDoc.save();
-        loadingArea.classList.add('hidden');
-        outputArea.classList.remove('hidden');
+        loadingArea.style.display = 'none';
+        outputArea.style.display = 'block';
         
       } catch (err) {
         console.error(err);
         alert('Failed to parse presentation: ' + err.message);
-        loadingArea.classList.add('hidden');
+        loadingArea.style.display = 'none';
         resetBtn.click();
       }
     }
