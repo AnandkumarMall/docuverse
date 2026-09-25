@@ -82,9 +82,8 @@ const howToSteps = [
       <!-- Right column: Preview Canvas -->
       <div class="preview-col" style="min-width:0; display:flex; flex-direction:column; align-items:center;">
         <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem; align-self:flex-start;">Live Preview</h3>
-        <div class="crop-canvas-container" style="background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; min-height: 400px; overflow: hidden; padding:var(--space-4); width:100%;">
-          <div class="crop-canvas-wrap" id="crop-canvas-wrap" style="position: relative; display: inline-block; user-select: none;">
-            <canvas id="crop-canvas" style="display: block; max-width: 100%; max-height: 60vh; object-fit: contain; box-shadow: var(--shadow-sm);"></canvas>
+        <div class="crop-canvas-wrap" id="crop-canvas-wrap" style="position:relative; width:100%; max-width:600px; box-shadow:var(--shadow-md); border-radius:var(--radius-sm); overflow:hidden; user-select: none;">
+          <canvas id="crop-canvas" style="display:block; width:100%; height:auto;"></canvas>
           <div class="crop-overlay" id="crop-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: transparent; overflow: hidden; z-index: 10; pointer-events: none;">
               <div class="crop-box" id="crop-box" style="position: absolute; border: 2px dashed #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); background: rgba(255,255,255,0.01); cursor: move; pointer-events: auto;">
                 <div class="crop-handle crop-handle--tl" data-handle="tl" style="position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid var(--color-brand-primary); border-radius: 50%; z-index: 20; top:-7px; left:-7px; cursor:nwse-resize;"></div>
@@ -93,7 +92,6 @@ const howToSteps = [
                 <div class="crop-handle crop-handle--br" data-handle="br" style="position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid var(--color-brand-primary); border-radius: 50%; z-index: 20; bottom:-7px; right:-7px; cursor:nwse-resize;"></div>
               </div>
             </div>
-          </div>
         </div>
         <div style="display:flex; align-items:center; justify-content:center; gap:var(--space-2); margin-top:var(--space-4); width:100%;">
           <button class="btn btn-ghost btn-sm" id="prev-page">&#8249; Prev</button>
