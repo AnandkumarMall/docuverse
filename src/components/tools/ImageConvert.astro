@@ -52,7 +52,7 @@ const howToSteps = [
   </div>
 
   <div slot="options">
-    <div id="convert-workspace" style="display:none;" class="convert-options-panel">
+    <div id="convert-workspace" style="display:none;" class="convert-options-panel" data-default-format={defaultFormat || ""}>
       
       <div class="convert-layout">
         
@@ -249,9 +249,19 @@ const howToSteps = [
     currentImg = new Image();
     currentImg.src = url;
     
-    // Auto-select a different format
+    // Auto-select format based on default preset or guess
     let targetFormat = 'image/jpeg';
-    if (firstFile.type === 'image/jpeg') targetFormat = 'image/png';
+    const preset = workspace.getAttribute('data-default-format');
+    if (preset) {
+      const p = preset.toUpperCase();
+      if (p === 'JPG' || p === 'JPEG') targetFormat = 'image/jpeg';
+      else if (p === 'PNG') targetFormat = 'image/png';
+      else if (p === 'WEBP') targetFormat = 'image/webp';
+      else if (p === 'BMP') targetFormat = 'image/bmp';
+    } else {
+      if (firstFile.type === 'image/jpeg') targetFormat = 'image/png';
+    }
+    
     const rb = document.querySelector(`input[name="format"][value="${targetFormat}"]`) as HTMLInputElement;
     if(rb) rb.checked = true;
   }
