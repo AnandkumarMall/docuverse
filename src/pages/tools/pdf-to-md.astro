@@ -1,0 +1,149 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+---
+
+<ToolLayout
+  title="Convert PDF to Markdown (Text) - Free & Offline"
+  description="Extract text from PDF documents and convert them to Markdown format entirely in your browser."
+  canonicalPath="/tools/pdf-to-md"
+  toolName="PDF to Markdown"
+  toolTagline="Extract plain text from PDFs instantly"
+  category="utilities"
+  categoryLabel="Utilities"
+>
+  <div class="tool-content">
+    <div class="upload-area" id="drop-zone">
+      <input type="file" id="file-input" accept="application/pdf" class="sr-only" />
+      <div class="upload-prompt">
+        <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <path d="M10 13l-2 2 2 2"></path>
+          <path d="M14 13l2 2-2 2"></path>
+        </svg>
+        <span class="upload-title">Drop your PDF here</span>
+        <span class="upload-subtitle">or click to browse</span>
+      </div>
+    </div>
+    
+    <div id="loading-area" class="hidden" style="text-align: center; padding: 3rem;">
+      <p>Extracting text... please wait.</p>
+    </div>
+
+    <div id="output-area" class="hidden">
+      <div class="success-banner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Extraction Complete!
+      </div>
+      <div class="action-buttons">
+        <button id="download-btn" class="btn btn-primary">Download .MD</button>
+        <button id="reset-btn" class="btn btn-secondary">Convert Another</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import * as pdfjsLib from 'pdfjs-dist';
+    
+    // Set worker src to use local worker script or CDN
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const outputArea = document.getElementById('output-area');
+    const loadingArea = document.getElementById('loading-area');
+    const downloadBtn = document.getElementById('download-btn');
+    const resetBtn = document.getElementById('reset-btn');
+
+    let markdownContent = '';
+    let fileName = 'document.md';
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    ['dragover', 'dragleave', 'drop'].forEach(event => {
+      dropZone.addEventListener(event, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('is-dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('is-dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+      dropZone.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      markdownContent = '';
+      outputArea.classList.add('hidden');
+      dropZone.classList.remove('hidden');
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!markdownContent) return;
+      const blob = new Blob([markdownContent], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    async function handleFile(file) {
+      if (file.type !== 'application/pdf') {
+        alert('Please select a valid PDF file.');
+        return;
+      }
+
+      fileName = file.name.replace(/\.[^/.]+$/, "") + ".md";
+      dropZone.classList.add('hidden');
+      loadingArea.classList.remove('hidden');
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        
+        let fullText = `# ${file.name.replace(/\.[^/.]+$/, "")}\n\n`;
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          
+          let pageText = '';
+          let lastY = -1;
+          
+          // Very basic heuristic formatting:
+          // If Y coordinate changes significantly, add a newline.
+          textContent.items.forEach(item => {
+            if (lastY !== item.transform[5] && lastY !== -1) {
+              pageText += '\n';
+            }
+            pageText += item.str;
+            lastY = item.transform[5];
+          });
+          
+          fullText += `## Page ${i}\n\n${pageText}\n\n---\n\n`;
+        }
+        
+        markdownContent = fullText;
+        
+        loadingArea.classList.add('hidden');
+        outputArea.classList.remove('hidden');
+        
+      } catch (err) {
+        console.error(err);
+        alert('Failed to extract text from PDF');
+        loadingArea.classList.add('hidden');
+        resetBtn.click();
+      }
+    }
+  </script>
+</ToolLayout>
