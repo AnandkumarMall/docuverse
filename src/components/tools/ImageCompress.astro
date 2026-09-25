@@ -311,12 +311,7 @@ const howToSteps = [
     currentImg.onload = () => {
       // Render original
       origImg.src = url;
-      const defaultTargetSize = Number(targetSizeInput.value);
-      if (defaultTargetSize > 0) {
-        setTimeout(() => autoCompressBtn.click(), 100);
-      } else {
-        runCompression();
-      }
+      runCompression();
     };
     currentImg.src = url;
   }
