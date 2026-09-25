@@ -47,6 +47,11 @@ const howToSteps = [
       <div class="crop-settings-col" style="background:var(--color-canvas-soft); padding:var(--space-5); border-radius:var(--radius-lg); border:1px solid var(--color-border-hairline);">
         <h3 style="margin-top:0;">Crop Settings</h3>
         <p style="font-size:0.875rem; color:var(--color-ink-muted);">Draw a crop box over the page preview. The area you select will be proportionally applied to all pages in the PDF.</p>
+        
+        <div class="crop-info" id="crop-info" style="margin-top:var(--space-4); padding-top:var(--space-4); border-top:1px solid var(--color-border-hairline); display:flex; flex-direction:column; gap:4px; text-align:center;">
+          <span style="font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Selection Size</span>
+          <span id="crop-dims" style="font-size:0.875rem; font-weight:700; color:var(--color-brand-primary);">— × —</span>
+        </div>
       </div>
       <div class="crop-preview-col" style="min-width:0;">
       <!-- Canvas -->
@@ -267,8 +272,4 @@ const howToSteps = [
 <style is:global>
   .crop-options-grid { display:grid; }
   @media(max-width:900px){ .crop-options-grid { grid-template-columns:1fr !important; } }
-          <div class="crop-info" id="crop-info" style="margin-top:var(--space-4); padding-top:var(--space-4); border-top:1px solid var(--color-border-hairline); display:flex; flex-direction:column; gap:4px; text-align:center;">
-            <span style="font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Selection Size</span>
-            <span id="crop-dims" style="font-size:0.875rem; font-weight:700; color:var(--color-brand-primary);">— × —</span>
-          </div>
 </style>
