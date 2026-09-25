@@ -1,0 +1,290 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
+
+const howToSteps = [
+  { name: "Upload your PDF", text: "Select or drop the PDF file you want to add page numbers to." },
+  { name: "Preview & Customize", text: "Choose the position (e.g. Bottom Right), formatting, and margins. Watch the live preview update instantly." },
+  { name: "Download", text: "Click 'Add Page Numbers' to process the entire document and download it." },
+];
+---
+
+<ToolLayout
+  title="Add Page Numbers to PDF Online Free"
+  description="Easily insert page numbers into your PDF documents. Choose position, format, and margins with a live preview. Free, private, and no watermarks."
+  canonicalPath="/pdf/page-numbers"
+  toolName="Add Page Numbers"
+  toolTagline="Insert page numbers into your PDF with a live preview."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  keywords={seoDataPdf["page-numbers"]?.keywords || ""}
+  faqs={seoDataPdf["page-numbers"]?.faqs || []}
+  howToSteps={howToSteps}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M3 15h6"/><path d="M6 12v6"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+  
+  <div slot="options">
+    <div id="workspace" style="display:none;" class="side-by-side-grid">
+      
+      <!-- Left column: Settings -->
+      <div class="settings-col" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5);">
+        <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem;">Settings</h3>
+        
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">Position</label>
+            <select id="position-select" class="input" style="width:100%; height:40px;">
+              <option value="bottom-center">Bottom Center</option>
+              <option value="bottom-left">Bottom Left</option>
+              <option value="bottom-right">Bottom Right</option>
+              <option value="top-center">Top Center</option>
+              <option value="top-left">Top Left</option>
+              <option value="top-right">Top Right</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">Format</label>
+            <select id="format-select" class="input" style="width:100%; height:40px;">
+              <option value="n">1, 2, 3...</option>
+              <option value="page-n">Page 1, Page 2...</option>
+              <option value="n-of-total">1 of N, 2 of N...</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">Margin (px)</label>
+            <input type="number" id="margin-input" class="input" value="30" style="width:100%; height:40px;" />
+          </div>
+          
+          <div style="margin-top:var(--space-4);">
+            <button class="btn btn-primary btn-lg" id="save-btn" style="width:100%;">Add Page Numbers</button>
+            <button class="btn btn-ghost" id="clear-btn" style="width:100%; margin-top:var(--space-2);">Clear</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right column: Preview Canvas -->
+      <div class="preview-col" style="min-width:0; display:flex; flex-direction:column; align-items:center;">
+         <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem; align-self:flex-start;">Live Preview</h3>
+         <div class="canvas-wrap" style="position:relative; width:100%; max-width:600px; box-shadow:var(--shadow-md); border-radius:var(--radius-sm); overflow:hidden;">
+           <canvas id="pdf-canvas" style="display:block; width:100%; height:auto;"></canvas>
+           <canvas id="overlay-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+         </div>
+         <div style="display:flex; align-items:center; justify-content:center; gap:var(--space-2); margin-top:var(--space-4); width:100%;">
+           <button class="btn btn-ghost btn-sm" id="prev-page">&#8249; Prev</button>
+           <span style="font-size:0.875rem;">Page <strong id="cur-page">1</strong> / <strong id="total-page">1</strong></span>
+           <button class="btn btn-ghost btn-sm" id="next-page">Next &#8250;</button>
+         </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div slot="result">
+    <div id="result-panel" style="display:none; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap;">
+      <div style="width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <p style="font-size:1rem; font-weight:600; color:var(--color-accent-green); flex:1;">Page numbers added!</p>
+      <a class="btn btn-accent" id="download-btn">Download PDF</a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Number another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .side-by-side-grid { display:grid; grid-template-columns: 320px 1fr; gap:var(--space-6); align-items:start; }
+  @media(max-width:900px) { .side-by-side-grid { grid-template-columns:1fr; } }
+</style>
+
+<script>
+  import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
+  
+  let currentFile: File | null = null;
+  let pdfDocProxy: any = null;
+  let numPages = 0;
+  let currentPage = 1;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const workspace = document.getElementById('workspace') as HTMLElement;
+  const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const resultPanel = document.getElementById('result-panel') as HTMLElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  
+  const posSelect = document.getElementById('position-select') as HTMLSelectElement;
+  const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
+  const marginInput = document.getElementById('margin-input') as HTMLInputElement;
+  
+  const prevPageBtn = document.getElementById('prev-page') as HTMLButtonElement;
+  const nextPageBtn = document.getElementById('next-page') as HTMLButtonElement;
+  const curPageEl = document.getElementById('cur-page') as HTMLElement;
+  const totalPageEl = document.getElementById('total-page') as HTMLElement;
+  const pdfCanvas = document.getElementById('pdf-canvas') as HTMLCanvasElement;
+  const overlayCanvas = document.getElementById('overlay-canvas') as HTMLCanvasElement;
+
+  posSelect.addEventListener('change', drawOverlay);
+  formatSelect.addEventListener('change', drawOverlay);
+  marginInput.addEventListener('input', drawOverlay);
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--color-brand-primary)'; });
+  dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = ''; const f = e.dataTransfer?.files[0]; if (f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  async function load(f: File) {
+    currentFile = f;
+    dropZone.style.display = 'none';
+    
+    try {
+      const buf = await f.arrayBuffer();
+      const pdfjs = await loadPdfJs();
+      pdfDocProxy = await getPdfDoc(pdfjs, buf);
+      numPages = pdfDocProxy.numPages;
+      currentPage = 1;
+      
+      totalPageEl.textContent = String(numPages);
+      
+      workspace.style.display = 'grid';
+      await renderCurrentPage();
+    } catch(e) {
+      console.error(e);
+      (window as any).showToast('Could not load PDF.', 'error');
+      reset();
+    }
+  }
+
+  async function renderCurrentPage() {
+    curPageEl.textContent = String(currentPage);
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === numPages;
+    
+    const page = await pdfDocProxy.getPage(currentPage);
+    const viewport = page.getViewport({ scale: 1.5 });
+    pdfCanvas.width = viewport.width;
+    pdfCanvas.height = viewport.height;
+    overlayCanvas.width = viewport.width;
+    overlayCanvas.height = viewport.height;
+    
+    const ctx = pdfCanvas.getContext('2d')!;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    drawOverlay();
+  }
+
+  prevPageBtn.addEventListener('click', async () => {
+    if (currentPage > 1) { currentPage--; await renderCurrentPage(); }
+  });
+  
+  nextPageBtn.addEventListener('click', async () => {
+    if (currentPage < numPages) { currentPage++; await renderCurrentPage(); }
+  });
+
+  function drawOverlay() {
+    if(!pdfDocProxy) return;
+    const ctx = overlayCanvas.getContext('2d')!;
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    
+    const pos = posSelect.value;
+    const format = formatSelect.value;
+    const margin = Number(marginInput.value) || 30;
+    
+    let text = String(currentPage);
+    if (format === 'page-n') text = \`Page \${currentPage}\`;
+    else if (format === 'n-of-total') text = \`\${currentPage} of \${numPages}\`;
+    
+    const fontSize = 16; // Visual size for canvas rendering
+    
+    ctx.save();
+    ctx.fillStyle = '#000000';
+    ctx.font = \`bold \${fontSize}px sans-serif\`;
+    ctx.textBaseline = 'top';
+    
+    const textWidth = ctx.measureText(text).width;
+    const cw = overlayCanvas.width;
+    const ch = overlayCanvas.height;
+    
+    let x = margin;
+    let y = margin;
+    
+    if (pos.includes('center')) x = (cw / 2) - (textWidth / 2);
+    else if (pos.includes('right')) x = cw - margin - textWidth;
+    
+    if (pos.includes('bottom')) y = ch - margin - fontSize;
+    
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Processing...';
+    
+    try {
+      const pos = posSelect.value;
+      const format = formatSelect.value;
+      const margin = Number(marginInput.value) || 30;
+      
+      const buf = await currentFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(buf);
+      const helveticaFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      
+      const pages = pdfDoc.getPages();
+      
+      pages.forEach((page, idx) => {
+        const { width, height } = page.getSize();
+        
+        let text = String(idx + 1);
+        if (format === 'page-n') text = \`Page \${idx + 1}\`;
+        else if (format === 'n-of-total') text = \`\${idx + 1} of \${numPages}\`;
+        
+        // Exact matching for PDF logic
+        const textSize = 11;
+        const textWidth = helveticaFont.widthOfTextAtSize(text, textSize);
+        
+        let x = margin;
+        let y = margin; // Note: PDF coordinates are bottom-left!
+        
+        if (pos.includes('center')) x = (width / 2) - (textWidth / 2);
+        else if (pos.includes('right')) x = width - margin - textWidth;
+        
+        if (pos.includes('top')) y = height - margin - textSize;
+        // else bottom: y = margin
+        
+        page.drawText(text, { x, y, size: textSize, font: helveticaFont, color: rgb(0,0,0) });
+      });
+      
+      const bytes = await pdfDoc.save();
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      downloadBtn.href = URL.createObjectURL(blob);
+      downloadBtn.download = \`numbered-\${currentFile.name}\`;
+      
+      resultPanel.style.display = 'flex';
+      workspace.style.display = 'none';
+    } catch (e) {
+      console.error(e);
+      (window as any).showToast?.('Error adding numbers.', 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Add Page Numbers';
+    }
+  });
+
+  function reset() {
+    currentFile = null;
+    pdfDocProxy = null;
+    dropZone.style.display = 'flex';
+    workspace.style.display = 'none';
+    resultPanel.style.display = 'none';
+  }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+</script>

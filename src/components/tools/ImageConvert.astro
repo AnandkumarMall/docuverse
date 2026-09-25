@@ -1,0 +1,371 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+const { title, description, canonicalPath, toolName, toolTagline, keywords, faqs, defaultFormat, fromFormat } = Astro.props;
+
+const howToSteps = [
+  { name: "Upload your image", text: `Drop or click to select any ${fromFormat || 'image'} file you want to convert.` },
+  { name: "Select output format", text: `Choose ${defaultFormat || 'JPG, PNG, WebP, AVIF, or BMP'}.` },
+  { name: "Download", text: "Click 'Convert Image' to instantly change the format and download the new file." },
+];
+---
+
+<ToolLayout
+  title={title}
+  description={description}
+  canonicalPath={canonicalPath}
+  toolName={toolName}
+  toolTagline={toolTagline}
+  category="image"
+  categoryLabel="Image Tools"
+  categoryHref="/#category-image"
+  acceptedFormats="JPG, PNG, WebP, AVIF, BMP, GIF · Files stay on your device"
+  howToSteps={howToSteps}
+  keywords={keywords}
+  faqs={faqs}
+>
+
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Drop an image here or click to browse">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      <span class="drop-zone__text">Drop an image here or click to browse</span>
+      <span class="drop-zone__hint">JPG, PNG, WebP, AVIF, BMP, GIF · Files stay on your device</span>
+      <input type="file" id="file-input" accept="image/*" multiple class="sr-only" aria-label="Select images" />
+    </div>
+  </div>
+
+  <div slot="file-list">
+    <div id="file-info" style="display:none;" class="convert-file-info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <div class="convert-file-info__text">
+        <span id="file-name" class="convert-file-info__name"></span>
+        <span id="file-size-orig" class="convert-file-info__size"></span>
+      </div>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    
+    <div id="batch-progress" style="display:none; margin-top: var(--space-4);">
+      <p style="font-size: 0.8125rem; font-weight: 600; color: var(--color-ink-secondary); margin-bottom: 4px;" id="batch-status-text">Converting files...</p>
+      <div style="width: 100%; height: 6px; background: var(--color-border-hairline); border-radius: 3px; overflow: hidden;">
+        <div id="batch-progress-bar" style="height: 100%; width: 0%; background: var(--color-brand-primary); transition: width 0.2s;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="convert-workspace" style="display:none;" class="convert-options-panel">
+      
+      <div class="convert-layout">
+        
+        <div class="convert-controls">
+          <p class="convert-overline-text">Convert To</p>
+          
+          <div class="convert-grid" role="radiogroup">
+            <label class="convert-option">
+              <input type="radio" name="format" value="image/jpeg" checked />
+              <div class="convert-option__card">
+                <span class="convert-option__title">JPG</span>
+                <span class="convert-option__desc">Best for photos, no transparency</span>
+              </div>
+            </label>
+            <label class="convert-option">
+              <input type="radio" name="format" value="image/png" />
+              <div class="convert-option__card">
+                <span class="convert-option__title">PNG</span>
+                <span class="convert-option__desc">Lossless, supports transparency</span>
+              </div>
+            </label>
+            <label class="convert-option">
+              <input type="radio" name="format" value="image/webp" />
+              <div class="convert-option__card">
+                <span class="convert-option__title">WebP</span>
+                <span class="convert-option__desc">Modern, very small file size</span>
+              </div>
+            </label>
+            <label class="convert-option">
+              <input type="radio" name="format" value="image/bmp" />
+              <div class="convert-option__card">
+                <span class="convert-option__title">BMP</span>
+                <span class="convert-option__desc">Uncompressed bitmap</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="convert-preview-area">
+          <div class="convert-preview-card">
+            <p class="convert-preview-label">Preview (first image)</p>
+            <div class="convert-preview-img-wrap">
+              <img id="convert-preview-img" class="convert-preview-img" alt="Preview" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div slot="actions">
+    <div id="convert-actions" style="display:none;" class="convert-actions">
+      <button class="btn btn-primary btn-lg" id="convert-btn" aria-label="Apply conversion">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Convert Image
+      </button>
+      <button class="btn btn-ghost" id="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div slot="result">
+    <div class="convert-result" id="convert-result" style="display:none;" aria-live="assertive">
+      <div class="convert-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="convert-result__meta">
+        <p class="convert-result__label">Conversion complete!</p>
+        <p class="convert-result__size" id="convert-result-size"></p>
+      </div>
+      <a class="btn btn-accent" id="download-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Converted Image
+      </a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Convert another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .convert-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
+  .convert-file-info__text { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .convert-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .convert-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
+
+  .convert-options-panel { display:flex; flex-direction:column; gap:var(--space-4); }
+
+  .convert-layout { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  @media (max-width: 768px) { .convert-layout { grid-template-columns: 1fr; } }
+
+  .convert-controls { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+  .convert-overline-text { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
+  
+  .convert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  @media (max-width: 400px) { .convert-grid { grid-template-columns: 1fr; } }
+
+  .convert-option input[type="radio"] { display: none; }
+  .convert-option__card { padding: var(--space-3) var(--space-4); border: 2px solid var(--color-border-hairline); border-radius: var(--radius-md); background: var(--color-canvas-base); cursor: pointer; transition: all var(--duration-fast); display: flex; flex-direction: column; gap: 2px; }
+  .convert-option__card:hover { border-color: var(--theme-alpha-20); }
+  .convert-option input[type="radio"]:checked + .convert-option__card { border-color: var(--color-brand-primary); background: var(--theme-alpha-04); }
+  .convert-option__title { font-size: 0.9375rem; font-weight: 700; color: var(--color-ink-primary); }
+  .convert-option__desc { font-size: 0.75rem; color: var(--color-ink-muted); }
+
+  .convert-preview-area { flex: 1; display: flex; flex-direction: column; }
+  .convert-preview-card { flex: 1; display: flex; flex-direction: column; gap: var(--space-2); padding:var(--space-4); border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-lg); background:var(--color-canvas-soft); }
+  .convert-preview-label { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-muted); }
+  .convert-preview-img-wrap {
+    background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px;
+    border: 1px solid var(--color-border-hairline);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    flex: 1; min-height: 200px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .convert-preview-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  .convert-actions { display:flex; align-items:center; gap:var(--space-4); }
+
+  .convert-result { display:flex; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap; animation:fade-in-up var(--duration-slow) var(--ease-out); }
+  .convert-result__icon { width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .convert-result__meta { flex:1; min-width:120px; }
+  .convert-result__label { font-size:1rem; font-weight:600; color:var(--color-accent-green); }
+  .convert-result__size { font-size:.875rem; color:var(--color-ink-muted); margin-top:2px; font-variant-numeric:tabular-nums; }
+</style>
+
+<script>
+  import * as fflate from 'fflate';
+
+  let currentFiles: File[] = [];
+  let currentImg: HTMLImageElement | null = null;
+  let isBatch = false;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const fileInfo = document.getElementById('file-info') as HTMLElement;
+  const fileNameEl = document.getElementById('file-name') as HTMLElement;
+  const fileSizeEl = document.getElementById('file-size-orig') as HTMLElement;
+  const removeBtn = document.getElementById('remove-file') as HTMLButtonElement;
+  
+  const workspace = document.getElementById('convert-workspace') as HTMLElement;
+  const actionsPanel = document.getElementById('convert-actions') as HTMLElement;
+  const resultPanel = document.getElementById('convert-result') as HTMLElement;
+  
+  const previewImg = document.getElementById('convert-preview-img') as HTMLImageElement;
+  
+  const convertBtn = document.getElementById('convert-btn') as HTMLButtonElement;
+  const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  const resultSize = document.getElementById('convert-result-size') as HTMLElement;
+  const batchProgress = document.getElementById('batch-progress') as HTMLElement;
+  const batchStatus = document.getElementById('batch-status-text') as HTMLElement;
+  const batchBar = document.getElementById('batch-progress-bar') as HTMLElement;
+
+  function fmt(b: number) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(2) + ' MB';
+  }
+
+  // ── Upload ───────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('keydown', (e) => { if (e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files; if(f&&f.length>0) load(Array.from(f).filter(x=>x.type.startsWith('image/'))); });
+  fileInput.addEventListener('change', () => { if(fileInput.files?.length) load(Array.from(fileInput.files)); fileInput.value=''; });
+
+  function load(files: File[]) {
+    if(!files.length) return;
+    currentFiles = files;
+    isBatch = files.length > 1;
+    
+    const firstFile = files[0];
+    
+    if (isBatch) {
+      fileNameEl.textContent = `${files.length} images selected`;
+      const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+      fileSizeEl.textContent = `Total: ${fmt(totalSize)}`;
+      downloadBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download ZIP`;
+    } else {
+      fileNameEl.textContent = firstFile.name;
+      fileSizeEl.textContent = fmt(firstFile.size);
+      downloadBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Converted Image`;
+    }
+    
+    fileInfo.style.display = 'flex';
+    dropZone.style.display = 'none';
+    workspace.style.display = 'flex';
+    actionsPanel.style.display = 'flex';
+    resultPanel.style.display = 'none';
+
+    const url = URL.createObjectURL(firstFile);
+    previewImg.src = url;
+    
+    currentImg = new Image();
+    currentImg.src = url;
+    
+    // Auto-select a different format
+    let targetFormat = 'image/jpeg';
+    if (firstFile.type === 'image/jpeg') targetFormat = 'image/png';
+    const rb = document.querySelector(`input[name="format"][value="${targetFormat}"]`) as HTMLInputElement;
+    if(rb) rb.checked = true;
+  }
+
+  // ── Action ──────────────────────────────────────────────
+  async function convertSingleImage(file: File, format: string): Promise<{name: string, data: Uint8Array}> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.width; c.height = img.height;
+        const cx = c.getContext('2d')!;
+        if (format === 'image/jpeg') {
+          cx.fillStyle = '#ffffff';
+          cx.fillRect(0,0,c.width,c.height);
+        }
+        cx.drawImage(img, 0, 0);
+        
+        c.toBlob(blob => {
+          URL.revokeObjectURL(url);
+          if(!blob) return resolve({name: file.name, data: new Uint8Array()});
+          
+          blob.arrayBuffer().then(buf => {
+            let ext = 'jpg';
+            if(format === 'image/png') ext = 'png';
+            else if(format === 'image/webp') ext = 'webp';
+            else if(format === 'image/bmp') ext = 'bmp';
+            
+            let name = file.name.split('.')[0] + '.' + ext;
+            resolve({name, data: new Uint8Array(buf)});
+          });
+        }, format, 0.95);
+      };
+      img.src = url;
+    });
+  }
+
+  convertBtn.addEventListener('click', async () => {
+    if(!currentFiles.length) return;
+    
+    const selected = document.querySelector('input[name="format"]:checked') as HTMLInputElement;
+    const format = selected ? selected.value : 'image/jpeg';
+    
+    if (isBatch) {
+      batchProgress.style.display = 'block';
+      convertBtn.disabled = true;
+      convertBtn.style.opacity = '0.7';
+      
+      const zipData: Record<string, Uint8Array> = {};
+      
+      for(let i=0; i<currentFiles.length; i++) {
+        batchStatus.textContent = `Converting ${i+1} of ${currentFiles.length}...`;
+        batchBar.style.width = `${((i)/currentFiles.length)*100}%`;
+        
+        const res = await convertSingleImage(currentFiles[i], format);
+        if(res.data.length) zipData[res.name] = res.data;
+      }
+      
+      batchStatus.textContent = 'Zipping files...';
+      batchBar.style.width = '100%';
+      
+      // Small timeout to allow UI update
+      await new Promise(r => setTimeout(r, 50));
+      
+      const zipped = fflate.zipSync(zipData, { level: 0 }); // no need to compress images deeply
+      const blob = new Blob([zipped], { type: 'application/zip' });
+      const url = URL.createObjectURL(blob);
+      
+      downloadBtn.href = url;
+      downloadBtn.download = `converted-images.zip`;
+      
+      resultSize.textContent = `${currentFiles.length} files converted \u00b7 ${fmt(blob.size)}`;
+      
+      batchProgress.style.display = 'none';
+      convertBtn.disabled = false;
+      convertBtn.style.opacity = '1';
+      
+      workspace.style.display = 'none';
+      actionsPanel.style.display = 'none';
+      resultPanel.style.display = 'flex';
+      
+    } else {
+      let ext = 'jpg';
+      if(format === 'image/png') ext = 'png';
+      else if(format === 'image/webp') ext = 'webp';
+      else if(format === 'image/bmp') ext = 'bmp';
+      
+      const res = await convertSingleImage(currentFiles[0], format);
+      const blob = new Blob([res.data], { type: format });
+      const url = URL.createObjectURL(blob);
+      downloadBtn.href = url;
+      downloadBtn.download = `converted-${currentFiles[0].name.split('.')[0]}.${ext}`;
+      
+      resultSize.textContent = `${fmt(blob.size)}`;
+      
+      workspace.style.display = 'none';
+      actionsPanel.style.display = 'none';
+      resultPanel.style.display = 'flex';
+    }
+  });
+
+  function reset() {
+    currentFiles = [];
+    currentImg = null;
+    dropZone.style.display = 'flex';
+    fileInfo.style.display = 'none';
+    workspace.style.display = 'none';
+    actionsPanel.style.display = 'none';
+    resultPanel.style.display = 'none';
+  }
+  
+  resetBtn.addEventListener('click', reset);
+  removeBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+
+</script>

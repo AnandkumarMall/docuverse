@@ -1,4 +1,4 @@
-﻿export const seoDataPdf = {
+export const seoDataPdf = {
   merge: {
     keywords: "merge pdf, combine pdf files online free, pdf merger tool, merge pdf drag and drop, how to combine pdf files into one, merge multiple pdfs mac, combine pdf adobe alternative, merge pdf windows 10, combine pdf without upload, pdf joiner free, combine pdf pages online, merge pdf files without registration, merge two pdf files into one, free online pdf combiner, merge pdf documents fast, merge pdf files drag drop reorder, combine pdfs securely, pdf joiner online free, best free pdf merger, merge scanned pdf files, merge pdf free, merge pdf online free low kb, combine pdf files online, pdf merger online free without limit, merge pdf for government portal, combine pdf and convert to lower size, merge pdf mobile chrome, pdf combine karne wala tool, merge multiple pdf online fast, free pdf joiner india, merge pdf online free under 100kb, combine pdf files online fast, pdf merge online photo and document, pdf joiner free download low kb, merge pdf document mobile, merge pdf for online application form, pdf merger free online chrome, combine multi page pdf online, merge two pdf files low size, pdf combiner tool free",
     faqs: [
@@ -197,6 +197,22 @@
       { question: "Does signature processing execute locally in the browser?", answer: "Yes, combining the signature with the PDF is done locally using WebAssembly." },
       { question: "How quickly can I sign and download my document?", answer: "Once you position the signature and click apply, the document is generated instantly." },
       { question: "Can I sign password-protected PDF files?", answer: "No, you must unlock the file first using our Unlock PDF tool before signing." }
+    ]
+  },
+  'to-jpg': {
+    keywords: "pdf to jpg, convert pdf to jpg online, pdf to jpg converter free, pdf to jpeg online high resolution, save pdf pages as jpg, pdf to jpg zip download, extract images from pdf to jpg, convert multi page pdf to jpg, pdf to jpg without adobe, render pdf to jpg browser, pdf to jpg converter 300 dpi, best free pdf to jpg converter, turn pdf into jpg pictures, client side pdf to jpg converter, batch pdf to jpg conversion, save pdf as high quality jpeg, pdf to image jpg free online, download pdf as jpg images, fast pdf to jpg exporter, pdf to jpg no sign up, pdf to jpg converter online free, pdf to jpg low kb, convert pdf to photo online, pdf to jpg download zip free, pdf file ko photo kaise banaye, pdf to jpg high quality converter, pdf to photo converter for mobile, convert pdf to jpg under 100kb, free pdf to jpg converter online, pdf to jpg converter for online form, pdf page to jpg converter mobile chrome, pdf se photo alag kare, convert scanned pdf to jpg, pdf to jpg zip low size, best pdf to jpg converter online india, pdf to photo download free, pdf to jpg fast conversion, pdf document to photo converter, pdf to jpeg online converter free, save pdf as photo in mobile gallery",
+    faqs: [
+      { question: "How do I convert a PDF into JPG images?", answer: "Upload your PDF, ensure JPG is selected, choose your DPI quality, and click Convert. The pages will render into JPGs instantly." },
+      { question: "Is this PDF to JPG converter free to use?", answer: "Yes, it is entirely free to use with no hidden fees." },
+      { question: "Are my PDF pages uploaded to remote cloud servers?", answer: "No, the PDF to JPG rendering process takes place securely inside your browser." }
+    ]
+  },
+  'to-png': {
+    keywords: "pdf to png, convert pdf to png online, pdf to png converter free, high resolution pdf to png, lossless pdf to png converter, save pdf as png zip, extract pdf to transparent png, pdf to png 300 dpi, convert multi page pdf to png, browser based pdf to png, export pdf pages as png images, best online pdf to png converter, pdf to png converter no watermark, turn pdf into png files, pdf to png converter client side, render pdf pages to png, fast pdf to png conversion, convert vector pdf to png, download pdf pages as png, free pdf to png extractor, pdf to png converter online free, convert pdf to png low kb, pdf to png high quality free, pdf to png converter mobile, pdf file ko png me kaise badle, free pdf to png converter zip, convert pdf to png transparent, pdf to png converter for web design, pdf to png image converter online, download pdf pages as png zip, pdf to png converter fast free, pdf se png photo banaye, best free pdf to png tool, pdf to png converter without software, high resolution pdf to png low size, pdf page to png image online, pdf to png converter for students, convert scanned pdf to png free, pdf to png document converter, online pdf to png zip low kb",
+    faqs: [
+      { question: "How do I convert a PDF into PNG images?", answer: "Upload your PDF, ensure PNG is selected, choose your DPI quality, and click Convert. The pages will render into PNGs instantly." },
+      { question: "Why should I choose PNG over JPG?", answer: "PNG is lossless, which means text, diagrams, and solid colors remain perfectly crisp without compression artifacts." },
+      { question: "Are my PDF pages uploaded to remote cloud servers?", answer: "No, the PDF to PNG rendering process takes place securely inside your browser." }
     ]
   },
   'to-image': {

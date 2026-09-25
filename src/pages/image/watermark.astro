@@ -1,4 +1,5 @@
 ---
+i---
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import { seoDataImage } from '../../data/seo-image';
 
@@ -48,6 +49,37 @@ const howToSteps = [
     <div id="iwm-main" style="display:none;" class="iwm-main">
 
       <!-- Canvas preview -->
+      <div class="iwm-canvas-section">
+        <div class="iwm-canvas-header">
+          <h3 class="iwm-section-title">Live Preview</h3>
+          <div class="iwm-nav" id="iwm-nav" style="display:none;">
+            <button class="btn btn-ghost btn-sm" id="iwm-prev" aria-label="Previous image">&#8592;</button>
+            <span id="iwm-nav-label" class="iwm-nav-label">1 / 1</span>
+            <button class="btn btn-ghost btn-sm" id="iwm-next" aria-label="Next image">&#8594;</button>
+          </div>
+        </div>
+        <div class="iwm-canvas-wrap">
+          <canvas id="iwm-canvas" class="iwm-canvas" aria-label="Watermark preview canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Controls panel -->
+      </div>
+
+<div class="iwm-canvas-section">
+        <div class="iwm-canvas-header">
+          <h3 class="iwm-section-title">Live Preview</h3>
+          <div class="iwm-nav" id="iwm-nav" style="display:none;">
+            <button class="btn btn-ghost btn-sm" id="iwm-prev" aria-label="Previous image">&#8592;</button>
+            <span id="iwm-nav-label" class="iwm-nav-label">1 / 1</span>
+            <button class="btn btn-ghost btn-sm" id="iwm-next" aria-label="Next image">&#8594;</button>
+          </div>
+        </div>
+        <div class="iwm-canvas-wrap">
+          <canvas id="iwm-canvas" class="iwm-canvas" aria-label="Watermark preview canvas"></canvas>
+        </div>
+      </div>
+
       <div class="iwm-canvas-section">
         <div class="iwm-canvas-header">
           <h3 class="iwm-section-title">Live Preview</h3>
@@ -459,7 +491,8 @@ const howToSteps = [
 .iwm-thumb:hover,.iwm-thumb--active { border-color:var(--color-brand-primary); }
 .iwm-thumb--active { box-shadow:0 0 0 2px var(--theme-alpha-20); }
 
-.iwm-main { display:flex; flex-direction:column; gap:var(--space-5); }
+.iwm-main { display:grid; grid-template-columns: 320px 1fr; gap:var(--space-6); align-items:start; }
+  @media (max-width: 900px) { .iwm-main { grid-template-columns: 1fr; } }
 .iwm-canvas-section { display:flex; flex-direction:column; gap:var(--space-3); }
 .iwm-canvas-header { display:flex; align-items:center; justify-content:space-between; }
 .iwm-section-title { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); margin:0; }

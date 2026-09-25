@@ -86,6 +86,7 @@ const howToSteps = [
 
         <!-- Context-sensitive style options -->
         <div class="ed-style-group" id="style-text-opts">
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
           <select id="font-family" class="ed-select" title="Font family">
             <option value="Arial">Arial</option>
             <option value="'Times New Roman'">Times New Roman</option>
@@ -111,6 +112,7 @@ const howToSteps = [
               <input type="color" id="text-bg-color" value="#ffffff" />
               <span class="ed-color-label">BG</span>
             </label>
+          </div>
           </div>
         </div>
         <div class="ed-style-group" id="style-eraser-opts" style="display:none;">
@@ -157,7 +159,8 @@ const howToSteps = [
         <button class="ed-tool-btn ed-tool-btn--danger" id="clear-page-btn">Clear Page</button>
       </div>
 
-      <!-- Canvas area -->
+      <div class="ed-preview-col" style="min-width:0; display:flex; flex-direction:column; gap:var(--space-3);">
+        <!-- Canvas area -->
       <div class="ed-canvas-area" id="ed-canvas-area">
         <div class="ed-canvas-wrap" id="ed-canvas-wrap">
           <canvas id="ed-pdf-canvas" class="ed-pdf-canvas"></canvas>
@@ -169,6 +172,7 @@ const howToSteps = [
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         Shortcuts: V=Select, T=Text, D=Draw, H=Highlight, I=Image, Ctrl+Z=Undo
       </p>
+      </div>
     </div>
   </div>
 
@@ -205,21 +209,26 @@ const howToSteps = [
 .ed-spinner { width:20px; height:20px; border:2px solid var(--theme-alpha-20); border-top-color:var(--color-brand-primary); border-radius:50%; animation:ed-spin 0.8s linear infinite; flex-shrink:0; }
 @keyframes ed-spin { to { transform:rotate(360deg); } }
 
-.ed-workspace { display:flex; flex-direction:column; gap:var(--space-3); }
+.ed-workspace { display:grid; grid-template-columns: 250px 1fr; gap:var(--space-5); align-items:start; }
+@media(max-width:900px) { .ed-workspace { grid-template-columns: 1fr; } }
 .ed-hint { font-size:.75rem; color:var(--color-ink-faint); display:flex; align-items:center; gap:4px; }
 
 /* Toolbar */
-.ed-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:var(--space-2); padding:var(--space-3) var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); }
-.ed-toolbar-group { display:flex; align-items:center; gap:2px; }
-.ed-toolbar-sep { width:1px; height:28px; background:var(--color-border-hairline); margin:0 var(--space-1); align-self:stretch; }
+.ed-toolbar { display:flex; flex-direction:column; align-items:stretch; gap:var(--space-4); padding:var(--space-4); background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); position:sticky; top:20px; }
+@media(max-width:900px) { .ed-toolbar { flex-direction:row; flex-wrap:wrap; position:static; align-items:center; } }
+.ed-toolbar-group { display:flex; flex-direction:column; align-items:stretch; gap:4px; }
+@media(max-width:900px) { .ed-toolbar-group { flex-direction:row; align-items:center; flex-wrap:wrap; } }
+.ed-toolbar-sep { height:1px; width:100%; background:var(--color-border-hairline); margin:var(--space-1) 0; }
+@media(max-width:900px) { .ed-toolbar-sep { width:1px; height:28px; margin:0 var(--space-1); } }
 .ed-toolbar-spacer { flex:1; min-width:8px; }
-.ed-tool-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border:1.5px solid transparent; border-radius:var(--radius-sm); background:none; cursor:pointer; font-size:.8125rem; font-weight:500; color:var(--color-ink-secondary); transition:all var(--duration-fast); white-space:nowrap; line-height:1; }
+.ed-tool-btn { display:inline-flex; align-items:center; justify-content:flex-start; gap:8px; padding:8px 12px; border:1.5px solid transparent; border-radius:var(--radius-sm); background:none; cursor:pointer; font-size:.875rem; font-weight:500; color:var(--color-ink-secondary); transition:all var(--duration-fast); line-height:1; }
 .ed-tool-btn svg { flex-shrink:0; }
 .ed-tool-btn:hover { background:var(--theme-alpha-08); color:var(--color-brand-primary); border-color:var(--theme-alpha-20); }
 .ed-tool-btn--active { background:var(--theme-alpha-08); color:var(--color-brand-primary); border-color:var(--theme-alpha-20); }
 .ed-tool-btn--danger { color:#e53e3e; }
 .ed-tool-btn--danger:hover { background:rgba(229,62,62,0.08); border-color:rgba(229,62,62,0.25); }
-.ed-style-group { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
+.ed-style-group { display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-3); }
+@media(max-width:900px) { .ed-style-group { flex-direction:row; align-items:center; } }
 .ed-select { padding:5px 8px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.8125rem; background:var(--color-canvas-base); color:var(--color-ink-primary); max-width:140px; }
 .ed-number-input { width:48px; padding:5px 4px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.8125rem; background:var(--color-canvas-base); color:var(--color-ink-primary); text-align:center; }
 .ed-style-btn { padding:5px 10px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); font-size:.9rem; background:var(--color-canvas-base); cursor:pointer; color:var(--color-ink-primary); transition:all var(--duration-fast); }
@@ -230,12 +239,14 @@ const howToSteps = [
 .ed-color-label { font-size:.6875rem; font-weight:700; color:var(--color-ink-muted); line-height:1; }
 .ed-checkbox-label { display:flex; align-items:center; gap:4px; font-size:.75rem; color:var(--color-ink-muted); cursor:pointer; white-space:nowrap; }
 .ed-label { font-size:.75rem; color:var(--color-ink-faint); }
-.ed-page-nav { display:flex; align-items:center; gap:var(--space-2); }
+.ed-page-nav { display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); width:100%; }
+@media(max-width:900px) { .ed-page-nav { justify-content:flex-start; width:auto; } }
 .ed-page-indicator { font-size:.8125rem; color:var(--color-ink-secondary); white-space:nowrap; }
 .ed-nav-btn { min-width:28px; height:28px; padding:0 6px; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--color-ink-secondary); font-size:1rem; font-weight:700; transition:all var(--duration-fast); }
 .ed-nav-btn:hover { border-color:var(--color-brand-primary); color:var(--color-brand-primary); }
 .ed-nav-btn:disabled { opacity:0.35; cursor:not-allowed; }
-.ed-zoom-group { display:flex; align-items:center; gap:var(--space-1); }
+.ed-zoom-group { display:flex; align-items:center; justify-content:space-between; width:100%; gap:var(--space-1); }
+@media(max-width:900px) { .ed-zoom-group { justify-content:flex-start; width:auto; } }
 .ed-zoom-label { font-size:.8125rem; font-weight:600; color:var(--color-ink-muted); min-width:3.5ch; text-align:center; }
 
 /* Canvas */

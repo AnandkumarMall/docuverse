@@ -96,7 +96,18 @@ const howToSteps = [
           Live Preview
           <span id="selected-count" class="wm-selected-badge"></span>
         </h3>
-        <div id="wm-page-grid" class="wm-page-grid" aria-label="PDF pages with live watermark preview"></div>
+        <div class="wm-page-nav" style="display:flex; align-items:center; justify-content:center; gap:var(--space-4); margin-bottom:var(--space-4);">
+          <button class="btn btn-ghost btn-sm" id="prev-page" title="Previous page">&#8249; Prev</button>
+          <span class="wm-page-indicator">Page <strong id="cur-page-num">1</strong> / <strong id="total-page-num">1</strong></span>
+          <button class="btn btn-ghost btn-sm" id="next-page" title="Next page">Next &#8250;</button>
+          <label style="display:flex; align-items:center; gap:var(--space-2); margin-left:var(--space-4); cursor:pointer; font-size:0.875rem;">
+            <input type="checkbox" id="page-check" class="wm-page-check" checked> Apply to this page
+          </label>
+        </div>
+        <div class="wm-page-canvas-wrap" id="wm-canvas-wrap" style="max-width:600px; margin:0 auto; box-shadow:var(--shadow-md); display:none;">
+          <canvas id="wm-pdf-canvas" style="display:block; width:100%; height:auto;"></canvas>
+          <canvas id="wm-overlay-canvas" class="wm-overlay-canvas"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -133,7 +144,8 @@ const howToSteps = [
   .wm-spinner { width:20px; height:20px; border:2px solid var(--theme-alpha-20); border-top-color:var(--color-brand-primary); border-radius:50%; animation:wm-spin 0.8s linear infinite; flex-shrink:0; }
   @keyframes wm-spin { to { transform:rotate(360deg); } }
   .wm-loading__text { font-size:.9375rem; }
-  .wm-main { display:flex; flex-direction:column; gap:var(--space-6); }
+  .wm-main { display:grid; grid-template-columns: 350px 1fr; gap:var(--space-6); align-items:start; }
+  @media(max-width:900px){ .wm-main { grid-template-columns:1fr; } }
   .wm-section-title { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); margin-bottom:var(--space-4); }
   .wm-controls-panel { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
   .wm-control-group { display:flex; flex-direction:column; gap:var(--space-2); }
@@ -175,7 +187,8 @@ const howToSteps = [
   let currentFile: File | null = null;
   let numPages = 0;
   let pageSelected: boolean[] = [];
-  const pageCanvases: HTMLCanvasElement[] = [];
+  let currentPage = 1;
+  let pdfDocProxy: any = null;
 
   const dropZone    = document.getElementById('drop-zone') as HTMLElement;
   const fileInput   = document.getElementById('file-input') as HTMLInputElement;
@@ -192,6 +205,7 @@ const howToSteps = [
   const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
   const restartBtn  = document.getElementById('restart-btn') as HTMLButtonElement;
   const wmResultSub = document.getElementById('wm-result-sub') as HTMLElement;
+  
   const progressEl  = document.getElementById('tool-progress') as HTMLElement;
   const progressFill= document.getElementById('progress-fill') as HTMLElement;
   const progressLabel= document.getElementById('progress-label') as HTMLElement;
@@ -204,22 +218,30 @@ const howToSteps = [
   const wmColor      = document.getElementById('wm-color') as HTMLInputElement;
   const wmColorLabel = document.getElementById('wm-color-label') as HTMLElement;
   const wmPos        = document.getElementById('wm-pos') as HTMLSelectElement;
-  const pageGrid     = document.getElementById('wm-page-grid') as HTMLElement;
+  
   const selectedCount= document.getElementById('selected-count') as HTMLElement;
   const selectAllBtn = document.getElementById('select-all-btn') as HTMLButtonElement;
   const deselectAllBtn= document.getElementById('deselect-all-btn') as HTMLButtonElement;
 
-  wmOpacity.addEventListener('input', () => { opacityVal.textContent = wmOpacity.value + '%'; refreshAllOverlays(); });
-  wmSize.addEventListener('input', () => { sizeVal.textContent = wmSize.value + 'px'; refreshAllOverlays(); });
-  wmText.addEventListener('input', refreshAllOverlays);
-  wmColor.addEventListener('input', () => { wmColorLabel.textContent = wmColor.value; refreshAllOverlays(); });
-  wmPos.addEventListener('change', refreshAllOverlays);
+  const prevPageBtn = document.getElementById('prev-page') as HTMLButtonElement;
+  const nextPageBtn = document.getElementById('next-page') as HTMLButtonElement;
+  const curPageNum = document.getElementById('cur-page-num') as HTMLElement;
+  const totalPageNum = document.getElementById('total-page-num') as HTMLElement;
+  const pageCheck = document.getElementById('page-check') as HTMLInputElement;
+  const pdfCanvas = document.getElementById('wm-pdf-canvas') as HTMLCanvasElement;
+  const overlayCanvas = document.getElementById('wm-overlay-canvas') as HTMLCanvasElement;
+  const canvasWrap = document.getElementById('wm-canvas-wrap') as HTMLElement;
 
-  selectAllBtn.addEventListener('click', () => { pageSelected.fill(true); updatePageCardStates(); updateSelectedCount(); });
-  deselectAllBtn.addEventListener('click', () => { pageSelected.fill(false); updatePageCardStates(); updateSelectedCount(); });
+  wmOpacity.addEventListener('input', () => { opacityVal.textContent = wmOpacity.value + '%'; drawOverlay(); });
+  wmSize.addEventListener('input', () => { sizeVal.textContent = wmSize.value + 'px'; drawOverlay(); });
+  wmText.addEventListener('input', drawOverlay);
+  wmColor.addEventListener('input', () => { wmColorLabel.textContent = wmColor.value; drawOverlay(); });
+  wmPos.addEventListener('change', drawOverlay);
+
+  selectAllBtn.addEventListener('click', () => { pageSelected.fill(true); updateSelectedCount(); if(pageCheck) pageCheck.checked = true; drawOverlay(); });
+  deselectAllBtn.addEventListener('click', () => { pageSelected.fill(false); updateSelectedCount(); if(pageCheck) pageCheck.checked = false; drawOverlay(); });
 
   dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('keydown', (e) => { if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click();} });
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drop-zone--active'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drop-zone--active'));
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') loadWMFile(f); });
@@ -236,207 +258,212 @@ const howToSteps = [
     wmMain.style.display = 'none';
     wmActions.style.display = 'none';
     wmResult.style.display = 'none';
-    pageGrid.innerHTML = '';
-    pageCanvases.length = 0;
+    canvasWrap.style.display = 'none';
 
     const buf = await f.arrayBuffer();
     try {
       const pdfjs = await loadPdfJs();
-      const pdfDoc = await getPdfDoc(pdfjs, buf);
-      numPages = pdfDoc.numPages;
+      pdfDocProxy = await getPdfDoc(pdfjs, buf);
+      numPages = pdfDocProxy.numPages;
       fileMetaEl.textContent = `${numPages} page${numPages!==1?'s':''} · ${fmt(f.size)}`;
       pageSelected = new Array(numPages).fill(true);
+      currentPage = 1;
+      
+      totalPageNum.textContent = String(numPages);
+      updateSelectedCount();
 
-      buildGrid(numPages);
+      await renderCurrentPage();
+      canvasWrap.style.display = 'block';
+
       loadingEl.style.display = 'none';
       wmMain.style.display = 'flex';
       wmActions.style.display = 'flex';
-      updateSelectedCount();
-
-      for (let i = 0; i < numPages; i++) {
-        const { canvas } = await renderPageToCanvas(pdfDoc, i + 1, 2.5);
-        pageCanvases[i] = canvas;
-        mountPageCanvas(i, canvas);
-        drawOverlay(i);
-      }
-    } catch(err) {
-      console.error(err);
-      (window as any).showToast('Error rendering PDF preview. The PDF may be encrypted or corrupted.', 'error');
-      resetWM();
+    } catch(e) {
+      console.error(e);
+      (window as any).showToast?.('Could not load PDF.', 'error');
+      reset();
     }
   }
 
-  function buildGrid(n: number) {
-    pageGrid.innerHTML = '';
-    for (let i = 0; i < n; i++) {
-      const card = document.createElement('div');
-      card.className = 'wm-page-card wm-selected';
-      card.dataset.pageIndex = String(i);
-      card.innerHTML = `
-        <div class="wm-page-canvas-wrap" id="wm-canvas-wrap-${i}">
-          <div style="width:100%;aspect-ratio:1/1.414;background:var(--color-canvas-soft);display:flex;align-items:center;justify-content:center;">
-            <div class="wm-spinner" style="width:24px;height:24px;"></div>
-          </div>
-        </div>
-        <div class="wm-page-footer">
-          <span class="wm-page-num">Page ${i+1}</span>
-          <input type="checkbox" class="wm-page-check" id="wm-page-check-${i}" checked aria-label="Watermark page ${i+1}" />
-        </div>
-      `;
-      card.addEventListener('click', (e) => {
-        if ((e.target as HTMLElement).tagName === 'INPUT') return;
-        const check = document.getElementById(`wm-page-check-${i}`) as HTMLInputElement;
-        check.checked = !check.checked;
-        pageSelected[i] = check.checked;
-        card.classList.toggle('wm-selected', check.checked);
-        updateSelectedCount();
-      });
-      const check = card.querySelector(`#wm-page-check-${i}`) as HTMLInputElement;
-      check.addEventListener('change', () => {
-        pageSelected[i] = check.checked;
-        card.classList.toggle('wm-selected', check.checked);
-        updateSelectedCount();
-      });
-      pageGrid.appendChild(card);
-    }
+  async function renderCurrentPage() {
+    curPageNum.textContent = String(currentPage);
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === numPages;
+    pageCheck.checked = pageSelected[currentPage - 1];
+    
+    const page = await pdfDocProxy.getPage(currentPage);
+    const viewport = page.getViewport({ scale: 1.5 });
+    pdfCanvas.width = viewport.width;
+    pdfCanvas.height = viewport.height;
+    overlayCanvas.width = viewport.width;
+    overlayCanvas.height = viewport.height;
+    
+    const ctx = pdfCanvas.getContext('2d')!;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    drawOverlay();
+  }
+  
+  prevPageBtn.addEventListener('click', async () => {
+    if (currentPage > 1) { currentPage--; await renderCurrentPage(); }
+  });
+  
+  nextPageBtn.addEventListener('click', async () => {
+    if (currentPage < numPages) { currentPage++; await renderCurrentPage(); }
+  });
+  
+  pageCheck.addEventListener('change', () => {
+    pageSelected[currentPage - 1] = pageCheck.checked;
+    updateSelectedCount();
+    drawOverlay();
+  });
+
+  function updateSelectedCount() {
+    const sel = pageSelected.filter(Boolean).length;
+    selectedCount.textContent = `${sel} of ${numPages} selected`;
+    wmBtn.disabled = sel === 0;
   }
 
-  function mountPageCanvas(i: number, canvas: HTMLCanvasElement) {
-    const wrap = document.getElementById(`wm-canvas-wrap-${i}`);
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    wrap.style.position = 'relative';
-    canvas.style.display = 'block';
-    canvas.style.width = '100%';
-    canvas.style.height = 'auto';
-    wrap.appendChild(canvas);
-    const overlay = document.createElement('canvas') as HTMLCanvasElement;
-    overlay.className = 'wm-overlay-canvas';
-    overlay.id = `wm-overlay-${i}`;
-    overlay.width = canvas.width;
-    overlay.height = canvas.height;
-    overlay.style.position = 'absolute';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.pointerEvents = 'none';
-    wrap.appendChild(overlay);
-  }
+  function drawOverlay() {
+    const ctx = overlayCanvas.getContext('2d')!;
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    
+    if (!pageSelected[currentPage - 1]) return;
+    
+    const text = wmText.value.trim();
+    if(!text) return;
 
-  function drawOverlay(i: number) {
-    const overlay = document.getElementById(`wm-overlay-${i}`) as HTMLCanvasElement | null;
-    if (!overlay) return;
-    const baseCanvas = pageCanvases[i];
-    if (!baseCanvas) return;
-    const ctx = overlay.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, overlay.width, overlay.height);
-    if (!pageSelected[i]) return;
-
-    const text = wmText.value.trim().toUpperCase() || 'WATERMARK';
-    const opacity = Number(wmOpacity.value) / 100;
-    const userSize = Number(wmSize.value);
-    const fontSize = Math.round((userSize / 48) * (overlay.width / 3));
+    const op = Number(wmOpacity.value) / 100;
+    const sz = Number(wmSize.value); // Use actual px size relative to canvas
+    const hex = wmColor.value;
     const pos = wmPos.value;
-    const color = wmColor.value;
-    const r2 = parseInt(color.slice(1,3),16);
-    const g2 = parseInt(color.slice(3,5),16);
-    const b2 = parseInt(color.slice(5,7),16);
 
     ctx.save();
-    ctx.font = `bold ${fontSize}px Arial,Helvetica,sans-serif`;
-    ctx.fillStyle = `rgba(${r2},${g2},${b2},${opacity})`;
+    ctx.globalAlpha = op;
+    ctx.fillStyle = hex;
+    ctx.font = `bold ${sz}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
-    const w = overlay.width, h = overlay.height;
-    if (pos === 'diagonal') {
-      ctx.translate(w/2, h/2);
-      ctx.rotate(-Math.PI/4);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(text, 0, 0);
+    const cx = overlayCanvas.width / 2;
+    const cy = overlayCanvas.height / 2;
+    
+    // Simple position mapping
+    if (pos.includes('diagonal')) {
+       ctx.translate(cx, cy);
+       ctx.rotate(-45 * Math.PI / 180);
+       ctx.fillText(text, 0, 0);
     } else {
-      let x = w/2, y = h/2;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      if (pos === 'center') { x=w/2; y=h/2; }
-      else if (pos === 'top-left') { x=fontSize*0.3; y=fontSize*0.7; ctx.textAlign='left'; ctx.textBaseline='top'; }
-      else if (pos === 'top-right') { x=w-fontSize*0.3; y=fontSize*0.7; ctx.textAlign='right'; ctx.textBaseline='top'; }
-      else if (pos === 'bottom-left') { x=fontSize*0.3; y=h-fontSize*0.7; ctx.textAlign='left'; ctx.textBaseline='bottom'; }
-      else if (pos === 'bottom-right') { x=w-fontSize*0.3; y=h-fontSize*0.7; ctx.textAlign='right'; ctx.textBaseline='bottom'; }
-      ctx.fillText(text, x, y);
+       let x = cx;
+       let y = cy;
+       if (pos.includes('left')) { x = sz; ctx.textAlign = 'left'; }
+       if (pos.includes('right')) { x = overlayCanvas.width - sz; ctx.textAlign = 'right'; }
+       if (pos.includes('top')) { y = sz * 1.5; }
+       if (pos.includes('bottom')) { y = overlayCanvas.height - sz * 1.5; }
+       ctx.fillText(text, x, y);
     }
+    
     ctx.restore();
   }
 
-  function refreshAllOverlays() { for (let i=0;i<numPages;i++) drawOverlay(i); }
-
-  function updatePageCardStates() {
-    for (let i=0;i<numPages;i++) {
-      const card = pageGrid.querySelector(`[data-page-index="${i}"]`);
-      const check = document.getElementById(`wm-page-check-${i}`) as HTMLInputElement;
-      if(card && check){ check.checked=pageSelected[i]; card.classList.toggle('wm-selected',pageSelected[i]); }
-    }
-    refreshAllOverlays();
-  }
-
-  function updateSelectedCount() {
-    const n = pageSelected.filter(Boolean).length;
-    selectedCount.textContent = `${n} of ${numPages} selected`;
+  function hexToRgb(hex:string) {
+    const r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
+    return rgb(r,g,b);
   }
 
   wmBtn.addEventListener('click', async () => {
-    if (!currentFile || !wmText.value.trim()) { wmText.focus(); return; }
-    const selectedPages = pageSelected.map((s,i)=>s?i:-1).filter(i=>i>=0);
-    if (selectedPages.length===0) { (window as any).showToast('Please select at least one page to watermark.', 'error'); return; }
-    wmBtn.disabled=true;
-    progressEl.setAttribute('aria-hidden','false');
-    progressFill.style.width='30%';
-    progressLabel.textContent='Loading PDF...';
+    if(!currentFile) return;
+    const text = wmText.value.trim();
+    if(!text) { (window as any).showToast?.('Please enter watermark text','error'); return; }
 
-    const buf = await currentFile.arrayBuffer();
-    const pdf = await PDFDocument.load(buf);
-    const font = await pdf.embedFont(StandardFonts.HelveticaBold);
-    const opacity = Number(wmOpacity.value)/100;
-    const pos = wmPos.value;
-    const text = wmText.value.trim().toUpperCase();
-    const fontSize = Number(wmSize.value);
-    const hex = wmColor.value.replace('#','');
-    const cr=parseInt(hex.slice(0,2),16)/255;
-    const cg=parseInt(hex.slice(2,4),16)/255;
-    const cb2=parseInt(hex.slice(4,6),16)/255;
+    wmBtn.disabled = true;
+    wmActions.style.display = 'none';
+    progressEl.style.display = 'block';
+    progressFill.style.width = '20%';
+    progressLabel.textContent = 'Loading PDF engine...';
 
-    progressFill.style.width='70%';
-    progressLabel.textContent='Applying watermark...';
+    try {
+      const buf = await currentFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(buf);
+      const helvetica = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      
+      const op = Number(wmOpacity.value)/100;
+      const sz = Number(wmSize.value);
+      const color = hexToRgb(wmColor.value);
+      const pos = wmPos.value;
 
-    pdf.getPages().forEach((page, i) => {
-      if(!pageSelected[i]) return;
-      const {width,height}=page.getSize();
-      const textWidth=font.widthOfTextAtSize(text,fontSize);
-      let x:number,y:number,rotation=degrees(0);
-      if(pos==='diagonal'){x=(width-textWidth)/2;y=height/2;rotation=degrees(45);}
-      else if(pos==='center'){x=(width-textWidth)/2;y=height/2;}
-      else if(pos==='top-left'){x=20;y=height-fontSize-20;}
-      else if(pos==='top-right'){x=width-textWidth-20;y=height-fontSize-20;}
-      else if(pos==='bottom-left'){x=20;y=30;}
-      else{x=width-textWidth-20;y=30;}
-      page.drawText(text,{x,y,size:fontSize,font,color:rgb(cr,cg,cb2),opacity,rotate:rotation});
-    });
+      const pages = pdfDoc.getPages();
+      
+      pages.forEach((page, i) => {
+        if(!pageSelected[i]) return;
+        progressFill.style.width = `${20 + (i/pages.length)*60}%`;
+        progressLabel.textContent = `Watermarking page ${i+1}...`;
 
-    progressFill.style.width='95%';
-    const bytes = await pdf.save();
-    progressFill.style.width='100%';
-    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
-    const blob=new Blob([bytes],{type:'application/pdf'});
-    downloadBtn.href=URL.createObjectURL(blob);
-    downloadBtn.download=`watermarked-${currentFile.name}`;
-    wmResultSub.textContent=`Watermarked ${selectedPages.length} of ${numPages} pages — ${fmt(bytes.byteLength)}`;
-    wmResult.style.display='flex';
-    wmActions.style.display='none';
-    wmBtn.disabled=false;
+        const {width, height} = page.getSize();
+        
+        // Match JS scaling approximation
+        const pdfSz = sz * 0.75; 
+        
+        let x = width/2;
+        let y = height/2;
+        const txtW = helvetica.widthOfTextAtSize(text, pdfSz);
+        const txtH = helvetica.heightAtSize(pdfSz);
+        
+        let drawArgs: any = { x:0, y:0, size:pdfSz, font:helvetica, color, opacity:op };
+
+        if(pos.includes('diagonal')){
+          page.drawText(text, {
+            x: width/2 - (txtW/2)*0.7,
+            y: height/2 - (txtW/2)*0.7,
+            size: pdfSz,
+            font: helvetica,
+            color,
+            opacity: op,
+            rotate: degrees(45)
+          });
+        } else {
+          if (pos.includes('left')) x = 20;
+          else if (pos.includes('right')) x = width - txtW - 20;
+          else x = (width/2) - (txtW/2);
+          
+          if (pos.includes('top')) y = height - txtH - 20;
+          else if (pos.includes('bottom')) y = 20 + txtH;
+          else y = (height/2) - (txtH/2);
+          
+          drawArgs.x = x;
+          drawArgs.y = y;
+          page.drawText(text, drawArgs);
+        }
+      });
+
+      progressFill.style.width = '90%';
+      progressLabel.textContent = 'Saving PDF...';
+      const pdfBytes = await pdfDoc.save();
+
+      progressFill.style.width = '100%';
+      const blob = new Blob([pdfBytes], {type:'application/pdf'});
+      downloadBtn.href = URL.createObjectURL(blob);
+      downloadBtn.download = `watermarked-${currentFile.name}`;
+
+      wmMain.style.display = 'none';
+      progressEl.style.display = 'none';
+      wmResult.style.display = 'flex';
+      wmResultSub.textContent = `Added to ${pageSelected.filter(Boolean).length} pages`;
+    } catch(e) {
+      console.error(e);
+      (window as any).showToast?.('Error applying watermark', 'error');
+      wmBtn.disabled = false;
+      wmActions.style.display = 'flex';
+      progressEl.style.display = 'none';
+    }
   });
 
-  function resetWM(){currentFile=null;numPages=0;pageSelected=[];pageCanvases.length=0;dropZone.style.display='flex';fileInfo.style.display='none';loadingEl.style.display='none';wmMain.style.display='none';wmActions.style.display='none';wmResult.style.display='none';pageGrid.innerHTML='';}
-  clearBtn.addEventListener('click',resetWM);
-  restartBtn.addEventListener('click',resetWM);
-  removeBtn.addEventListener('click',resetWM);
+  function reset() {
+    currentFile=null; numPages=0; pageSelected=[]; currentPage=1; pdfDocProxy=null;
+    dropZone.style.display='flex'; fileInfo.style.display='none';
+    wmMain.style.display='none'; wmActions.style.display='none'; wmResult.style.display='none';
+    progressEl.style.display='none';
+  }
+  removeBtn.addEventListener('click', reset);
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
 </script>

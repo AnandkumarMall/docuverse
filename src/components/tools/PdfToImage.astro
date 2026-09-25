@@ -1,0 +1,276 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+const { title, description, canonicalPath, toolName, toolTagline, keywords, faqs, defaultFormat } = Astro.props;
+
+const howToSteps = [
+  { name: "Upload your PDF", text: `Drop or select the PDF whose pages you want to export as ${defaultFormat === 'png' ? 'PNG' : 'JPG'}.` },
+  { name: "Preview & Customize", text: "Select JPG or PNG and adjust the DPI quality. View any page using the live preview." },
+  { name: "Download", text: "Extract just the page you are viewing, or download all pages instantly as a ZIP file." },
+];
+---
+
+<ToolLayout
+  title={title}
+  description={description}
+  canonicalPath={canonicalPath}
+  toolName={toolName}
+  toolTagline={toolTagline}
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  acceptedFormats="One PDF file · No size limit"
+  howToSteps={howToSteps}
+  keywords={keywords}
+  faqs={faqs}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+
+  <div slot="options">
+    <div id="workspace" style="display:none;" class="side-by-side-grid">
+      
+      <!-- Left Column -->
+      <div class="settings-col" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5);">
+        <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem;">Output Settings</h3>
+        
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">Format</label>
+            <div style="display:flex; gap:var(--space-4);">
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="ti-format" value="jpeg" checked={defaultFormat !== "png"} /> JPG</label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="radio" name="ti-format" value="png" checked={defaultFormat === "png"} /> PNG</label>
+            </div>
+          </div>
+          
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">Resolution</label>
+            <select id="ti-dpi" class="input" style="width:100%;">
+              <option value="1">96 DPI — Screen</option>
+              <option value="1.5625" selected>150 DPI — Standard</option>
+              <option value="3.125">300 DPI — Print Quality</option>
+            </select>
+          </div>
+          
+          <div style="margin-top:var(--space-4); display:flex; flex-direction:column; gap:var(--space-3);">
+             <button id="extract-all-btn" class="btn btn-primary btn-lg" style="width:100%;">Extract All Pages (ZIP)</button>
+             <button id="clear-btn" class="btn btn-ghost" style="width:100%;">Clear File</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column -->
+      <div class="preview-col" style="min-width:0; display:flex; flex-direction:column; align-items:center;">
+         <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem; align-self:flex-start;">Live Preview</h3>
+         <div class="canvas-wrap" style="position:relative; width:100%; max-width:600px; box-shadow:var(--shadow-md); border-radius:var(--radius-sm); overflow:hidden;">
+           <canvas id="pdf-canvas" style="display:block; width:100%; height:auto;"></canvas>
+         </div>
+         <div style="display:flex; align-items:center; justify-content:space-between; margin-top:var(--space-4); width:100%;">
+           <div style="display:flex; align-items:center; gap:var(--space-2);">
+             <button class="btn btn-ghost btn-sm" id="prev-page">&#8249; Prev</button>
+             <span style="font-size:0.875rem;">Page <strong id="cur-page">1</strong> / <strong id="total-page">1</strong></span>
+             <button class="btn btn-ghost btn-sm" id="next-page">Next &#8250;</button>
+           </div>
+           <button id="extract-current-btn" class="btn btn-secondary btn-sm">Extract Current Page</button>
+         </div>
+      </div>
+      
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .side-by-side-grid { display:grid; grid-template-columns: 320px 1fr; gap:var(--space-6); align-items:start; }
+  @media(max-width:900px) { .side-by-side-grid { grid-template-columns:1fr; } }
+</style>
+
+<script>
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
+  // We use JSZip purely for frontend ZIP generation (added as a dependency dynamically if needed, 
+  // but let's just do sequential download or dynamic import if we have it). 
+  // Actually, we can use a small jszip logic or just trigger multiple downloads if it's small, 
+  // but JSZip is much better. Since we don't know if JSZip is installed, let's inject it from CDN for simplicity here.
+  
+  let currentFile: File | null = null;
+  let pdfDocProxy: any = null;
+  let numPages = 0;
+  let currentPage = 1;
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const workspace = document.getElementById('workspace') as HTMLElement;
+  
+  const extractAllBtn = document.getElementById('extract-all-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const formatRadios = document.getElementsByName('ti-format') as NodeListOf<HTMLInputElement>;
+  const dpiSelect = document.getElementById('ti-dpi') as HTMLSelectElement;
+  
+  const prevPageBtn = document.getElementById('prev-page') as HTMLButtonElement;
+  const nextPageBtn = document.getElementById('next-page') as HTMLButtonElement;
+  const curPageEl = document.getElementById('cur-page') as HTMLElement;
+  const totalPageEl = document.getElementById('total-page') as HTMLElement;
+  const pdfCanvas = document.getElementById('pdf-canvas') as HTMLCanvasElement;
+  const extractCurrentBtn = document.getElementById('extract-current-btn') as HTMLButtonElement;
+  
+  const progressEl = document.getElementById('tool-progress') as HTMLElement;
+  const progressFill = document.getElementById('progress-fill') as HTMLElement;
+  const progressLabel = document.getElementById('progress-label') as HTMLElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--color-brand-primary)'; });
+  dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = ''; const f = e.dataTransfer?.files[0]; if (f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  async function load(f: File) {
+    currentFile = f;
+    dropZone.style.display = 'none';
+    
+    try {
+      const buf = await f.arrayBuffer();
+      const pdfjs = await loadPdfJs();
+      pdfDocProxy = await getPdfDoc(pdfjs, buf);
+      numPages = pdfDocProxy.numPages;
+      currentPage = 1;
+      
+      totalPageEl.textContent = String(numPages);
+      workspace.style.display = 'grid';
+      await renderCurrentPage();
+    } catch(e) {
+      console.error(e);
+      (window as any).showToast?.('Could not load PDF.', 'error');
+      reset();
+    }
+  }
+
+  async function renderCurrentPage() {
+    curPageEl.textContent = String(currentPage);
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === numPages;
+    
+    const page = await pdfDocProxy.getPage(currentPage);
+    const viewport = page.getViewport({ scale: 1.5 });
+    pdfCanvas.width = viewport.width;
+    pdfCanvas.height = viewport.height;
+    
+    const ctx = pdfCanvas.getContext('2d')!;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  }
+
+  prevPageBtn.addEventListener('click', async () => {
+    if (currentPage > 1) { currentPage--; await renderCurrentPage(); }
+  });
+  
+  nextPageBtn.addEventListener('click', async () => {
+    if (currentPage < numPages) { currentPage++; await renderCurrentPage(); }
+  });
+
+  function getFmt() {
+    for (const r of formatRadios) if (r.checked) return r.value;
+    return 'jpeg';
+  }
+
+  extractCurrentBtn.addEventListener('click', async () => {
+    if(!pdfDocProxy) return;
+    const format = getFmt();
+    const dpiScale = Number(dpiSelect.value) || 1.5625;
+    
+    const page = await pdfDocProxy.getPage(currentPage);
+    const vp = page.getViewport({ scale: dpiScale });
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    const ctx = canvas.getContext('2d')!;
+    
+    if (format === 'jpeg') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    
+    const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+    const dataUrl = canvas.toDataURL(mime, 0.95);
+    
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `page-${currentPage}.${format === 'png' ? 'png' : 'jpg'}`;
+    a.click();
+  });
+
+  extractAllBtn.addEventListener('click', async () => {
+    if(!pdfDocProxy) return;
+    
+    // Load JSZip dynamically
+    progressEl.style.display = 'block';
+    progressLabel.textContent = 'Preparing exporter...';
+    progressFill.style.width = '10%';
+    workspace.style.display = 'none';
+    
+    let JSZip = (window as any).JSZip;
+    if (!JSZip) {
+      await new Promise((res, rej) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        script.onload = () => { JSZip = (window as any).JSZip; res(null); };
+        script.onerror = rej;
+        document.head.appendChild(script);
+      });
+    }
+
+    const zip = new JSZip();
+    const format = getFmt();
+    const dpiScale = Number(dpiSelect.value) || 1.5625;
+    const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+    const ext = format === 'png' ? 'png' : 'jpg';
+    
+    for (let i = 1; i <= numPages; i++) {
+      progressFill.style.width = `${10 + (i/numPages)*80}%`;
+      progressLabel.textContent = `Extracting page ${i} of ${numPages}...`;
+      
+      const page = await pdfDocProxy.getPage(i);
+      const vp = page.getViewport({ scale: dpiScale });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width;
+      canvas.height = vp.height;
+      const ctx = canvas.getContext('2d')!;
+      
+      if (format === 'jpeg') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      const dataUrl = canvas.toDataURL(mime, 0.95);
+      const base64 = dataUrl.split(',')[1];
+      
+      zip.file(`page-${i}.${ext}`, base64, {base64: true});
+    }
+    
+    progressFill.style.width = '95%';
+    progressLabel.textContent = 'Zipping files...';
+    
+    const content = await zip.generateAsync({type:"blob"});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = `${currentFile!.name.replace('.pdf', '')}-images.zip`;
+    a.click();
+    
+    progressEl.style.display = 'none';
+    workspace.style.display = 'grid';
+  });
+
+  function reset() {
+    currentFile = null;
+    pdfDocProxy = null;
+    dropZone.style.display = 'flex';
+    workspace.style.display = 'none';
+    progressEl.style.display = 'none';
+  }
+  clearBtn.addEventListener('click', reset);
+</script>

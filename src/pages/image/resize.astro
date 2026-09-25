@@ -51,51 +51,54 @@ const howToSteps = [
       <div class="resize-layout">
         
         <!-- Controls -->
-        <div class="resize-controls">
-          <p class="resize-overline-text">Resize By</p>
-          
-          <div class="resize-tabs" role="tablist" style="flex-wrap: wrap; gap: 4px;">
-            <button class="resize-tab resize-tab--active" data-mode="px" id="mode-px" role="tab">px</button>
-            <button class="resize-tab" data-mode="pct" id="mode-pct" role="tab">%</button>
-            <button class="resize-tab" data-mode="cm" id="mode-cm" role="tab">cm</button>
-            <button class="resize-tab" data-mode="mm" id="mode-mm" role="tab">mm</button>
-            <button class="resize-tab" data-mode="in" id="mode-in" role="tab">in</button>
-          </div>
-          
-          <div class="resize-fields">
-            <div class="resize-field">
-              <label for="width-input" class="resize-label">Width</label>
-              <div class="resize-input-wrap">
-                <input type="number" id="width-input" class="resize-input" min="0.01" step="any" max="10000" />
-                <span class="resize-unit" id="unit-w">px</span>
+                  <div class="resize-controls" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); min-width:0;">
+            <h3 style="margin:0; font-size:1.125rem; font-weight:700; color:var(--color-ink-primary);">Resize Settings</h3>
+            
+            <div class="resize-tabs" role="tablist" style="display:flex; flex-wrap:wrap; gap:4px; background:rgba(0,0,0,0.04); padding:4px; border-radius:var(--radius-md);">
+              <button class="resize-tab resize-tab--active" data-mode="px" id="mode-px" role="tab">px</button>
+              <button class="resize-tab" data-mode="pct" id="mode-pct" role="tab">%</button>
+              <button class="resize-tab" data-mode="cm" id="mode-cm" role="tab">cm</button>
+              <button class="resize-tab" data-mode="mm" id="mode-mm" role="tab">mm</button>
+              <button class="resize-tab" data-mode="in" id="mode-in" role="tab">in</button>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:var(--space-4); margin-top:var(--space-2);">
+              <!-- Width -->
+              <div>
+                <label for="width-input" class="resize-label" style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Width</label>
+                <div class="resize-input-wrap" style="height:42px; display:flex; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); overflow:hidden;">
+                  <input type="number" id="width-input" class="resize-input" min="0.01" step="any" max="10000" style="flex:1; width:100%; border:none; background:transparent; font-size:1rem; color:var(--color-ink-primary); text-align:left; padding:0 12px; outline:none;" />
+                  <span class="resize-unit" id="unit-w" style="width:48px; text-align:center; padding:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.03); border-left:1px solid var(--color-border-hairline); font-size:0.8125rem; font-weight:600; color:var(--color-ink-muted);">px</span>
+                </div>
+              </div>
+              
+              <!-- Lock Button -->
+              <button id="lock-btn" class="resize-lock-btn resize-lock-btn--active" title="Toggle Aspect Ratio Lock" style="width:100%; height:42px; border:1px solid var(--color-border-default); background:#fff; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;">
+                <svg id="lock-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <svg id="unlock-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                <span id="lock-text" style="font-size:0.875rem; font-weight:600;">Lock Aspect Ratio</span>
+              </button>
+              
+              <!-- Height -->
+              <div>
+                <label for="height-input" class="resize-label" style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Height</label>
+                <div class="resize-input-wrap" style="height:42px; display:flex; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); overflow:hidden;">
+                  <input type="number" id="height-input" class="resize-input" min="0.01" step="any" max="10000" style="flex:1; width:100%; border:none; background:transparent; font-size:1rem; color:var(--color-ink-primary); text-align:left; padding:0 12px; outline:none;" />
+                  <span class="resize-unit" id="unit-h" style="width:48px; text-align:center; padding:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.03); border-left:1px solid var(--color-border-hairline); font-size:0.8125rem; font-weight:600; color:var(--color-ink-muted);">px</span>
+                </div>
               </div>
             </div>
             
-            <button id="lock-btn" class="resize-lock-btn" title="Toggle Aspect Ratio Lock">
-              <svg id="lock-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <svg id="unlock-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-            </button>
-            
-            <div class="resize-field">
-              <label for="height-input" class="resize-label">Height</label>
-              <div class="resize-input-wrap">
-                <input type="number" id="height-input" class="resize-input" min="0.01" step="any" max="10000" />
-                <span class="resize-unit" id="unit-h">px</span>
+            <div id="dpi-field" style="display:none; margin-top:var(--space-4);">
+              <label for="dpi-input" class="resize-label" style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Print Resolution (DPI)</label>
+              <div class="resize-input-wrap" style="height:42px; display:flex; border:1.5px solid var(--color-border-hairline); border-radius:var(--radius-sm); background:var(--color-canvas-base); overflow:hidden;">
+                <input type="number" id="dpi-input" class="resize-input" min="72" max="1200" value="300" style="flex:1; width:100%; border:none; background:transparent; font-size:1rem; color:var(--color-ink-primary); text-align:left; padding:0 12px; outline:none;" />
+                <span class="resize-unit" style="width:48px; text-align:center; padding:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.03); border-left:1px solid var(--color-border-hairline); font-size:0.8125rem; font-weight:600; color:var(--color-ink-muted);">dpi</span>
               </div>
+              <p style="font-size:0.75rem; color:var(--color-ink-muted); margin-top:4px;">Used to convert physical size to pixels.</p>
             </div>
           </div>
-          
-          <div class="resize-field" id="dpi-field" style="display:none; margin-top: var(--space-4);">
-            <label for="dpi-input" class="resize-label">Print Resolution (DPI)</label>
-            <div class="resize-input-wrap" style="max-width: 150px;">
-              <input type="number" id="dpi-input" class="resize-input" min="72" max="1200" value="300" />
-              <span class="resize-unit">dpi</span>
-            </div>
-            <p style="font-size: 0.75rem; color: var(--color-ink-muted); margin-top: 4px;">Used to convert physical size to pixels.</p>
-          </div>
-        </div>
-        
-        <!-- Preview -->
+          <!-- Preview -->
         <div class="resize-preview-area">
           <div class="resize-preview-card">
             <p class="resize-preview-label">Preview</p>
@@ -156,7 +159,7 @@ const howToSteps = [
 
   .resize-options-panel { display:flex; flex-direction:column; gap:var(--space-4); }
 
-  .resize-layout { display: grid; grid-template-columns: 300px 1fr; gap: var(--space-5); }
+  .resize-layout { display: grid; grid-template-columns: 360px 1fr; gap: var(--space-6); }
   @media (max-width: 768px) { .resize-layout { grid-template-columns: 1fr; } }
 
   .resize-controls { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
@@ -190,7 +193,7 @@ const howToSteps = [
     flex: 1; min-height: 200px;
     display: flex; align-items: center; justify-content: center;
   }
-  .resize-preview-canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .resize-preview-canvas { max-width: 100%; max-height: 400px; object-fit: contain; }
   .resize-preview-meta { display:flex; flex-direction:column; gap:2px; margin-top:var(--space-2); align-items: center; }
   .resize-estimate-size { font-size:1.5rem; font-weight:800; color:var(--color-brand-primary); font-variant-numeric:tabular-nums; }
 

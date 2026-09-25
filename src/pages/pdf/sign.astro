@@ -39,7 +39,8 @@ const howToSteps = [
   </div>
 
   <div slot="options">
-    <div id="sign-options" style="display:none;">
+    <div id="sign-options" style="display:none; grid-template-columns: 350px 1fr; gap:var(--space-6); align-items:start;" class="sign-options-grid">
+      <div class="sign-settings-col">
       
       <!-- Step 1: Create Signature -->
       <p class="overline-text" style="margin-bottom:var(--space-3);">1. Create Signature</p>
@@ -63,10 +64,20 @@ const howToSteps = [
       <!-- Step 2: Select Page -->
       <p class="overline-text" style="margin-bottom:var(--space-3);">2. Select Page</p>
       <div class="ti-row">
-        <label class="ti-label" for="page-select">Page to sign:</label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-2);">
+          <span class="ti-label">Page to sign:</span>
+          <div style="display:flex; align-items:center; gap:var(--space-2);">
+            <button class="btn btn-ghost btn-sm" id="prev-page" title="Previous page">&#8249; Prev</button>
+            <span class="wm-page-indicator" style="font-size:0.8125rem;">Page <strong id="cur-page-num">1</strong> / <strong id="total-page-num">1</strong></span>
+            <button class="btn btn-ghost btn-sm" id="next-page" title="Next page">Next &#8250;</button>
+          </div>
+        </div>
+        <select id="page-select" class="ti-input" style="display:none;"></select>
         <select id="page-select" class="input" style="max-width:200px;"></select>
       </div>
 
+      </div>
+      <div class="sign-preview-col" style="min-width:0;">
       <!-- Step 3: Place Signature -->
       <p class="overline-text" style="margin:var(--space-5) 0 var(--space-3);">3. Place Signature</p>
       <div id="loading-msg" style="display:none;" class="sign-loading">
@@ -74,7 +85,7 @@ const howToSteps = [
         <p class="caption-text" style="margin-top:var(--space-2);">Rendering page preview…</p>
       </div>
 
-      <div class="sign-preview-wrap" id="preview-wrap" style="display:none;">
+      <div class="sign-preview-wrap" id="preview-wrap" style="display:none; max-width:100%;">
         <div class="sign-preview-container" id="preview-container">
           <canvas id="pdf-preview-canvas"></canvas>
           <div class="draggable-signature" id="draggable-sig" draggable="true" style="left:50px; top:50px;">
@@ -86,6 +97,7 @@ const howToSteps = [
         <p class="caption-text" style="text-align:center;margin-top:var(--space-2);">Drag the signature to position it. Drag the corner to resize.</p>
       </div>
 
+      </div>
     </div>
   </div>
 
@@ -111,6 +123,8 @@ const howToSteps = [
 </ToolLayout>
 
 <style is:global>
+  .sign-options-grid { display:grid; }
+  @media(max-width:900px){ .sign-options-grid { grid-template-columns:1fr !important; } }
   .sign-file-info{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--theme-alpha-04);border:1px solid var(--theme-alpha-15);border-radius:var(--radius-md);margin-bottom:var(--space-4);}
   .sign-file-name{flex:1;font-size:.9375rem;font-weight:500;color:var(--color-ink-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   
@@ -249,6 +263,10 @@ const howToSteps = [
         opt.textContent = `Page ${i}`;
         if (i === totalPages) opt.selected = true; // default to last page
         pageSelect.appendChild(opt);
+      totalPageNum.textContent = String(numPages);
+      curPageNum.textContent = "1";
+      prevPageBtn.disabled = true;
+      nextPageBtn.disabled = numPages <= 1;
       }
       
       await renderPreview(totalPages);
@@ -261,7 +279,24 @@ const howToSteps = [
     }
   }
 
+  prevPageBtn.addEventListener('click', async () => {
+    if (pageSelect.selectedIndex > 0) {
+      pageSelect.selectedIndex--;
+      curPageNum.textContent = String(pageSelect.selectedIndex + 1);
+      pageSelect.dispatchEvent(new Event('change'));
+    }
+  });
+  nextPageBtn.addEventListener('click', async () => {
+    if (pageSelect.selectedIndex < pageSelect.options.length - 1) {
+      pageSelect.selectedIndex++;
+      curPageNum.textContent = String(pageSelect.selectedIndex + 1);
+      pageSelect.dispatchEvent(new Event('change'));
+    }
+  });
   pageSelect.addEventListener('change', async () => {
+    curPageNum.textContent = String(pageSelect.selectedIndex + 1);
+    prevPageBtn.disabled = pageSelect.selectedIndex === 0;
+    nextPageBtn.disabled = pageSelect.selectedIndex === pageSelect.options.length - 1;
     loadingMsg.style.display = 'flex';
     previewWrap.style.display = 'none';
     await renderPreview(Number(pageSelect.value));
