@@ -219,7 +219,7 @@ const howToSteps = [
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files; if(f&&f.length>0) load(Array.from(f).filter(x=>x.type.startsWith('image/'))); });
   fileInput.addEventListener('change', () => { if(fileInput.files?.length) load(Array.from(fileInput.files)); fileInput.value=''; });
 
-  function load(files: File[]) {
+  async function load(files: File[]) {
     if(!files.length) return;
     currentFiles = files;
     isBatch = files.length > 1;
