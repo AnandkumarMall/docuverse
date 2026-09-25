@@ -4,13 +4,11 @@ import { getAssetPath } from '../utils/paths';
 const currentYear = new Date().getFullYear();
 
 const footerLinks = {
-  pdf: [
+  pdfCore: [
     { name: "Merge PDF", href: getAssetPath("/pdf/merge") },
     { name: "Split PDF", href: getAssetPath("/pdf/split") },
     { name: "Compress PDF", href: getAssetPath("/pdf/compress") },
     { name: "PDF Editor", href: getAssetPath("/pdf/editor") },
-    { name: "PDF to Word", href: getAssetPath("/pdf/to-word") },
-    { name: "PDF to Image", href: getAssetPath("/pdf/to-image") },
     { name: "Protect PDF", href: getAssetPath("/pdf/protect") },
     { name: "Unlock PDF", href: getAssetPath("/pdf/unlock") },
     { name: "Watermark PDF", href: getAssetPath("/pdf/watermark") },
@@ -18,20 +16,11 @@ const footerLinks = {
     { name: "Organize PDF", href: getAssetPath("/pdf/organize") },
     { name: "Combine PDF", href: getAssetPath("/pdf/combine-pdf") },
     { name: "Reduce PDF Size", href: getAssetPath("/pdf/reduce-pdf-size") },
+  ],
+  converters: [
+    { name: "PDF to Word", href: getAssetPath("/pdf/to-word") },
     { name: "PDF to JPG", href: getAssetPath("/pdf/to-jpg") },
     { name: "PDF to PNG", href: getAssetPath("/pdf/to-png") },
-  ],
-  imageCore: [
-    { name: "Crop Image", href: getAssetPath("/image/crop") },
-    { name: "Compress Image", href: getAssetPath("/image/compress") },
-    { name: "Resize Image", href: getAssetPath("/image/resize") },
-    { name: "Convert Format", href: getAssetPath("/image/convert") },
-    { name: "Image to PDF", href: getAssetPath("/image/to-pdf") },
-    { name: "Remove EXIF", href: getAssetPath("/image/remove-exif") },
-    { name: "Color Picker", href: getAssetPath("/image/color-picker") },
-    { name: "Watermark Image", href: getAssetPath("/image/watermark") },
-  ],
-  imageConverters: [
     { name: "JPG to PDF", href: getAssetPath("/image/jpg-to-pdf") },
     { name: "PNG to PDF", href: getAssetPath("/image/png-to-pdf") },
     { name: "WebP to JPG", href: getAssetPath("/image/webp-to-jpg") },
@@ -41,7 +30,13 @@ const footerLinks = {
     { name: "HEIC to JPG", href: getAssetPath("/image/heic-to-jpg") },
     { name: "SVG to PNG", href: getAssetPath("/image/svg-to-png") },
   ],
-  imageCompressors: [
+  imageTools: [
+    { name: "Crop Image", href: getAssetPath("/image/crop") },
+    { name: "Resize Image", href: getAssetPath("/image/resize") },
+    { name: "Remove EXIF", href: getAssetPath("/image/remove-exif") },
+    { name: "Color Picker", href: getAssetPath("/image/color-picker") },
+    { name: "Watermark Image", href: getAssetPath("/image/watermark") },
+    { name: "Compress Image", href: getAssetPath("/image/compress") },
     { name: "Compress JPEG", href: getAssetPath("/image/compress-jpeg") },
     { name: "Compress PNG", href: getAssetPath("/image/compress-png") },
     { name: "Compress to 20KB", href: getAssetPath("/image/compress-image-to-20kb") },
@@ -93,30 +88,25 @@ const footerLinks = {
       <div class="footer-links-col">
         <p class="footer-col-title">PDF Tools</p>
         <ul class="footer-link-list">
-          {footerLinks.pdf.map(link => (
+          {footerLinks.pdfCore.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
       </div>
 
       <div class="footer-links-col">
-        <p class="footer-col-title">Image Editing</p>
+        <p class="footer-col-title">Converters</p>
         <ul class="footer-link-list">
-          {footerLinks.imageCore.map(link => (
+          {footerLinks.converters.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
+      </div>
 
-        <p class="footer-col-title" style="margin-top: var(--space-6);">Converters</p>
+      <div class="footer-links-col">
+        <p class="footer-col-title">Image Tools</p>
         <ul class="footer-link-list">
-          {footerLinks.imageConverters.map(link => (
-            <li><a href={link.href}>{link.name}</a></li>
-          ))}
-        </ul>
-
-        <p class="footer-col-title" style="margin-top: var(--space-6);">Compressors</p>
-        <ul class="footer-link-list">
-          {footerLinks.imageCompressors.map(link => (
+          {footerLinks.imageTools.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
@@ -129,6 +119,7 @@ const footerLinks = {
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
+        
         <p class="footer-col-title" style="margin-top: var(--space-6);">Company</p>
         <ul class="footer-link-list">
           {footerLinks.company.map(link => (
@@ -179,9 +170,9 @@ const footerLinks = {
     }
   }
 
-  @media (min-width: 1100px) {
+  @media (min-width: 1024px) {
     .footer-grid {
-      grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
     }
     .footer-brand-col {
       grid-column: span 1;
@@ -230,8 +221,6 @@ const footerLinks = {
     color: var(--color-accent-green);
   }
 
-
-
   .footer-col-title {
     font-family: var(--font-sans-body);
     font-size: 0.75rem;
@@ -244,31 +233,24 @@ const footerLinks = {
 
   .footer-link-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    flex-direction: column;
+    gap: var(--space-1);
+    list-style: none;
     padding: 0;
     margin: 0;
-    list-style: none;
   }
 
   .footer-link-list a {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    background-color: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: 9999px;
-    font-size: 0.8125rem;
-    font-weight: 500;
+    display: inline-block;
+    padding-block: var(--space-1);
+    font-size: 0.875rem;
     color: var(--color-ink-secondary);
     text-decoration: none;
-    transition: all var(--duration-fast) var(--ease-out);
+    transition: color var(--duration-fast) var(--ease-out);
   }
 
   .footer-link-list a:hover {
-    background-color: var(--color-canvas-overlay);
-    border-color: var(--color-brand-primary);
-    color: var(--color-brand-primary);
+    color: var(--color-ink-primary);
   }
 
   /* Bottom bar */
