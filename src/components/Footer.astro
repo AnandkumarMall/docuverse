@@ -106,19 +106,15 @@ const footerLinks = {
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
-      </div>
 
-      <div class="footer-links-col">
-        <p class="footer-col-title">Converters</p>
+        <p class="footer-col-title" style="margin-top: var(--space-6);">Converters</p>
         <ul class="footer-link-list">
           {footerLinks.imageConverters.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
-      </div>
 
-      <div class="footer-links-col">
-        <p class="footer-col-title">Compressors</p>
+        <p class="footer-col-title" style="margin-top: var(--space-6);">Compressors</p>
         <ul class="footer-link-list">
           {footerLinks.imageCompressors.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
@@ -185,7 +181,7 @@ const footerLinks = {
 
   @media (min-width: 1100px) {
     .footer-grid {
-      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr;
     }
     .footer-brand-col {
       grid-column: span 1;
@@ -248,21 +244,31 @@ const footerLinks = {
 
   .footer-link-list {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    margin: 0;
+    list-style: none;
   }
 
   .footer-link-list a {
-    display: inline-block;
-    padding-block: var(--space-1);
-    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: var(--color-canvas-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
     color: var(--color-ink-secondary);
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out);
+    transition: all var(--duration-fast) var(--ease-out);
   }
 
   .footer-link-list a:hover {
-    color: var(--color-ink-primary);
+    background-color: var(--color-canvas-overlay);
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary);
   }
 
   /* Bottom bar */
