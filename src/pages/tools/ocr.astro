@@ -153,7 +153,7 @@ const howToSteps = [
 
     try {
       // Dynamically import Tesseract
-      const { createWorker } = await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js' as any);
+      const { createWorker } = await import('tesseract.js');
       showProgress(20, 'Loading language data…');
       const worker = await createWorker(lang, 1, {
         logger: (m: any) => {

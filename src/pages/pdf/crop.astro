@@ -204,9 +204,9 @@ const howToSteps = [
     try {
       const buf = await f.arrayBuffer();
       const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/pdf.worker.min.mjs`;
 
-      const loadingTask = pdfjsLib.getDocument({ data: buf });
+      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buf) });
       pdfDocProxy = await loadingTask.promise;
       numPages = pdfDocProxy.numPages;
       currentPage = 1;

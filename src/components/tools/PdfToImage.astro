@@ -90,10 +90,7 @@ const howToSteps = [
 
 <script>
   import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
-  // We use JSZip purely for frontend ZIP generation (added as a dependency dynamically if needed, 
-  // but let's just do sequential download or dynamic import if we have it). 
-  // Actually, we can use a small jszip logic or just trigger multiple downloads if it's small, 
-  // but JSZip is much better. Since we don't know if JSZip is installed, let's inject it from CDN for simplicity here.
+  // We use fflate purely for frontend ZIP generation.
   
   let currentFile: File | null = null;
   let pdfDocProxy: any = null;
@@ -205,25 +202,15 @@ const howToSteps = [
 
   extractAllBtn.addEventListener('click', async () => {
     if(!pdfDocProxy) return;
-    
-    // Load JSZip dynamically
+    // Load fflate dynamically
     progressEl.style.display = 'block';
     progressLabel.textContent = 'Preparing exporter...';
     progressFill.style.width = '10%';
     workspace.style.display = 'none';
     
-    let JSZip = (window as any).JSZip;
-    if (!JSZip) {
-      await new Promise((res, rej) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-        script.onload = () => { JSZip = (window as any).JSZip; res(null); };
-        script.onerror = rej;
-        document.head.appendChild(script);
-      });
-    }
-
-    const zip = new JSZip();
+    const fflate = await import('fflate');
+    
+    const zipFiles: Record<string, Uint8Array> = {};
     const format = getFmt();
     const dpiScale = Number(dpiSelect.value) || 1.5625;
     const mime = format === 'png' ? 'image/png' : 'image/jpeg';
@@ -249,13 +236,21 @@ const howToSteps = [
       const dataUrl = canvas.toDataURL(mime, 0.95);
       const base64 = dataUrl.split(',')[1];
       
-      zip.file(`page-${i}.${ext}`, base64, {base64: true});
+      // Convert base64 to Uint8Array for fflate
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let j = 0; j < binaryString.length; j++) {
+        bytes[j] = binaryString.charCodeAt(j);
+      }
+      
+      zipFiles[`page-${i}.${ext}`] = bytes;
     }
     
     progressFill.style.width = '95%';
     progressLabel.textContent = 'Zipping files...';
     
-    const content = await zip.generateAsync({type:"blob"});
+    const zipped = fflate.zipSync(zipFiles);
+    const content = new Blob([zipped], { type: 'application/zip' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(content);
     a.download = `${currentFile!.name.replace('.pdf', '')}-images.zip`;

@@ -192,9 +192,6 @@ const howToSteps = [
 
 <script>
   import * as fflate from 'fflate';
-  import { encode as encodeJpeg } from '@jsquash/jpeg';
-  import { encode as encodeWebp } from '@jsquash/webp';
-  import { optimise as optimisePng } from '@jsquash/oxipng';
 
   let currentFiles: File[] = [];
   let currentImg: HTMLImageElement | null = null;
@@ -345,30 +342,22 @@ const howToSteps = [
     ctx.drawImage(currentImg, 0, 0, compCanvas.width, compCanvas.height);
 
     const type = getTargetMimeType(firstFile.type);
-    
     const imageData = ctx.getImageData(0, 0, compCanvas.width, compCanvas.height);
     
-    (async () => {
-      spinner.style.display = 'inline-block';
-      try {
-        let buffer: ArrayBuffer;
-        if (type === 'image/jpeg') {
-          buffer = await encodeJpeg(imageData, { quality: Math.floor(quality * 100) });
-        } else if (type === 'image/webp') {
-          buffer = await encodeWebp(imageData, { quality: Math.floor(quality * 100) });
-        } else {
-          // PNG - oxipng doesn't use quality, it's lossless. We just pass it through.
-          // Wait, oxipng requires Uint8Array of the *already encoded* PNG, or raw imageData?
-          // Let's use canvas.toBlob for PNG and then optimise it.
-          const blob = await new Promise<Blob | null>(resolve => compCanvas.toBlob(resolve, 'image/png'));
-          if (!blob) throw new Error('PNG encode failed');
-          const arrayBuffer = await blob.arrayBuffer();
-          buffer = await optimisePng(arrayBuffer, { level: 2 });
-        }
-        
-        const blob = new Blob([buffer], { type });
+    // Convert to ArrayBuffer for transfer
+    const rgbaBuffer = imageData.data.buffer;
+    
+    spinner.style.display = 'inline-block';
+    estSizeText.textContent = '...';
+
+    const worker = new Worker(new URL('../../workers/imageCompressWorker.ts', import.meta.url), { type: 'module' });
+    
+    worker.onmessage = (e) => {
+      const { type: msgType, payload } = e.data;
+      if (msgType === 'SUCCESS') {
         spinner.style.display = 'none';
         
+        const blob = new Blob([payload.buffer], { type });
         if(latestBlobUrl) URL.revokeObjectURL(latestBlobUrl);
         latestBlobUrl = URL.createObjectURL(blob);
         compImg.src = latestBlobUrl;
@@ -386,12 +375,32 @@ const howToSteps = [
           estSavings.textContent = `Larger than original`;
           estSavings.style.color = 'var(--color-ink-faint)';
         }
-      } catch (err) {
-        console.error(err);
+        worker.terminate();
+      } else if (msgType === 'ERROR') {
+        console.error(payload.error);
         spinner.style.display = 'none';
         estSizeText.textContent = 'Error';
+        worker.terminate();
       }
-    })();
+    };
+    
+    worker.onerror = (e) => {
+      console.error(e);
+      spinner.style.display = 'none';
+      estSizeText.textContent = 'Error';
+      worker.terminate();
+    };
+
+    worker.postMessage({
+      type: 'COMPRESS_SINGLE',
+      payload: {
+        rgbaBuffer,
+        width: compCanvas.width,
+        height: compCanvas.height,
+        quality: Math.floor(quality * 100),
+        format: type
+      }
+    }, [rgbaBuffer]);
   }
 
   // ── Auto Calculate ───────────────────────────────────────
@@ -405,25 +414,31 @@ const howToSteps = [
     cx.drawImage(currentImg!, 0, 0, c.width, c.height);
     const type = getTargetMimeType(currentFiles[0].type);
     const imageData = cx.getImageData(0, 0, c.width, c.height);
+    const rgbaBuffer = imageData.data.buffer;
 
-    try {
-      if (type === 'image/jpeg') {
-        const buf = await encodeJpeg(imageData, { quality: Math.floor(quality * 100) });
-        return buf.byteLength;
-      } else if (type === 'image/webp') {
-        const buf = await encodeWebp(imageData, { quality: Math.floor(quality * 100) });
-        return buf.byteLength;
-      } else {
-        const blob = await new Promise<Blob | null>(resolve => c.toBlob(resolve, 'image/png'));
-        if (!blob) return Infinity;
-        const arrayBuffer = await blob.arrayBuffer();
-        const buf = await optimisePng(arrayBuffer, { level: 2 });
-        return buf.byteLength;
-      }
-    } catch (e) {
-      console.error(e);
-      return Infinity;
-    }
+    return new Promise((resolve) => {
+      const worker = new Worker(new URL('../../workers/imageCompressWorker.ts', import.meta.url), { type: 'module' });
+      worker.onmessage = (e) => {
+        if (e.data.type === 'SUCCESS') {
+          resolve(e.data.payload.buffer.byteLength);
+          worker.terminate();
+        } else {
+          resolve(Infinity);
+          worker.terminate();
+        }
+      };
+      worker.onerror = () => { resolve(Infinity); worker.terminate(); };
+      worker.postMessage({
+        type: 'COMPRESS_SINGLE',
+        payload: {
+          rgbaBuffer,
+          width: c.width,
+          height: c.height,
+          quality: Math.floor(quality * 100),
+          format: type
+        }
+      }, [rgbaBuffer]);
+    });
   }
 
   autoCompressBtn.addEventListener('click', async () => {

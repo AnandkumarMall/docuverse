@@ -209,7 +209,8 @@ const howToSteps = [
   
   let currentFile: File | null = null;
   let compressedBlobUrl: string | null = null;
-  
+  // Removed cachedBuffer to fix detached ArrayBuffer issue
+
   // Preview State
   let pdfPreviewDoc: any = null;
   let pdfPreviewNumPages = 0;
@@ -239,6 +240,12 @@ const howToSteps = [
       (window as any).showToast('Please upload a PDF file.', 'error');
       return;
     }
+    // Magic-byte validation (%PDF-)
+    const hdr = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+    if (hdr[0] !== 0x25 || hdr[1] !== 0x50 || hdr[2] !== 0x44 || hdr[3] !== 0x46) {
+      (window as any).showToast('This file does not appear to be a valid PDF.', 'error');
+      return;
+    }
     currentFile = file;
     fileNameEl.textContent = file.name;
     fileSizeEl.textContent = fmt(file.size);
@@ -263,8 +270,8 @@ const howToSteps = [
       if (!pdfPreviewDoc) {
         const arrayBuffer = await file.arrayBuffer();
         const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer.slice(0) });
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/pdf.worker.min.mjs`;
+        const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
         pdfPreviewDoc = await loadingTask.promise;
         pdfPreviewNumPages = pdfPreviewDoc.numPages;
       }
@@ -282,8 +289,9 @@ const howToSteps = [
       ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
       
       await page.render({ canvasContext: ctx, viewport }).promise;
-    } catch(e) {
+    } catch(e: any) {
       console.error(e);
+      alert('PdfCompress Error: ' + (e.message || e));
     } finally {
       previewLoading.style.display = 'none';
     }
@@ -393,115 +401,96 @@ const howToSteps = [
          compressedBytes = new Uint8Array(result.pdf);
          
       } else {
-         // Extreme Mode (Rasterize to target size)
-         progressText.textContent = 'Loading Engine...';
-         const targetKB = Number((document.getElementById('target-size-input') as HTMLInputElement).value);
-         if (!targetKB || targetKB <= 0) throw new Error('Please enter a valid target size (KB).');
-         const targetBytes = targetKB * 1024;
-         const arrayBuffer = await currentFile.arrayBuffer();
+        // ── Extreme Mode: stream-render pages → transfer RGBA buffers to worker ──
+        progressText.textContent = 'Loading PDF engine…';
+        const targetKB = Number((document.getElementById('target-size-input') as HTMLInputElement).value);
+        if (!targetKB || targetKB <= 0) throw new Error('Please enter a valid target size (KB).');
+        const targetBytes = targetKB * 1024;
 
-         const pdfjsLib = await import('pdfjs-dist');
-         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+        const arrayBuffer = await currentFile.arrayBuffer();
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/pdf.worker.min.mjs`;
 
-         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-         const pdf = await loadingTask.promise;
-         const numPages = pdf.numPages;
+        const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        const numPages = pdf.numPages;
+        
+        // Dynamically adjust scale to preserve readability at tiny sizes
+        const targetKBPerPage = targetKB / numPages;
+        let renderScale = 2.0;
+        if (targetKBPerPage < 30) renderScale = 0.75; // Ultra low target: reduce resolution to save quality
+        else if (targetKBPerPage < 75) renderScale = 1.0;
+        else if (targetKBPerPage < 150) renderScale = 1.5;
 
-         progressText.textContent = `Rasterizing ${numPages} pages...`;
-         
-         // 1. Render all pages to memory
-         const pageImages: { imageData: ImageData, width: number, height: number }[] = [];
-         
-         for (let i = 1; i <= numPages; i++) {
-            progressBar.style.width = `${(i / numPages) * 30}%`;
-            const page = await pdf.getPage(i);
-            const viewport = page.getViewport({ scale: 2.0 }); // Render at 2x for quality
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            await page.render({ canvasContext: ctx, viewport }).promise;
-            
-            pageImages.push({
-               imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
-               width: canvas.width,
-               height: canvas.height
-            });
-         }
-         
-         progressText.textContent = 'Searching for optimal compression...';
-         const { encode: encodeJpeg } = await import('@jsquash/jpeg');
-         
-         // 2. Binary search over qualities
-         let bestJpegs: Uint8Array[] | null = null;
-         let bestSize = Infinity;
-         const qualities = [90, 80, 70, 60, 50, 40, 30, 20, 10];
-         let found = false;
-         
-         for (let i = 0; i < qualities.length; i++) {
-            const q = qualities[i];
-            progressBar.style.width = `${30 + ((i / qualities.length) * 40)}%`;
-            progressText.textContent = `Testing compression strength (${100 - q}%)...`;
-            
-            let totalBytes = 0;
-            const currentJpegs: Uint8Array[] = [];
-            
-            for (const p of pageImages) {
-               const jpg = await encodeJpeg(p.imageData, { quality: q });
-               currentJpegs.push(new Uint8Array(jpg));
-               totalBytes += jpg.byteLength;
-                await new Promise(r => setTimeout(r, 10)); // Yield to UI thread
+        progressText.textContent = `Rasterising ${numPages} pages (streaming at ${renderScale}x)…`;
+
+        // Render ONE PAGE AT A TIME and immediately transfer RGBA to worker.
+        // Peak main-thread RAM: ~8 MB (one canvas) vs old ~800 MB (all pages).
+        const pageRGBABuffers: ArrayBuffer[] = [];
+        const widths: number[] = [];
+        const heights: number[] = [];
+
+        for (let i = 1; i <= numPages; i++) {
+          progressBar.style.width = `${(i / numPages) * 25}%`;
+          progressText.textContent = `Rasterising page ${i} / ${numPages}…`;
+          await new Promise(r => setTimeout(r, 0)); // yield for paint
+
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: renderScale });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          widths.push(canvas.width);
+          heights.push(canvas.height);
+          pageRGBABuffers.push(imgData.data.buffer); // take ownership
+          canvas.width = 0; canvas.height = 0; // release GPU memory immediately
+        }
+
+        progressText.textContent = 'Searching optimal quality in worker…';
+        progressBar.style.width = '28%';
+
+        compressedBytes = await new Promise<Uint8Array>((resolve, reject) => {
+          const worker = new Worker(
+            new URL('../../workers/pdfCompressWorker.ts', import.meta.url),
+            { type: 'module' }
+          );
+          worker.onmessage = async (ev) => {
+            const { type: t, payload: p } = ev.data;
+            if (t === 'PROGRESS') {
+              progressBar.style.width = `${28 + p.progress * 0.6}%`;
+              progressText.textContent = p.text;
+            } else if (t === 'WARNING') {
+              (window as any).showToast(p.message, 'error');
+            } else if (t === 'SUCCESS') {
+              worker.terminate();
+              progressText.textContent = 'Rebuilding PDF…';
+              progressBar.style.width = '90%';
+              try {
+                const { PDFDocument } = await import('pdf-lib');
+                const newPdf = await PDFDocument.create();
+                for (let i = 0; i < p.jpegs.length; i++) {
+                  const emb = await newPdf.embedJpg(new Uint8Array(p.jpegs[i] as ArrayBuffer));
+                  const pg = newPdf.addPage([widths[i] / renderScale, heights[i] / renderScale]);
+                  pg.drawImage(emb, { x: 0, y: 0, width: widths[i] / renderScale, height: heights[i] / renderScale });
+                }
+                resolve(await newPdf.save());
+              } catch (e) { reject(e); }
+            } else if (t === 'ERROR') {
+              worker.terminate(); reject(new Error(p.error));
             }
-            
-            const estimatedOverhead = numPages * 1024; // 1KB per page overhead
-            const estPdfSize = totalBytes + estimatedOverhead;
-            
-            // Keep the smallest we've seen if we don't hit target
-            if (estPdfSize < bestSize) {
-               bestSize = estPdfSize;
-               bestJpegs = currentJpegs;
-            }
-            
-            if (estPdfSize <= targetBytes) {
-               found = true;
-               break;
-            }
-         }
-         
-         if (!found) {
-            console.warn("Could not reach strict target size, using max compression.");
-            (window as any).showToast('Target size extremely small. Applied maximum compression.', 'error');
-         }
-         
-         progressText.textContent = 'Rebuilding PDF...';
-         progressBar.style.width = '80%';
-         
-         // 3. Rebuild PDF
-         const { PDFDocument } = await import('pdf-lib');
-         const newPdf = await PDFDocument.create();
-         
-         for (let i = 0; i < bestJpegs!.length; i++) {
-            progressBar.style.width = `${80 + ((i / bestJpegs!.length) * 20)}%`;
-            const jpgBytes = bestJpegs![i];
-            const origImage = pageImages[i];
-            
-            const embeddedJpg = await newPdf.embedJpg(jpgBytes);
-            // Add page at original size (we scaled by 2.0 when rendering)
-            const page = newPdf.addPage([origImage.width / 2, origImage.height / 2]);
-            page.drawImage(embeddedJpg, {
-               x: 0,
-               y: 0,
-               width: origImage.width / 2,
-               height: origImage.height / 2,
-            });
-         }
-         
-         compressedBytes = await newPdf.save();
+          };
+          worker.onerror = (ev) => { worker.terminate(); reject(new Error(ev.message)); };
+          // Transfer ownership of RGBA buffers — zero-copy
+          worker.postMessage(
+            { type: 'COMPRESS_EXTREME', payload: { pageRGBABuffers, widths, heights, targetBytes } },
+            pageRGBABuffers
+          );
+        });
       }
       
       progressBar.style.width = '100%';

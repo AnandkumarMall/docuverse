@@ -139,13 +139,10 @@ const howToSteps = [
 
 </ToolLayout>
 
-<!-- SheetJS CDN -->
-<script is:inline src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<!-- html2pdf CDN -->
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  import * as XLSX from 'xlsx';
+  import html2pdf from 'html2pdf.js';
 
-<script is:inline>
-(function() {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
   const fileInfo = document.getElementById('xl-file-info');
@@ -401,7 +398,7 @@ const howToSteps = [
     if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
     return (b/1048576).toFixed(1) + ' MB';
   }
-})();
+
 </script>
 
 <style is:global>

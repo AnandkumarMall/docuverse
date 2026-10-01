@@ -117,12 +117,12 @@ const faqs = [
     progressLabel.textContent = 'Loading PDF Engine…';
     
     const pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/pdf.worker.min.mjs`;
     const loadingTask = pdfjsLib.getDocument({ 
-      data: buf.slice(0),
-      cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
+      data: new Uint8Array(buf),
+      cMapUrl: `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/cmaps/`,
       cMapPacked: true,
-      standardFontDataUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/standard_fonts/`
+      standardFontDataUrl: `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/standard_fonts/`
     });
     const pdfDoc = await loadingTask.promise;
     const numPages = pdfDoc.numPages;

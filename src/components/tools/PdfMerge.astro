@@ -273,7 +273,7 @@ const howToSteps = [
     
     try {
         const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/pdf.worker.min.mjs`;
         
         for (let i = 0; i < newFiles.length; i++) {
             const file = newFiles[i];
@@ -292,7 +292,7 @@ const howToSteps = [
             sourceFiles.set(fileId, { id: fileId, name: file.name, buffer, color });
             
             try {
-                const loadingTask = pdfjsLib.getDocument({ data: buffer.slice(0) });
+                const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
                 const doc = await loadingTask.promise;
                 
                 for (let pageNum = 1; pageNum <= doc.numPages; pageNum++) {
@@ -302,24 +302,35 @@ const howToSteps = [
                         pageIndex: pageNum - 1 
                     };
                     pages.push(pState);
-                    renderGrid();
+                    renderGrid(); // initial render — pState has no thumbnail yet
                     
-                    // Render thumbnail asynchronously
+                    // Render thumbnail asynchronously — O(1) update instead of O(n) grid rebuild
                     doc.getPage(pageNum).then(async (page) => {
-                        // Use a higher scale for sharper thumbnails
                         const viewport = page.getViewport({ scale: 1.0 });
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
                         canvas.width = viewport.width;
                         canvas.height = viewport.height;
-                        
                         ctx.fillStyle = '#ffffff';
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
                         await page.render({ canvasContext: ctx, viewport }).promise;
-                        // Higher quality output
                         pState.dataUrl = canvas.toDataURL('image/webp', 0.8);
-                        renderGrid();
+                        // Release GPU memory immediately
+                        canvas.width = 0; canvas.height = 0;
+                        // O(1): only update THIS card's image — not the whole grid
+                        const card = pageGrid.querySelector(`[data-page-id="${pState.id}"]`);
+                        if (card) {
+                            const thumb = card.querySelector('.org-thumb') as HTMLElement;
+                            const existingImg = thumb?.querySelector('img');
+                            if (existingImg) {
+                                existingImg.src = pState.dataUrl;
+                            } else if (thumb) {
+                                const img = document.createElement('img');
+                                img.src = pState.dataUrl;
+                                img.alt = `Page ${pState.pageIndex + 1}`;
+                                thumb.replaceChildren(img, thumb.querySelector('.org-controls')!);
+                            }
+                        }
                     }).catch(console.error);
                 }
             } catch (err: any) {
@@ -347,51 +358,79 @@ const howToSteps = [
       const fileData = sourceFiles.get(p.fileId)!;
       const card = document.createElement('div');
       card.className = 'org-page';
+      card.dataset.pageId = p.id; // for O(1) thumbnail update
       card.draggable = true;
-      
-      const thumbHtml = p.dataUrl 
-        ? `<img src="${p.dataUrl}" alt="Page ${p.pageIndex + 1}" />`
-        : `<span class="org-thumb-placeholder">Loading...</span>`;
 
-      card.innerHTML = `
-        <div class="org-thumb" style="border-color: ${fileData.color};">
-          ${thumbHtml}
-          <div class="org-controls">
-            <button class="org-ctrl-btn" data-action="delete" aria-label="Delete page">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="org-page-meta">
-          <span class="org-file-badge" style="background: ${fileData.color}" title="${fileData.name}">${fileData.name}</span>
-          <span class="org-page-num">Page ${p.pageIndex + 1}</span>
-        </div>
-      `;
-      
-      // Delete event
-      card.querySelector('[data-action="delete"]')?.addEventListener('click', (e) => { 
-          e.stopPropagation(); 
-          pages.splice(idx, 1); 
-          renderGrid(); 
+      // Build card using safe DOM APIs — no innerHTML with user-controlled data
+      const thumb = document.createElement('div');
+      thumb.className = 'org-thumb';
+      thumb.style.borderColor = fileData.color; // from predefined array, safe
+
+      if (p.dataUrl) {
+        const img = document.createElement('img');
+        img.src = p.dataUrl; // canvas.toDataURL() output — safe
+        img.alt = `Page ${p.pageIndex + 1}`;
+        thumb.appendChild(img);
+      } else {
+        const ph = document.createElement('span');
+        ph.className = 'org-thumb-placeholder';
+        ph.textContent = 'Loading…';
+        thumb.appendChild(ph);
+      }
+
+      const controls = document.createElement('div');
+      controls.className = 'org-controls';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'org-ctrl-btn';
+      deleteBtn.dataset.action = 'delete';
+      deleteBtn.setAttribute('aria-label', 'Delete page');
+      // SVG is static — safe to use innerHTML here only for the icon
+      deleteBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      controls.appendChild(deleteBtn);
+      thumb.appendChild(controls);
+
+      const meta = document.createElement('div');
+      meta.className = 'org-page-meta';
+
+      const badge = document.createElement('span');
+      badge.className = 'org-file-badge';
+      badge.style.background = fileData.color;
+      const shortName = fileData.name.length > 18 ? fileData.name.slice(0, 16) + '…' : fileData.name;
+      badge.textContent = shortName; // textContent — XSS-safe
+      badge.title = fileData.name;   // attribute — XSS-safe
+
+      const pageNum = document.createElement('span');
+      pageNum.className = 'org-page-num';
+      pageNum.textContent = `Page ${p.pageIndex + 1}`;
+
+      meta.appendChild(badge);
+      meta.appendChild(pageNum);
+      card.appendChild(thumb);
+      card.appendChild(meta);
+
+      // Wire events
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pages.splice(idx, 1);
+        renderGrid();
       });
-      
-      // Drag events
       card.addEventListener('dragstart', () => { dragSrc = idx; card.classList.add('dragging'); });
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
       card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('drag-over'); });
       card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-      card.addEventListener('drop', (e) => { 
-          e.preventDefault(); 
-          card.classList.remove('drag-over'); 
-          if (dragSrc !== null && dragSrc !== idx) { 
-              const moved = pages.splice(dragSrc, 1)[0]; 
-              pages.splice(idx, 0, moved); 
-              dragSrc = null; 
-              renderGrid(); 
-          } 
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        if (dragSrc !== null && dragSrc !== idx) {
+          const moved = pages.splice(dragSrc, 1)[0];
+          pages.splice(idx, 0, moved);
+          dragSrc = null;
+          renderGrid();
+        }
       });
-      
+
       pageGrid.appendChild(card);
+
     });
     
     if (pages.length === 0) {
