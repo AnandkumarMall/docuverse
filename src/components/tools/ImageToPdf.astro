@@ -185,7 +185,7 @@ const howToSteps = [
   let dragSrcEl: HTMLElement | null = null;
 
   function renderGrid() {
-    topdfGrid.innerHTML = '';
+    topdfGrid.textContent = '';
     images.forEach((img, idx) => {
       const el = document.createElement('div');
       el.className = 'topdf-card';

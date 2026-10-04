@@ -195,7 +195,7 @@ const howToSteps = [
         exifCount.textContent = `${keys.length} tags`;
         stripBtn.disabled = false;
         
-        exifBody.innerHTML = '';
+        exifBody.textContent = '';
         keys.forEach(k => {
           let val = output[k];
           
@@ -224,19 +224,39 @@ const howToSteps = [
           }
 
           const tr = document.createElement('tr');
-          tr.innerHTML = `<th>${keyName}</th><td style="word-break:break-all;">${val}</td>`;
+          const th = document.createElement('th');
+          th.textContent = keyName;
+          const td = document.createElement('td');
+          td.style.wordBreak = 'break-all';
+          td.textContent = val;
+          tr.appendChild(th);
+          tr.appendChild(td);
           exifBody.appendChild(tr);
         });
       } else {
         hasExif = false;
         exifCount.textContent = `0 tags`;
-        exifBody.innerHTML = `<tr><td colspan="2" class="exif-empty">No EXIF data found. This image is already clean.</td></tr>`;
+        exifBody.textContent = '';
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 2;
+        td.className = 'exif-empty';
+        td.textContent = 'No EXIF data found. This image is already clean.';
+        tr.appendChild(td);
+        exifBody.appendChild(tr);
         stripBtn.disabled = true;
       }
     } catch(e) {
       hasExif = false;
       exifCount.textContent = `Error`;
-      exifBody.innerHTML = `<tr><td colspan="2" class="exif-empty">Could not parse EXIF data.</td></tr>`;
+      exifBody.textContent = '';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 2;
+      td.className = 'exif-empty';
+      td.textContent = 'Could not parse EXIF data.';
+      tr.appendChild(td);
+      exifBody.appendChild(tr);
       stripBtn.disabled = true;
     }
   }

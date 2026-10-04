@@ -351,7 +351,7 @@ const howToSteps = [
 
   // ── Rendering Grid ────────────────────────────────────────
   function renderGrid() {
-    pageGrid.innerHTML = '';
+    pageGrid.textContent = '';
     pageCount.textContent = `${pages.length} page${pages.length !== 1 ? 's' : ''}`;
     
     pages.forEach((p, idx) => {
@@ -536,7 +536,7 @@ const howToSteps = [
     pages = [];
     colorIndex = 0;
     dropZone.style.display = 'flex';
-    pageGrid.innerHTML = '';
+    pageGrid.textContent = '';
     pageGrid.style.display = 'grid';
     mergeActions.style.display = 'none';
     mergeResult.style.display = 'none';

@@ -152,7 +152,7 @@ const howToSteps = [
   }
 
   function renderGrid() {
-    pageGrid.innerHTML = '';
+    pageGrid.textContent = '';
     pageCount.textContent = `${pages.length} page${pages.length !== 1 ? 's' : ''}`;
     pages.forEach((p, i) => {
       const card = document.createElement('div');
@@ -222,7 +222,7 @@ const howToSteps = [
     saveBtn.disabled = false;
   });
 
-  function reset(){currentFile=null;pages=[];dropZone.style.display='flex';pageGrid.innerHTML='';orgActions.style.display='none';orgResult.style.display='none';}
+  function reset(){currentFile=null;pages=[];dropZone.style.display='flex';pageGrid.textContent='';orgActions.style.display='none';orgResult.style.display='none';}
   clearBtn.addEventListener('click', reset);
   restartBtn.addEventListener('click', reset);
 </script>

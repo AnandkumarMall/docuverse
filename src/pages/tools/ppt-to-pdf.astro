@@ -51,7 +51,7 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
 </ToolLayout>
 
 <script>
-    import { unzipSync, strFromU8 } from 'fflate';
+    import { unzipSync, unzip, strFromU8 } from 'fflate';
     import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
     const fileInput = document.getElementById('file-input');
@@ -139,7 +139,14 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
       try {
         const arrayBuffer = await file.arrayBuffer();
         const zipped = new Uint8Array(arrayBuffer);
-        const unzipped = unzipSync(zipped);
+        const unzipped = await new Promise((resolve, reject) => {
+          import('fflate').then(({ unzip }) => {
+            unzip(zipped, (err, unzippedData) => {
+              if (err) reject(err);
+              else resolve(unzippedData);
+            });
+          });
+        });
         
         // Find all slide XML files
         const slideFiles = Object.keys(unzipped)

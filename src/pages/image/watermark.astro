@@ -235,7 +235,7 @@ const howToSteps = [
     loadedImages = [];
     dropZone.style.display = 'none';
     fileListEl.style.display = 'block';
-    thumbsEl.innerHTML = '';
+    thumbsEl.textContent = '';
 
     let loaded = 0;
     images.forEach((file, i) => {
@@ -441,7 +441,7 @@ const howToSteps = [
     resultEl.style.display = 'none';
     navEl.style.display = 'none';
     batchInfo.style.display = 'none';
-    thumbsEl.innerHTML = '';
+    thumbsEl.textContent = '';
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (fileInput) fileInput.value = '';
   }

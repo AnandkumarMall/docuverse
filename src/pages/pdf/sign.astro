@@ -256,7 +256,7 @@ const howToSteps = [
       pdfDocObj = await getPdfDoc(pdfjs, buf);
       totalPages = pdfDocObj.numPages;
 
-      pageSelect.innerHTML = '';
+      pageSelect.textContent = '';
       for (let i = 1; i <= totalPages; i++) {
         const opt = document.createElement('option');
         opt.value = String(i);

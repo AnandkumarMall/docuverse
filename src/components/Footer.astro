@@ -1,60 +1,15 @@
 ---
 import { getAssetPath } from '../utils/paths';
 
+import { tools } from '../data/tools';
+
 const currentYear = new Date().getFullYear();
 
 const footerLinks = {
-  pdfCore: [
-    { name: "Merge PDF", href: getAssetPath("/pdf/merge") },
-    { name: "Split PDF", href: getAssetPath("/pdf/split") },
-    { name: "Compress PDF", href: getAssetPath("/pdf/compress") },
-    { name: "PDF Editor", href: getAssetPath("/pdf/editor") },
-    { name: "Protect PDF", href: getAssetPath("/pdf/protect") },
-    { name: "Unlock PDF", href: getAssetPath("/pdf/unlock") },
-    { name: "Watermark PDF", href: getAssetPath("/pdf/watermark") },
-    { name: "Sign PDF", href: getAssetPath("/pdf/sign") },
-    { name: "Organize PDF", href: getAssetPath("/pdf/organize") },
-    { name: "Combine PDF", href: getAssetPath("/pdf/combine-pdf") },
-    { name: "Reduce PDF Size", href: getAssetPath("/pdf/reduce-pdf-size") },
-  ],
-  converters: [
-    { name: "PDF to Word", href: getAssetPath("/pdf/to-word") },
-    { name: "PDF to JPG", href: getAssetPath("/pdf/to-jpg") },
-    { name: "PDF to PNG", href: getAssetPath("/pdf/to-png") },
-    { name: "JPG to PDF", href: getAssetPath("/image/jpg-to-pdf") },
-    { name: "PNG to PDF", href: getAssetPath("/image/png-to-pdf") },
-    { name: "WebP to JPG", href: getAssetPath("/image/webp-to-jpg") },
-    { name: "PNG to JPG", href: getAssetPath("/image/png-to-jpg") },
-    { name: "JPG to PNG", href: getAssetPath("/image/jpg-to-png") },
-    { name: "AVIF to JPG", href: getAssetPath("/image/avif-to-jpg") },
-    { name: "HEIC to JPG", href: getAssetPath("/image/heic-to-jpg") },
-    { name: "SVG to PNG", href: getAssetPath("/image/svg-to-png") },
-    { name: "RAW to JPG", href: getAssetPath("/image/raw-to-jpg") },
-  ],
-  imageTools: [
-    { name: "Crop Image", href: getAssetPath("/image/crop") },
-    { name: "Resize Image", href: getAssetPath("/image/resize") },
-    { name: "Remove EXIF", href: getAssetPath("/image/remove-exif") },
-    { name: "Color Picker", href: getAssetPath("/image/color-picker") },
-    { name: "Watermark Image", href: getAssetPath("/image/watermark") },
-    { name: "Compress Image", href: getAssetPath("/image/compress") },
-    { name: "Compress JPEG", href: getAssetPath("/image/compress-jpeg") },
-    { name: "Compress PNG", href: getAssetPath("/image/compress-png") },
-    { name: "Compress to 20KB", href: getAssetPath("/image/compress-image-to-20kb") },
-    { name: "Compress to 30KB", href: getAssetPath("/image/compress-image-to-30kb") },
-    { name: "Compress to 50KB", href: getAssetPath("/image/compress-image-to-50kb") },
-  ],
-  utilities: [
-    { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr") },
-    { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer") },
-    { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64") },
-    { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator") },
-    { name: "Markdown to PDF", href: getAssetPath("/tools/markdown-to-pdf") },
-    { name: "Excel to PDF", href: getAssetPath("/tools/excel-to-pdf") },
-    { name: "TXT to PDF", href: getAssetPath("/tools/txt-to-pdf") },
-    { name: "PPT to PDF", href: getAssetPath("/tools/ppt-to-pdf") },
-    { name: "PDF to Markdown", href: getAssetPath("/tools/pdf-to-md") },
-  ],
+  pdfCore: tools.pdf.filter(t => !t.name.includes('to ') || t.name === 'PDF Editor'),
+  converters: tools.pdf.filter(t => t.name.includes('to ')).concat(tools.image.filter(t => t.name.includes('to '))),
+  imageTools: tools.image.filter(t => !t.name.includes('to ')),
+  utilities: tools.utilities,
   company: [
     { name: "About DocuVerse", href: getAssetPath("/about") },
     { name: "Privacy Policy", href: getAssetPath("/privacy") },
