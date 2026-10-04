@@ -301,10 +301,6 @@ const howToSteps = [
     tableContainer.appendChild(table);
   }
 
-  // escapeHtml is no longer needed but kept if used elsewhere
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
   // Download PDF
   downloadBtn && downloadBtn.addEventListener('click', async () => {
     if (!workbook || !window.html2pdf) return;
