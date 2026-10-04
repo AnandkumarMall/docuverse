@@ -1,0 +1,140 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+---
+
+<ToolLayout
+  title="Convert RAW to JPG - Free & Offline"
+  description="Convert RAW camera images to JPG format entirely in your browser. Fast, free, and private."
+  canonicalPath="/image/raw-to-jpg"
+  toolName="RAW to JPG"
+  toolTagline="Instantly convert camera RAW files to JPG"
+  category="image"
+  categoryLabel="Image Tools"
+>
+  <div slot="drop-zone">
+    <div class="alert alert-info" style="margin-bottom: var(--space-6); padding: var(--space-4); background-color: var(--color-canvas-subtle); border: 1px solid var(--color-border-subtle); border-radius: 8px; font-size: 0.875rem;">
+      <strong>Browser Support:</strong> Because this tool is 100% offline, it relies on your device's native ability to decode RAW formats (like .CR2, .NEF, .ARW). This works best on macOS and modern browsers.
+    </div>
+
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </svg>
+      <span class="drop-zone__text">Drop your RAW image here or click to browse</span>
+      <span class="drop-zone__hint">Supports formats like .CR2, .NEF offline on some OS</span>
+      <input type="file" id="file-input" accept="image/*,.cr2,.nef,.arw,.dng,.orf,.rw2" class="sr-only" />
+    </div>
+  </div>
+  
+  <div slot="options">
+    <div class="tool-content">
+    
+    <div id="loading-area" style="display:none; text-align: center; padding: 3rem;">
+      <p>Decoding RAW image data... this may take a moment.</p>
+    </div>
+
+    <div id="output-area" style="display:none;">
+      <div class="preview-container" style="max-width: 400px; margin: 0 auto var(--space-6);">
+        <img id="image-preview" style="width: 100%; border-radius: 8px; border: 1px solid var(--color-border-subtle);" />
+      </div>
+      
+      <div class="action-buttons">
+        <button id="download-btn" class="btn btn-primary">Download JPG</button>
+        <button id="reset-btn" class="btn btn-secondary">Convert Another</button>
+      </div>
+    </div>
+    </div>
+  </div>
+</ToolLayout>
+
+<script>
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const outputArea = document.getElementById('output-area');
+    const loadingArea = document.getElementById('loading-area');
+    const downloadBtn = document.getElementById('download-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const imagePreview = document.getElementById('image-preview');
+
+    let processedBlob = null;
+    let fileName = 'converted.jpg';
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    ['dragover', 'dragleave', 'drop'].forEach(event => {
+      dropZone.addEventListener(event, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('is-dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('is-dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+      dropZone.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      processedBlob = null;
+      outputArea.style.display = 'none';
+      dropZone.style.display = 'block';
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!processedBlob) return;
+      const url = URL.createObjectURL(processedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    async function handleFile(file) {
+      fileName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+      dropZone.style.display = 'none';
+      loadingArea.style.display = 'block';
+      
+      try {
+        const url = URL.createObjectURL(file);
+        
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error("Browser could not decode this RAW format natively."));
+          img.src = url;
+        });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        processedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+        
+        imagePreview.src = URL.createObjectURL(processedBlob);
+        
+        loadingArea.style.display = 'none';
+        outputArea.style.display = 'block';
+        URL.revokeObjectURL(url);
+        
+      } catch (err) {
+        console.error(err);
+        alert(err.message + ' Please try a standard format or use a desktop application for this specific camera RAW file.');
+        loadingArea.style.display = 'none';
+        resetBtn.click();
+      }
+    }
+  </script>

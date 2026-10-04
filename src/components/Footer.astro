@@ -1,40 +1,15 @@
 ---
 import { getAssetPath } from '../utils/paths';
 
+import { tools } from '../data/tools';
+
 const currentYear = new Date().getFullYear();
 
 const footerLinks = {
-  pdf: [
-    { name: "Merge PDF", href: getAssetPath("/pdf/merge") },
-    { name: "Split PDF", href: getAssetPath("/pdf/split") },
-    { name: "Compress PDF", href: getAssetPath("/pdf/compress") },
-    { name: "PDF Editor", href: getAssetPath("/pdf/editor") },
-    { name: "PDF to Word", href: getAssetPath("/pdf/to-word") },
-    { name: "PDF to Image", href: getAssetPath("/pdf/to-image") },
-    { name: "Protect PDF", href: getAssetPath("/pdf/protect") },
-    { name: "Unlock PDF", href: getAssetPath("/pdf/unlock") },
-    { name: "Watermark PDF", href: getAssetPath("/pdf/watermark") },
-    { name: "Sign PDF", href: getAssetPath("/pdf/sign") },
-    { name: "Organize PDF", href: getAssetPath("/pdf/organize") },
-  ],
-  image: [
-    { name: "Crop Image", href: getAssetPath("/image/crop") },
-    { name: "Compress Image", href: getAssetPath("/image/compress") },
-    { name: "Resize Image", href: getAssetPath("/image/resize") },
-    { name: "Convert Format", href: getAssetPath("/image/convert") },
-    { name: "Image to PDF", href: getAssetPath("/image/to-pdf") },
-    { name: "Remove EXIF", href: getAssetPath("/image/remove-exif") },
-    { name: "Color Picker", href: getAssetPath("/image/color-picker") },
-    { name: "Watermark Image", href: getAssetPath("/image/watermark") },
-  ],
-  utilities: [
-    { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr") },
-    { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer") },
-    { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64") },
-    { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator") },
-    { name: "Markdown to PDF", href: getAssetPath("/tools/markdown-to-pdf") },
-    { name: "Excel to PDF", href: getAssetPath("/tools/excel-to-pdf") },
-  ],
+  pdfCore: tools.pdf.filter(t => !t.name.includes('to ') || t.name === 'PDF Editor'),
+  converters: tools.pdf.filter(t => t.name.includes('to ')).concat(tools.image.filter(t => t.name.includes('to '))),
+  imageTools: tools.image.filter(t => !t.name.includes('to ')),
+  utilities: tools.utilities,
   company: [
     { name: "About DocuVerse", href: getAssetPath("/about") },
     { name: "Privacy Policy", href: getAssetPath("/privacy") },
@@ -72,7 +47,16 @@ const footerLinks = {
       <div class="footer-links-col">
         <p class="footer-col-title">PDF Tools</p>
         <ul class="footer-link-list">
-          {footerLinks.pdf.map(link => (
+          {footerLinks.pdfCore.map(link => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <p class="footer-col-title">Converters</p>
+        <ul class="footer-link-list">
+          {footerLinks.converters.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
@@ -81,7 +65,7 @@ const footerLinks = {
       <div class="footer-links-col">
         <p class="footer-col-title">Image Tools</p>
         <ul class="footer-link-list">
-          {footerLinks.image.map(link => (
+          {footerLinks.imageTools.map(link => (
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
@@ -94,6 +78,7 @@ const footerLinks = {
             <li><a href={link.href}>{link.name}</a></li>
           ))}
         </ul>
+        
         <p class="footer-col-title" style="margin-top: var(--space-6);">Company</p>
         <ul class="footer-link-list">
           {footerLinks.company.map(link => (
@@ -131,21 +116,37 @@ const footerLinks = {
 
   @media (min-width: 640px) {
     .footer-grid {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .footer-brand-col {
+      grid-column: span 4;
     }
   }
 
   @media (min-width: 1024px) {
     .footer-grid {
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    }
+    .footer-brand-col {
+      grid-column: span 1;
     }
   }
 
-  /* Brand column */
   .footer-brand-col {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+  }
+
+  .footer-links-col {
+    display: flex;
+    flex-direction: column;
   }
 
   .footer-brand {
@@ -179,12 +180,6 @@ const footerLinks = {
     color: var(--color-accent-green);
   }
 
-  /* Link columns */
-  .footer-links-col {
-    display: flex;
-    flex-direction: column;
-  }
-
   .footer-col-title {
     font-family: var(--font-sans-body);
     font-size: 0.75rem;
@@ -199,6 +194,9 @@ const footerLinks = {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
   .footer-link-list a {

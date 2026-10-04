@@ -1,39 +1,11 @@
 ---
 import { getAssetPath } from '../utils/paths';
 
-const pdfTools = [
-  { name: "Merge PDF", href: getAssetPath("/pdf/merge"), desc: "Combine multiple PDFs into one" },
-  { name: "Split PDF", href: getAssetPath("/pdf/split"), desc: "Split PDF into separate files" },
-  { name: "Compress PDF", href: getAssetPath("/pdf/compress"), desc: "Reduce PDF file size" },
-  { name: "PDF Editor", href: getAssetPath("/pdf/editor"), desc: "Edit text directly in PDFs" },
-  { name: "PDF to Word", href: getAssetPath("/pdf/to-word"), desc: "Convert PDF to Word document" },
-  { name: "PDF to Image", href: getAssetPath("/pdf/to-image"), desc: "Convert PDF pages to JPG/PNG" },
-  { name: "Protect PDF", href: getAssetPath("/pdf/protect"), desc: "Add password protection" },
-  { name: "Unlock PDF", href: getAssetPath("/pdf/unlock"), desc: "Remove PDF password" },
-  { name: "Watermark PDF", href: getAssetPath("/pdf/watermark"), desc: "Add text watermark to PDF" },
-  { name: "Sign PDF", href: getAssetPath("/pdf/sign"), desc: "Draw or type your signature" },
-  { name: "Organize PDF", href: getAssetPath("/pdf/organize"), desc: "Rotate, reorder, delete pages" },
-];
+import { tools } from '../data/tools';
 
-const imageTools = [
-  { name: "Crop Image", href: getAssetPath("/image/crop"), desc: "Crop with preset aspect ratios" },
-  { name: "Compress Image", href: getAssetPath("/image/compress"), desc: "Reduce image file size" },
-  { name: "Resize Image", href: getAssetPath("/image/resize"), desc: "Change image dimensions" },
-  { name: "Convert Format", href: getAssetPath("/image/convert"), desc: "JPG, PNG, WebP, AVIF" },
-  { name: "Image to PDF", href: getAssetPath("/image/to-pdf"), desc: "Combine images into a PDF" },
-  { name: "Remove EXIF", href: getAssetPath("/image/remove-exif"), desc: "Strip metadata from photos" },
-  { name: "Color Picker", href: getAssetPath("/image/color-picker"), desc: "Pick colors from any image" },
-  { name: "Watermark Image", href: getAssetPath("/image/watermark"), desc: "Stamp custom text watermarks" },
-];
-
-const utilityTools = [
-  { name: "Extract Text (OCR)", href: getAssetPath("/tools/ocr"), desc: "Extract text from images" },
-  { name: "SVG Optimizer", href: getAssetPath("/tools/svg-optimizer"), desc: "Clean and minify SVG files" },
-  { name: "Image to Base64", href: getAssetPath("/tools/image-to-base64"), desc: "Generate Base64 data URIs" },
-  { name: "Favicon Generator", href: getAssetPath("/tools/favicon-generator"), desc: "Create icon bundles" },
-  { name: "Markdown to PDF", href: getAssetPath("/tools/markdown-to-pdf"), desc: "Export Markdown as PDF" },
-  { name: "Excel to PDF", href: getAssetPath("/tools/excel-to-pdf"), desc: "Spreadsheets to PDF" },
-];
+const pdfTools = tools.pdf;
+const imageTools = tools.image;
+const utilityTools = tools.utilities;
 ---
 
 <header class="site-header" id="site-header">
@@ -56,7 +28,7 @@ const utilityTools = [
           <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="nav-panel" id="nav-pdf-panel" role="menu">
-          <div class="nav-panel__grid">
+          <div class="nav-panel__grid nav-panel__grid--wide">
             {pdfTools.map(tool => (
               <a href={tool.href} class="nav-panel__item" role="menuitem">
                 <span class="nav-panel__name">{tool.name}</span>
@@ -73,7 +45,7 @@ const utilityTools = [
           <svg class="nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="nav-panel" id="nav-image-panel" role="menu">
-          <div class="nav-panel__grid">
+          <div class="nav-panel__grid nav-panel__grid--wide">
             {imageTools.map(tool => (
               <a href={tool.href} class="nav-panel__item" role="menuitem">
                 <span class="nav-panel__name">{tool.name}</span>
@@ -339,6 +311,10 @@ const utilityTools = [
   .nav-panel__grid--narrow {
     grid-template-columns: 1fr;
     min-width: 280px;
+  }
+  .nav-panel__grid--wide {
+    grid-template-columns: repeat(3, 1fr);
+    min-width: 820px;
   }
 
   .nav-panel__item {
@@ -685,7 +661,7 @@ const utilityTools = [
   let currentResults = [];
 
   function renderResults(results) {
-    searchResults.innerHTML = '';
+    searchResults.textContent = '';
     currentResults = results;
     selectedIndex = results.length > 0 ? 0 : -1;
 

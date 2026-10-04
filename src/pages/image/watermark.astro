@@ -11,7 +11,7 @@ const howToSteps = [
 
 <ToolLayout
   title="Add Watermark to Image Online Free — Text Watermark Maker"
-  description="Add a custom text watermark to any image online free. Choose font, color, opacity, position, and rotation. Tile watermark across entire image. Download as PNG, JPEG, or WebP. No upload — 100% in your browser."
+  description="Add a custom text watermark to any image online free. Choose font, color, opacity, and rotation. Tile across image. Download as PNG, JPEG, or WebP."
   canonicalPath="/image/watermark"
   toolName="Image Watermark Maker"
   toolTagline="Stamp custom text on your photos — font, color, opacity, tiling, rotation. Free, private, instant."
@@ -235,7 +235,7 @@ const howToSteps = [
     loadedImages = [];
     dropZone.style.display = 'none';
     fileListEl.style.display = 'block';
-    thumbsEl.innerHTML = '';
+    thumbsEl.textContent = '';
 
     let loaded = 0;
     images.forEach((file, i) => {
@@ -441,7 +441,7 @@ const howToSteps = [
     resultEl.style.display = 'none';
     navEl.style.display = 'none';
     batchInfo.style.display = 'none';
-    thumbsEl.innerHTML = '';
+    thumbsEl.textContent = '';
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (fileInput) fileInput.value = '';
   }
@@ -459,7 +459,8 @@ const howToSteps = [
 .iwm-thumb:hover,.iwm-thumb--active { border-color:var(--color-brand-primary); }
 .iwm-thumb--active { box-shadow:0 0 0 2px var(--theme-alpha-20); }
 
-.iwm-main { display:flex; flex-direction:column; gap:var(--space-5); }
+.iwm-main { display:grid; grid-template-columns: 320px 1fr; gap:var(--space-6); align-items:start; }
+  @media (max-width: 900px) { .iwm-main { grid-template-columns: 1fr; } }
 .iwm-canvas-section { display:flex; flex-direction:column; gap:var(--space-3); }
 .iwm-canvas-header { display:flex; align-items:center; justify-content:space-between; }
 .iwm-section-title { font-size:.9375rem; font-weight:700; color:var(--color-ink-primary); margin:0; }

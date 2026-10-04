@@ -1,0 +1,255 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { seoDataPdf } from '../../data/seo-pdf';
+
+const howToSteps = [
+  { name: "Upload your PDF", text: "Select or drop the PDF file you want to rotate." },
+  { name: "Rotate Pages", text: "Use the controls to rotate the current page, or apply rotation to all pages instantly." },
+  { name: "Download", text: "Click 'Apply Changes & Save' to generate the rotated PDF." },
+];
+---
+
+<ToolLayout
+  title="Rotate PDF Pages Online Free"
+  description="Rotate individual pages or entire PDF documents easily. View changes live in your browser before downloading. Free and secure."
+  canonicalPath="/pdf/rotate"
+  toolName="Rotate PDF"
+  toolTagline="Rotate individual PDF pages or the whole document with a live preview."
+  category="pdf"
+  categoryLabel="PDF Tools"
+  categoryHref="/#category-pdf"
+  howToSteps={howToSteps}
+>
+  <div slot="drop-zone">
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+      <span class="drop-zone__text">Drop a PDF here or click to browse</span>
+      <input type="file" id="file-input" accept=".pdf,application/pdf" class="sr-only" />
+    </div>
+  </div>
+  
+  <div slot="options">
+    <div id="workspace" style="display:none;" class="side-by-side-grid">
+      
+      <!-- Left Column -->
+      <div class="settings-col" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5);">
+        <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem;">Rotation Settings</h3>
+        
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+          
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">Current Page</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2);">
+              <button class="btn btn-outline" id="rot-left-btn">Rotate Left</button>
+              <button class="btn btn-outline" id="rot-right-btn">Rotate Right</button>
+            </div>
+          </div>
+          
+          <div>
+            <label style="display:block; margin-bottom:var(--space-2); font-size:0.875rem; font-weight:500;">All Pages</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2);">
+              <button class="btn btn-outline" id="rot-all-left-btn">All Left</button>
+              <button class="btn btn-outline" id="rot-all-right-btn">All Right</button>
+            </div>
+          </div>
+          
+          <div style="margin-top:var(--space-4);">
+            <button class="btn btn-primary btn-lg" id="save-btn" style="width:100%;">Apply Changes & Save</button>
+            <button class="btn btn-ghost" id="clear-btn" style="width:100%; margin-top:var(--space-2);">Clear</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column -->
+      <div class="preview-col" style="min-width:0; display:flex; flex-direction:column; align-items:center;">
+         <h3 style="margin:0 0 var(--space-4) 0; font-size:1.125rem; align-self:flex-start;">Live Preview</h3>
+         <div class="canvas-wrap" style="position:relative; width:100%; max-width:600px; box-shadow:var(--shadow-md); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; overflow:hidden; background:#f4f4f5; min-height:300px;">
+           <canvas id="pdf-canvas" style="display:block; max-width:100%; height:auto; transition: transform 0.3s ease;"></canvas>
+         </div>
+         <div style="display:flex; align-items:center; justify-content:center; gap:var(--space-2); margin-top:var(--space-4); width:100%;">
+           <button class="btn btn-ghost btn-sm" id="prev-page">&#8249; Prev</button>
+           <span style="font-size:0.875rem;">Page <strong id="cur-page">1</strong> / <strong id="total-page">1</strong></span>
+           <button class="btn btn-ghost btn-sm" id="next-page">Next &#8250;</button>
+         </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div slot="result">
+    <div id="result-panel" style="display:none; align-items:center; gap:var(--space-5); padding:var(--space-5) var(--space-6); background:var(--color-success-bg); border:1px solid rgba(15,123,63,.2); border-radius:var(--radius-lg); flex-wrap:wrap;">
+      <div style="width:52px; height:52px; border-radius:var(--radius-pill); background:var(--color-accent-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <p style="font-size:1rem; font-weight:600; color:var(--color-accent-green); flex:1;">PDF rotated!</p>
+      <a class="btn btn-accent" id="download-btn">Download PDF</a>
+      <button class="btn btn-ghost btn-sm" id="restart-btn">Rotate another</button>
+    </div>
+  </div>
+</ToolLayout>
+
+<style is:global>
+  .side-by-side-grid { display:grid; grid-template-columns: 320px 1fr; gap:var(--space-6); align-items:start; }
+  @media(max-width:900px) { .side-by-side-grid { grid-template-columns:1fr; } }
+</style>
+
+<script>
+  import { PDFDocument, degrees } from 'pdf-lib';
+  import { loadPdfJs, getPdfDoc, renderPageToCanvas } from '../../utils/pdfRender';
+  
+  let currentFile: File | null = null;
+  let pdfDocProxy: any = null;
+  let numPages = 0;
+  let currentPage = 1;
+  let pageRotations: number[] = [];
+
+  const dropZone = document.getElementById('drop-zone') as HTMLElement;
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const workspace = document.getElementById('workspace') as HTMLElement;
+  const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+  const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+  const resultPanel = document.getElementById('result-panel') as HTMLElement;
+  const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const restartBtn = document.getElementById('restart-btn') as HTMLButtonElement;
+  
+  const rotLeftBtn = document.getElementById('rot-left-btn') as HTMLButtonElement;
+  const rotRightBtn = document.getElementById('rot-right-btn') as HTMLButtonElement;
+  const rotAllLeftBtn = document.getElementById('rot-all-left-btn') as HTMLButtonElement;
+  const rotAllRightBtn = document.getElementById('rot-all-right-btn') as HTMLButtonElement;
+  
+  const prevPageBtn = document.getElementById('prev-page') as HTMLButtonElement;
+  const nextPageBtn = document.getElementById('next-page') as HTMLButtonElement;
+  const curPageEl = document.getElementById('cur-page') as HTMLElement;
+  const totalPageEl = document.getElementById('total-page') as HTMLElement;
+  const pdfCanvas = document.getElementById('pdf-canvas') as HTMLCanvasElement;
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--color-brand-primary)'; });
+  dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.borderColor = ''; const f = e.dataTransfer?.files[0]; if (f?.type==='application/pdf') load(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
+
+  async function load(f: File) {
+    currentFile = f;
+    dropZone.style.display = 'none';
+    
+    try {
+      const buf = await f.arrayBuffer();
+      const pdfjs = await loadPdfJs();
+      pdfDocProxy = await getPdfDoc(pdfjs, buf);
+      numPages = pdfDocProxy.numPages;
+      currentPage = 1;
+      pageRotations = new Array(numPages).fill(0);
+      
+      totalPageEl.textContent = String(numPages);
+      workspace.style.display = 'grid';
+      await renderCurrentPage();
+    } catch(e) {
+      console.error(e);
+      (window as any).showToast?.('Could not load PDF.', 'error');
+      reset();
+    }
+  }
+
+  async function renderCurrentPage() {
+    curPageEl.textContent = String(currentPage);
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === numPages;
+    
+    const page = await pdfDocProxy.getPage(currentPage);
+    const viewport = page.getViewport({ scale: 1.5 });
+    pdfCanvas.width = viewport.width;
+    pdfCanvas.height = viewport.height;
+    
+    const ctx = pdfCanvas.getContext('2d')!;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    
+    applyVisualRotation();
+  }
+
+  function applyVisualRotation() {
+    const rot = pageRotations[currentPage - 1];
+    pdfCanvas.style.transform = `rotate(${rot}deg)`;
+    
+    // Scale down if rotating 90/270 to fit within the container
+    if (rot % 180 !== 0) {
+      const scale = Math.min(1, pdfCanvas.parentElement!.clientWidth / pdfCanvas.height);
+      pdfCanvas.style.transform = `rotate(${rot}deg) scale(${scale})`;
+    }
+  }
+
+  prevPageBtn.addEventListener('click', async () => {
+    if (currentPage > 1) { currentPage--; await renderCurrentPage(); }
+  });
+  
+  nextPageBtn.addEventListener('click', async () => {
+    if (currentPage < numPages) { currentPage++; await renderCurrentPage(); }
+  });
+
+  rotLeftBtn.addEventListener('click', () => {
+    pageRotations[currentPage - 1] = (pageRotations[currentPage - 1] - 90) % 360;
+    applyVisualRotation();
+  });
+  
+  rotRightBtn.addEventListener('click', () => {
+    pageRotations[currentPage - 1] = (pageRotations[currentPage - 1] + 90) % 360;
+    applyVisualRotation();
+  });
+  
+  rotAllLeftBtn.addEventListener('click', () => {
+    for (let i = 0; i < numPages; i++) {
+      pageRotations[i] = (pageRotations[i] - 90) % 360;
+    }
+    applyVisualRotation();
+  });
+  
+  rotAllRightBtn.addEventListener('click', () => {
+    for (let i = 0; i < numPages; i++) {
+      pageRotations[i] = (pageRotations[i] + 90) % 360;
+    }
+    applyVisualRotation();
+  });
+
+  saveBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Processing...';
+    
+    try {
+      const buf = await currentFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(buf);
+      const pages = pdfDoc.getPages();
+      
+      pages.forEach((page, idx) => {
+        const rot = pageRotations[idx];
+        if (rot) {
+           const cur = page.getRotation().angle;
+           page.setRotation(degrees(cur + rot));
+        }
+      });
+      
+      const bytes = await pdfDoc.save();
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      downloadBtn.href = URL.createObjectURL(blob);
+      downloadBtn.download = `rotated-${currentFile.name}`;
+      
+      resultPanel.style.display = 'flex';
+      workspace.style.display = 'none';
+    } catch (e) {
+      console.error(e);
+      (window as any).showToast?.('Error rotating PDF.', 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Apply Changes & Save';
+    }
+  });
+
+  function reset() {
+    currentFile = null;
+    pdfDocProxy = null;
+    pageRotations = [];
+    dropZone.style.display = 'flex';
+    workspace.style.display = 'none';
+    resultPanel.style.display = 'none';
+  }
+  clearBtn.addEventListener('click', reset);
+  restartBtn.addEventListener('click', reset);
+</script>

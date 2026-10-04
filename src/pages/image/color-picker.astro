@@ -363,7 +363,7 @@ const howToSteps = [
   }
   
   function renderPalette() {
-    paletteGrid.innerHTML = '';
+    paletteGrid.textContent = '';
     paletteHistory.forEach(hex => {
       const div = document.createElement('div');
       div.className = 'palette-swatch-wrap';

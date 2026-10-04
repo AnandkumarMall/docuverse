@@ -190,7 +190,7 @@ const howToSteps = [
   }
 
   function renderPreviews() {
-    sizesGrid.innerHTML = '';
+    sizesGrid.textContent = '';
     canvases.length = 0;
     SIZES.forEach(size => {
       const canvas = document.createElement('canvas');

@@ -11,7 +11,7 @@ const howToSteps = [
 
 <ToolLayout
   title="Image to Text OCR Online Free — English & Hindi Text Extractor"
-  description="Extract text from images and screenshots using OCR. Supports English and Hindi. Download as .txt file. Free, private, runs in your browser — no upload required."
+  description="Extract text from images and screenshots using OCR. Supports English and Hindi. Download as .txt file. Free, private — no upload required."
   canonicalPath="/tools/ocr"
   toolName="Extract Text (OCR)"
   toolTagline="Pull text from images and scanned documents — English & Hindi support. Free, private, instant."
@@ -153,7 +153,7 @@ const howToSteps = [
 
     try {
       // Dynamically import Tesseract
-      const { createWorker } = await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js' as any);
+      const { createWorker } = await import('tesseract.js');
       showProgress(20, 'Loading language data…');
       const worker = await createWorker(lang, 1, {
         logger: (m: any) => {

@@ -11,7 +11,7 @@ const howToSteps = [
 
 <ToolLayout
   title="Excel to PDF Converter Online Free — XLSX XLS CSV to PDF with Preview"
-  description="Convert Excel spreadsheets to PDF online free. Supports .xlsx, .xls, and .csv. Live sheet preview, multi-sheet selection, portrait/landscape, A4/Letter. No upload — runs in your browser."
+  description="Convert Excel spreadsheets to PDF online free. Supports .xlsx, .xls, .csv. Live sheet preview, multi-sheet selection. No upload — runs in your browser."
   canonicalPath="/tools/excel-to-pdf"
   toolName="Excel to PDF"
   toolTagline="Convert spreadsheets to PDF with sheet preview — portrait, landscape, A4 or Letter. Free, private, instant."
@@ -139,13 +139,10 @@ const howToSteps = [
 
 </ToolLayout>
 
-<!-- SheetJS CDN -->
-<script is:inline src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<!-- html2pdf CDN -->
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  import * as XLSX from 'xlsx';
+  import html2pdf from 'html2pdf.js';
 
-<script is:inline>
-(function() {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('file-input');
   const fileInfo = document.getElementById('xl-file-info');
@@ -219,7 +216,7 @@ const howToSteps = [
 
   function buildSheetTabs() {
     const names = workbook.SheetNames;
-    sheetTabs.innerHTML = '';
+    sheetTabs.textContent = '';
     names.forEach((name, i) => {
       const btn = document.createElement('button');
       btn.className = 'xl-tab' + (i === 0 ? ' xl-tab--active' : '');
@@ -239,11 +236,19 @@ const howToSteps = [
     // Multi-sheet checkbox select
     if (names.length > 1) {
       sheetSelect.style.display = 'block';
-      sheetCheckboxes.innerHTML = '';
+      sheetCheckboxes.textContent = '';
       names.forEach(name => {
         const lbl = document.createElement('label');
         lbl.className = 'xl-check-label';
-        lbl.innerHTML = `<input type="checkbox" checked data-sheet="${name}" /> ${name}`;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = true;
+        checkbox.setAttribute('data-sheet', name);
+        
+        lbl.appendChild(checkbox);
+        lbl.appendChild(document.createTextNode(' ' + name));
+        
         sheetCheckboxes.appendChild(lbl);
       });
     } else {
@@ -268,22 +273,35 @@ const howToSteps = [
     const cols = Math.max(...data.map(r => r.length));
     previewInfo.textContent = `${rows} rows × ${cols} cols`;
 
-    let html = '<table class="xl-table"><thead><tr>';
-    // First row as header
-    (data[0] || []).forEach(cell => { html += `<th>${escapeHtml(String(cell ?? ''))}</th>`; });
-    html += '</tr></thead><tbody>';
+    tableContainer.textContent = '';
+    const table = document.createElement('table');
+    table.className = 'xl-table';
+    
+    const thead = document.createElement('thead');
+    const headTr = document.createElement('tr');
+    (data[0] || []).forEach(cell => { 
+      const th = document.createElement('th');
+      th.textContent = String(cell ?? '');
+      headTr.appendChild(th);
+    });
+    thead.appendChild(headTr);
+    table.appendChild(thead);
+    
+    const tbody = document.createElement('tbody');
     for (let i = 1; i < data.length; i++) {
-      html += '<tr>';
+      const tr = document.createElement('tr');
       for (let j = 0; j < cols; j++) {
-        html += `<td>${escapeHtml(String(data[i][j] ?? ''))}</td>`;
+        const td = document.createElement('td');
+        td.textContent = String(data[i][j] ?? '');
+        tr.appendChild(td);
       }
-      html += '</tr>';
+      tbody.appendChild(tr);
     }
-    html += '</tbody></table>';
-    tableContainer.innerHTML = html;
+    table.appendChild(tbody);
+    tableContainer.appendChild(table);
   }
 
-  function escapeHtml(s) {
+  // escapeHtml is no longer needed but kept if used elsewhere
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
@@ -332,22 +350,36 @@ const howToSteps = [
         section.appendChild(h);
       }
 
-      let thtml = '<table style="border-collapse:collapse;width:100%;' + (fit ? 'table-layout:fixed;' : '') + '">';
-      thtml += '<thead><tr>';
+      const table = document.createElement('table');
+      table.style.cssText = 'border-collapse:collapse;width:100%;' + (fit ? 'table-layout:fixed;' : '');
+      
+      const thead = document.createElement('thead');
+      const headTr = document.createElement('tr');
       (data[0] || []).forEach(cell => {
-        thtml += `<th style="background:#f0f0f0;border:1px solid #ccc;padding:5px 8px;text-align:left;font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(String(cell ?? ''))}</th>`;
+        const th = document.createElement('th');
+        th.style.cssText = 'background:#f0f0f0;border:1px solid #ccc;padding:5px 8px;text-align:left;font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;';
+        th.textContent = String(cell ?? '');
+        headTr.appendChild(th);
       });
-      thtml += '</tr></thead><tbody>';
+      thead.appendChild(headTr);
+      table.appendChild(thead);
+      
+      const tbody = document.createElement('tbody');
       for (let i = 1; i < data.length; i++) {
         const bg = i % 2 === 0 ? '#f9f9f9' : '#fff';
-        thtml += `<tr style="background:${bg}">`;
+        const tr = document.createElement('tr');
+        tr.style.background = bg;
         for (let j = 0; j < cols; j++) {
-          thtml += `<td style="border:1px solid #ddd;padding:4px 8px;font-size:11px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(String(data[i][j] ?? ''))}</td>`;
+          const td = document.createElement('td');
+          td.style.cssText = 'border:1px solid #ddd;padding:4px 8px;font-size:11px;overflow:hidden;text-overflow:ellipsis;';
+          td.textContent = String(data[i][j] ?? '');
+          tr.appendChild(td);
         }
-        thtml += '</tr>';
+        tbody.appendChild(tr);
       }
-      thtml += '</tbody></table>';
-      section.innerHTML += thtml;
+      table.appendChild(tbody);
+      
+      section.appendChild(table);
       wrapper.appendChild(section);
     });
 
@@ -388,8 +420,8 @@ const howToSteps = [
     mainEl.style.display = 'none';
     actionsEl.style.display = 'none';
     resultEl.style.display = 'none';
-    sheetTabs.innerHTML = '';
-    tableContainer.innerHTML = '';
+    sheetTabs.textContent = '';
+    tableContainer.textContent = '';
     if (fileInput) fileInput.value = '';
   }
   clearBtn && clearBtn.addEventListener('click', resetUI);
@@ -401,7 +433,7 @@ const howToSteps = [
     if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
     return (b/1048576).toFixed(1) + ' MB';
   }
-})();
+
 </script>
 
 <style is:global>

@@ -1,0 +1,232 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+---
+
+<ToolLayout
+  title="Convert PowerPoint to PDF (Text Only) - Free & Offline"
+  description="Instantly extract text from PowerPoint (PPTX) presentations and convert them to PDF entirely in your browser."
+  canonicalPath="/tools/ppt-to-pdf"
+  toolName="PPT to PDF (Text Extraction)"
+  toolTagline="Convert presentation slides to a text-based PDF document"
+  category="utilities"
+  categoryLabel="Utilities"
+>
+  <div slot="drop-zone">
+    <div class="alert alert-warning" style="margin-bottom: var(--space-6); padding: var(--space-4); background-color: var(--color-warning-subtle); border: 1px solid var(--color-warning-muted); border-radius: 8px;">
+      <strong>Note on Offline Conversion:</strong> Because your files never leave your device, we cannot render images or complex slide layouts. This tool extracts <strong>all text</strong> from your presentation and generates a clean text-based PDF.
+    </div>
+
+    <div class="drop-zone" id="drop-zone" role="button" tabindex="0">
+      <svg class="drop-zone__icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <rect x="2" y="13" width="10" height="7" rx="1"></rect>
+        <path d="M6 13v-2a2 2 0 0 1 4 0v2"></path>
+      </svg>
+      <span class="drop-zone__text">Drop your PPTX file here or click to browse</span>
+      <span class="drop-zone__hint">Extracts presentation text to PDF offline</span>
+      <input type="file" id="file-input" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" class="sr-only" />
+    </div>
+  </div>
+  
+  <div slot="options">
+    <div class="tool-content">
+    
+    <div id="loading-area" style="display:none; text-align: center; padding: 3rem;">
+      <p>Unzipping presentation and extracting text...</p>
+    </div>
+
+    <div id="output-area" style="display:none;">
+      <div class="success-banner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Conversion Complete!
+      </div>
+      <div class="action-buttons">
+        <button id="download-btn" class="btn btn-primary">Download PDF</button>
+        <button id="reset-btn" class="btn btn-secondary">Convert Another</button>
+      </div>
+    </div>
+    </div>
+  </div>
+</ToolLayout>
+
+<script>
+    import { unzipSync, unzip, strFromU8 } from 'fflate';
+    import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const outputArea = document.getElementById('output-area');
+    const loadingArea = document.getElementById('loading-area');
+    const downloadBtn = document.getElementById('download-btn');
+    const resetBtn = document.getElementById('reset-btn');
+
+    let pdfBytes = null;
+    let fileName = 'presentation.pdf';
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    ['dragover', 'dragleave', 'drop'].forEach(event => {
+      dropZone.addEventListener(event, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('is-dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('is-dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+      dropZone.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      pdfBytes = null;
+      outputArea.style.display = 'none';
+      dropZone.style.display = 'block';
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!pdfBytes) return;
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Helper to strip XML tags
+    function extractTextFromXml(xmlStr) {
+      let text = '';
+      let inTag = false;
+      for (let i = 0; i < xmlStr.length; i++) {
+        if (xmlStr[i] === '<') {
+          inTag = true;
+          // Add a space to separate text nodes if needed
+          if (text.length > 0 && text[text.length-1] !== ' ' && text[text.length-1] !== '\n') {
+             // We only add space for certain tags like <a:p> (paragraph)
+             if (xmlStr.substring(i, i+4) === '<a:p') {
+                text += '\n';
+             }
+          }
+        } else if (xmlStr[i] === '>') {
+          inTag = false;
+        } else if (!inTag) {
+          text += xmlStr[i];
+        }
+      }
+      return text.trim();
+    }
+
+    async function handleFile(file) {
+      if (!file.name.toLowerCase().endsWith('.pptx')) {
+        alert('Please select a valid PPTX file.');
+        return;
+      }
+
+      fileName = file.name.replace(/\.[^/.]+$/, "") + ".pdf";
+      dropZone.style.display = 'none';
+      loadingArea.style.display = 'block';
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const zipped = new Uint8Array(arrayBuffer);
+        const unzipped = await new Promise((resolve, reject) => {
+          import('fflate').then(({ unzip }) => {
+            unzip(zipped, (err, unzippedData) => {
+              if (err) reject(err);
+              else resolve(unzippedData);
+            });
+          });
+        });
+        
+        // Find all slide XML files
+        const slideFiles = Object.keys(unzipped)
+          .filter(name => name.startsWith('ppt/slides/slide') && name.endsWith('.xml'))
+          // Sort numerically (slide1.xml, slide2.xml, etc)
+          .sort((a, b) => {
+            const numA = parseInt(a.match(/\d+/)[0]);
+            const numB = parseInt(b.match(/\d+/)[0]);
+            return numA - numB;
+          });
+          
+        let fullText = "Presentation: " + file.name + "\n\n";
+        
+        slideFiles.forEach((slidePath, index) => {
+           const xmlData = strFromU8(unzipped[slidePath]);
+           const slideText = extractTextFromXml(xmlData);
+           if (slideText) {
+             fullText += `--- Slide ${index + 1} ---\n${slideText}\n\n`;
+           }
+        });
+        
+        if (slideFiles.length === 0) {
+          throw new Error("No slides found or unsupported format (only modern PPTX supported).");
+        }
+
+        // Generate PDF
+        const pdfDoc = await PDFDocument.create();
+        const font = await pdfDoc.embedFont(StandardFonts.Courier);
+        const fontSize = 12;
+        const margin = 50;
+        const charWidth = 7.2;
+        const lineHeight = fontSize * 1.2;
+        
+        const rawLines = fullText.split(/\r?\n/);
+        const wrappedLines = [];
+        const maxCharsPerLine = Math.floor((595 - (margin * 2)) / charWidth);
+        
+        rawLines.forEach(line => {
+          if (line.length === 0) {
+            wrappedLines.push("");
+            return;
+          }
+          let currentLine = "";
+          const words = line.split(" ");
+          words.forEach(word => {
+            if ((currentLine + " " + word).length > maxCharsPerLine) {
+              wrappedLines.push(currentLine);
+              currentLine = word;
+            } else {
+              currentLine = currentLine ? currentLine + " " + word : word;
+            }
+          });
+          if (currentLine) wrappedLines.push(currentLine);
+        });
+
+        const linesPerPage = Math.floor((842 - (margin * 2)) / lineHeight);
+        
+        for (let i = 0; i < wrappedLines.length; i += linesPerPage) {
+          const page = pdfDoc.addPage([595.28, 841.89]);
+          const pageLines = wrappedLines.slice(i, i + linesPerPage);
+          pageLines.forEach((lineText, index) => {
+            page.drawText(lineText, {
+              x: margin,
+              y: 841.89 - margin - (index * lineHeight),
+              size: fontSize,
+              font: font,
+              color: rgb(0, 0, 0),
+            });
+          });
+        }
+        
+        pdfBytes = await pdfDoc.save();
+        loadingArea.style.display = 'none';
+        outputArea.style.display = 'block';
+        
+      } catch (err) {
+        console.error(err);
+        alert('Failed to parse presentation: ' + err.message);
+        loadingArea.style.display = 'none';
+        resetBtn.click();
+      }
+    }
+  </script>

@@ -179,31 +179,84 @@ const howToSteps = [
     resultPanel.style.display = 'none';
 
     try {
-      const output = await exifr.parse(f);
+      const output = await exifr.parse(f, {
+        tiff: true,
+        xmp: true,
+        icc: true,
+        iptc: true,
+        jfif: true,
+        ihdr: true,
+        makerNote: true,
+        userComment: true
+      });
       if (output && Object.keys(output).length > 0) {
         hasExif = true;
         const keys = Object.keys(output);
         exifCount.textContent = `${keys.length} tags`;
         stripBtn.disabled = false;
         
-        exifBody.innerHTML = '';
+        exifBody.textContent = '';
         keys.forEach(k => {
           let val = output[k];
-          if(typeof val === 'object') val = JSON.stringify(val);
+          
+          // Handle binary data gracefully
+          if (val instanceof Uint8Array || val instanceof ArrayBuffer || (val && val.buffer instanceof ArrayBuffer)) {
+            val = `[Binary Data — ${val.length || val.byteLength} bytes]`;
+          } else if (val instanceof Date) {
+            val = val.toLocaleString();
+          } else if (typeof val === 'object' && val !== null) {
+            try {
+              // Some objects might be arrays of numbers or custom objects
+              if (Array.isArray(val) && val.length > 10) {
+                val = `[Array — ${val.length} items]`;
+              } else {
+                val = JSON.stringify(val);
+              }
+            } catch(e) {
+              val = '[Object]';
+            }
+          }
+          
+          // Format numerical keys to Hex for professionalism (e.g. '59932' -> 'Tag 0xEA1C')
+          let keyName = k;
+          if (/^\d+$/.test(k)) {
+            keyName = 'Tag 0x' + Number(k).toString(16).toUpperCase();
+          }
+
           const tr = document.createElement('tr');
-          tr.innerHTML = `<th>${k}</th><td>${val}</td>`;
+          const th = document.createElement('th');
+          th.textContent = keyName;
+          const td = document.createElement('td');
+          td.style.wordBreak = 'break-all';
+          td.textContent = val;
+          tr.appendChild(th);
+          tr.appendChild(td);
           exifBody.appendChild(tr);
         });
       } else {
         hasExif = false;
         exifCount.textContent = `0 tags`;
-        exifBody.innerHTML = `<tr><td colspan="2" class="exif-empty">No EXIF data found. This image is already clean.</td></tr>`;
+        exifBody.textContent = '';
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 2;
+        td.className = 'exif-empty';
+        td.textContent = 'No EXIF data found. This image is already clean.';
+        tr.appendChild(td);
+        exifBody.appendChild(tr);
         stripBtn.disabled = true;
       }
     } catch(e) {
       hasExif = false;
       exifCount.textContent = `Error`;
-      exifBody.innerHTML = `<tr><td colspan="2" class="exif-empty">Could not parse EXIF data.</td></tr>`;
+      exifBody.textContent = '';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 2;
+      td.className = 'exif-empty';
+      td.textContent = 'Could not parse EXIF data.';
+      tr.appendChild(td);
+      exifBody.appendChild(tr);
       stripBtn.disabled = true;
     }
   }

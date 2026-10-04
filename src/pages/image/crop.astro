@@ -47,19 +47,24 @@ const howToSteps = [
   <div slot="options">
     <div id="crop-workspace" style="display:none;" class="crop-options-panel">
       <!-- Ratio Presets -->
-      <div class="crop-controls">
-        <div class="crop-controls__row">
-          <p class="crop-overline-text">Aspect Ratio</p>
-          <div class="ratio-btns" role="radiogroup" aria-label="Aspect ratio">
-            <button class="ratio-btn ratio-btn--active" data-ratio="free" id="ratio-free">Free</button>
-            <button class="ratio-btn" data-ratio="1:1" id="ratio-1-1">1:1</button>
-            <button class="ratio-btn" data-ratio="16:9" id="ratio-16-9">16:9</button>
-            <button class="ratio-btn" data-ratio="4:3" id="ratio-4-3">4:3</button>
-            <button class="ratio-btn" data-ratio="9:16" id="ratio-9-16">9:16</button>
-            <button class="ratio-btn" data-ratio="circle" id="ratio-circle">⬤ Circle</button>
+      <div class="crop-controls" style="background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4);">
+          <h3 style="margin:0; font-size:1.125rem; font-weight:700; color:var(--color-ink-primary);">Crop Settings</h3>
+          <div class="crop-controls__row" style="display:flex; flex-direction:column; gap:var(--space-3); margin-top:var(--space-2);">
+            <label style="font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Aspect Ratio</label>
+            <div class="ratio-btns" role="radiogroup" aria-label="Aspect ratio" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); width:100%;">
+              <button class="ratio-btn ratio-btn--active" data-ratio="free" id="ratio-free">Free</button>
+              <button class="ratio-btn" data-ratio="1:1" id="ratio-1-1">1:1</button>
+              <button class="ratio-btn" data-ratio="16:9" id="ratio-16-9">16:9</button>
+              <button class="ratio-btn" data-ratio="4:3" id="ratio-4-3">4:3</button>
+              <button class="ratio-btn" data-ratio="9:16" id="ratio-9-16">9:16</button>
+              <button class="ratio-btn" data-ratio="circle" id="ratio-circle">⬤ Circle</button>
+            </div>
+          </div>
+          <div class="crop-info" id="crop-info" style="margin-top:var(--space-2); padding-top:var(--space-4); border-top:1px solid var(--color-border-hairline); display:flex; flex-direction:column; gap:4px; text-align:center;">
+            <span style="font-size:0.875rem; font-weight:600; color:var(--color-ink-secondary);">Selection Size</span>
+            <span id="crop-dims" style="font-size:0.875rem; font-weight:700; color:var(--color-brand-primary);">— × —</span>
           </div>
         </div>
-      </div>
 
       <!-- Canvas -->
       <div class="crop-canvas-container">
@@ -77,9 +82,6 @@ const howToSteps = [
         </div>
       </div>
 
-      <div class="crop-info" id="crop-info">
-        <span id="crop-dims">Select crop area</span>
-      </div>
     </div>
   </div>
 
@@ -125,10 +127,11 @@ const howToSteps = [
   .crop-file-info__name { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .crop-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); }
 
-  .crop-options-panel { display:flex; flex-direction:column; gap:var(--space-4); }
+  .crop-options-panel { display:grid; grid-template-columns: 360px 1fr; gap:var(--space-6); align-items:start; }
+  @media (max-width: 900px) { .crop-options-panel { grid-template-columns: 1fr; } }
 
   .crop-controls { background:var(--color-canvas-soft); border:1px solid var(--color-border-hairline); border-radius:var(--radius-lg); padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-4); }
-  .crop-controls__row { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+  .crop-controls__row { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
   .crop-overline-text { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-muted); margin: 0; }
   
   .ratio-btns { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
@@ -136,11 +139,11 @@ const howToSteps = [
   .ratio-btn:hover { border-color: var(--theme-alpha-20); color: var(--color-ink-primary); }
   .ratio-btn--active { background: var(--theme-alpha-08); border-color: var(--color-brand-primary); color: var(--color-brand-primary); }
 
-  .crop-canvas-container { padding:var(--space-4); background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; min-height: 400px; overflow: hidden; }
+  .crop-canvas-container { width: 100%; min-width: 0; padding:var(--space-4); background: repeating-conic-gradient(#e5e5e5 0% 25%, white 0% 50%) 0 0 / 12px 12px; border: 1px solid var(--color-border-hairline); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; min-height: 400px; overflow: hidden; }
   .crop-canvas-wrap { position: relative; display: inline-block; user-select: none; }
   #crop-canvas { display: block; max-width: 100%; max-height: 60vh; object-fit: contain; }
   
-  .crop-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10; pointer-events: none; }
+  .crop-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: transparent; overflow: hidden; z-index: 10; pointer-events: none; }
   .crop-box { position: absolute; border: 2px dashed #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); cursor: move; pointer-events: auto; }
   .crop-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: transparent; }
   .crop-handle { position: absolute; width: 14px; height: 14px; background: #fff; border: 2px solid var(--color-brand-primary); border-radius: 50%; z-index: 20; }
@@ -275,11 +278,9 @@ const howToSteps = [
       if(activeRatio === 'circle') {
         circleMask.style.display = 'block';
         boxEl.style.boxShadow = 'none';
-        overlay.style.backgroundColor = 'transparent';
       } else {
         circleMask.style.display = 'none';
         boxEl.style.boxShadow = '0 0 0 9999px rgba(0,0,0,0.5)';
-        overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
       }
       
       applyRatio();

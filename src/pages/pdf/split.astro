@@ -12,7 +12,7 @@ const howToSteps = [
 
 <ToolLayout
   title="Split PDF Free Online — Extract Pages by Range or Visually, No Sign-Up"
-  description="Split a PDF into separate files by page range, visually select pages, or extract all pages individually. Free, private, instant — runs entirely in your browser."
+  description="Split a PDF into separate files by page range, visually select pages, or extract individually. Free, private, instant — runs entirely in your browser."
   canonicalPath="/pdf/split"
   toolName="Split PDF"
   toolTagline="Extract any pages from a PDF visually or by range. Create single or multiple PDFs. Free & private."
@@ -249,9 +249,9 @@ const howToSteps = [
     
     try {
       const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `${((import.meta as any).env.BASE_URL || "/").replace(/\/$/, "")}/pdfjs/pdf.worker.min.mjs`;
       
-      const loadingTask = pdfjsLib.getDocument({ data: buf.slice(0) });
+      const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buf) });
       const doc = await loadingTask.promise;
       totalPages = doc.numPages;
       fileMeta.textContent = `${totalPages} pages · ${formatSize(file.size)}`;
@@ -273,6 +273,8 @@ const howToSteps = [
            
            await page.render({ canvasContext: ctx, viewport }).promise;
            pages[i - 1].dataUrl = canvas.toDataURL('image/webp', 0.8);
+           // Release GPU memory immediately
+           canvas.width = 0; canvas.height = 0;
            updateThumbnail(i - 1);
         }).catch(console.error);
       }
@@ -285,21 +287,36 @@ const howToSteps = [
   }
 
   function renderVisualGrid() {
-    visualGrid.innerHTML = '';
+    visualGrid.textContent = '';
     pages.forEach((p, i) => {
       const card = document.createElement('div');
       card.className = `split-page ${p.selected ? 'split-page--selected' : ''}`;
       card.dataset.index = String(i);
       
-      const thumbHtml = p.dataUrl 
-        ? `<img src="${p.dataUrl}" alt="Page ${i + 1}" style="width:100%;height:100%;object-fit:contain;" />`
-        : `<span class="caption-text">Page ${i + 1}</span>`;
-
-      card.innerHTML = `
-        <div class="split-thumb">${thumbHtml}</div>
-        <span class="split-page-num">${i + 1}</span>
-      `;
+      const thumb = document.createElement('div');
+      thumb.className = 'split-thumb';
       
+      if (p.dataUrl) {
+        const img = document.createElement('img');
+        img.src = p.dataUrl;
+        img.alt = `Page ${i + 1}`;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        thumb.appendChild(img);
+      } else {
+        const ph = document.createElement('span');
+        ph.className = 'caption-text';
+        ph.textContent = `Page ${i + 1}`;
+        thumb.appendChild(ph);
+      }
+      
+      const pageNum = document.createElement('span');
+      pageNum.className = 'split-page-num';
+      pageNum.textContent = String(i + 1);
+      
+      card.appendChild(thumb);
+      card.appendChild(pageNum);
       card.addEventListener('click', () => {
         pages[i].selected = !pages[i].selected;
         if (pages[i].selected) {
@@ -318,7 +335,18 @@ const howToSteps = [
     if (card) {
       const thumb = card.querySelector('.split-thumb') as HTMLElement;
       if (pages[index].dataUrl && thumb) {
-        thumb.innerHTML = `<img src="${pages[index].dataUrl}" alt="Page ${index + 1}" style="width:100%;height:100%;object-fit:contain;" />`;
+        const existingImg = thumb.querySelector('img');
+        if (existingImg) {
+          existingImg.src = pages[index].dataUrl;
+        } else {
+          const img = document.createElement('img');
+          img.src = pages[index].dataUrl;
+          img.alt = `Page ${index + 1}`;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          thumb.replaceChildren(img);
+        }
       }
     }
   }
@@ -386,7 +414,7 @@ const howToSteps = [
 
     splitBtn.disabled = true;
     showProgress(10, 'Loading original PDF…');
-    resultsList.innerHTML = '';
+    resultsList.textContent = '';
     
     const buf = await currentFile.arrayBuffer();
     const srcPdf = await PDFDocument.load(buf);

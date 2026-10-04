@@ -11,7 +11,7 @@ const howToSteps = [
 
 <BaseLayout
   title="Markdown to PDF Converter Online Free — Live Editor with Preview"
-  description="Convert Markdown to PDF online free. Live split-pane editor with instant preview. Choose GitHub, Academic, or Plain themes. A4/Letter, portrait/landscape. No upload — runs in your browser."
+  description="Convert Markdown to PDF online free. Live split-pane editor with instant preview. Choose GitHub, Academic, or Plain themes. No upload — runs in your browser."
   keywords={seoDataTools['markdown-to-pdf'].keywords}
 >
 
@@ -151,7 +151,7 @@ const howToSteps = [
 </BaseLayout>
 
 <script type="module">
-import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
+import { marked } from 'marked';
 
 const editor = document.getElementById('md-editor');
 const preview = document.getElementById('md-preview');
@@ -212,7 +212,14 @@ function render() {
   renderTimer = setTimeout(() => {
     try {
       const html = marked.parse(md, { breaks: true, gfm: true });
-      preview.innerHTML = html;
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      doc.querySelectorAll('script, style, iframe, object, embed, applet').forEach(el => el.remove());
+      
+      preview.textContent = '';
+      while(doc.body.firstChild) {
+        preview.appendChild(doc.body.firstChild);
+      }
+      
       applyTheme();
       lastRenderedMd = md;
       if (previewStatus) previewStatus.textContent = 'Ready';
@@ -265,7 +272,9 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
 
   const clone = document.createElement('div');
   clone.className = 'md-preview__content theme-' + theme;
-  clone.innerHTML = preview.innerHTML;
+  Array.from(preview.childNodes).forEach(node => {
+    clone.appendChild(node.cloneNode(true));
+  });
   clone.style.cssText = 'padding:32px;box-sizing:border-box;width:100%;';
   document.body.appendChild(clone);
   clone.style.position = 'absolute';
