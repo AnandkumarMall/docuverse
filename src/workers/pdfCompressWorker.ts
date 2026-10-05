@@ -38,7 +38,7 @@ async function estimateTotalSize(
     total += jpg.byteLength;
   }
   // Add per-page PDF structural overhead estimate
-  total += pageRGBABuffers.length * 512;
+  total += pageRGBABuffers.length * 2048;
   return total;
 }
 

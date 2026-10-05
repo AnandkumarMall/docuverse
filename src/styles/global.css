@@ -3,8 +3,13 @@
    Base: Notion | Components: Mastercard | Type: WIRED
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Fonts ─────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300;400;500;600;0,6..72,400;1,6..72,400&display=swap');
+/* ── Fonts (self-hosted — no CDN, no Google tracking) ─────── */
+@import '@fontsource-variable/inter';
+@import '@fontsource/newsreader/300.css';
+@import '@fontsource/newsreader/400.css';
+@import '@fontsource/newsreader/500.css';
+@import '@fontsource/newsreader/600.css';
+@import '@fontsource/newsreader/400-italic.css';
 
 /* ── CSS Reset ─────────────────────────────────────────────── */
 *,
@@ -70,6 +75,19 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+}
+
+/* ── Keyboard Focus Visibility ─────────────────────────────── */
+/* Show focus ring only for keyboard navigation, not mouse clicks */
+:focus-visible {
+  outline: 2.5px solid var(--color-brand-primary, #141413);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Remove default browser outline since we handle it above */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* ── Design Tokens ─────────────────────────────────────────── */

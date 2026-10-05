@@ -209,7 +209,7 @@ const howToSteps = [
   
   let currentFile: File | null = null;
   let compressedBlobUrl: string | null = null;
-  // Removed cachedBuffer to fix detached ArrayBuffer issue
+  let compressedBlobCache: Blob | null = null;
 
   // Preview State
   let pdfPreviewDoc: any = null;
@@ -259,6 +259,8 @@ const howToSteps = [
     downloadBtn.style.display = 'none';
     
     if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
+    compressedBlobUrl = null;
+    compressedBlobCache = null;
     
     pdfPreviewDoc = null;
     await renderPreview(file, 1);
@@ -299,13 +301,13 @@ const howToSteps = [
 
   prevPageBtn.addEventListener('click', async () => {
     if (currentPreviewPage > 1) {
-      const fileToRender = compressedBlobUrl ? await fetch(compressedBlobUrl).then(r => r.blob()).then(b => new File([b], 'c.pdf')) : currentFile;
+      const fileToRender = compressedBlobCache ? new File([compressedBlobCache], 'c.pdf') : currentFile;
       if (fileToRender) renderPreview(fileToRender, currentPreviewPage - 1);
     }
   });
   nextPageBtn.addEventListener('click', async () => {
     if (currentPreviewPage < pdfPreviewNumPages) {
-      const fileToRender = compressedBlobUrl ? await fetch(compressedBlobUrl).then(r => r.blob()).then(b => new File([b], 'c.pdf')) : currentFile;
+      const fileToRender = compressedBlobCache ? new File([compressedBlobCache], 'c.pdf') : currentFile;
       if (fileToRender) renderPreview(fileToRender, currentPreviewPage + 1);
     }
   });
@@ -322,7 +324,8 @@ const howToSteps = [
     resultSuccess.style.display = 'none';
     downloadBtn.style.display = 'none';
     
-    if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
+    if (compressedBlobUrl) { URL.revokeObjectURL(compressedBlobUrl); compressedBlobUrl = null; }
+    compressedBlobCache = null;
   });
   
   // Mode Toggle UI
@@ -499,6 +502,7 @@ const howToSteps = [
       const newBlob = new Blob([compressedBytes], { type: 'application/pdf' });
       
       if (compressedBlobUrl) URL.revokeObjectURL(compressedBlobUrl);
+      compressedBlobCache = newBlob;
       compressedBlobUrl = URL.createObjectURL(newBlob);
       
       // Update UI with results

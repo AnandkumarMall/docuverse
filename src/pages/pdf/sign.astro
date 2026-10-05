@@ -34,7 +34,7 @@ const howToSteps = [
   <div slot="file-list">
     <div id="file-info" style="display:none;" class="sign-file-info">
       <span id="file-name" class="sign-file-name"></span>
-      <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
   </div>
 
@@ -72,7 +72,6 @@ const howToSteps = [
             <button class="btn btn-ghost btn-sm" id="next-page" title="Next page">Next &#8250;</button>
           </div>
         </div>
-        <select id="page-select" class="ti-input" style="display:none;"></select>
         <select id="page-select" class="input" style="max-width:200px;"></select>
       </div>
 
@@ -185,6 +184,10 @@ const howToSteps = [
   const sigText = document.getElementById('sig-text') as HTMLInputElement;
   
   const pageSelect = document.getElementById('page-select') as HTMLSelectElement;
+  const prevPageBtn = document.getElementById('prev-page') as HTMLButtonElement;
+  const nextPageBtn = document.getElementById('next-page') as HTMLButtonElement;
+  const curPageNum = document.getElementById('cur-page-num') as HTMLElement;
+  const totalPageNum = document.getElementById('total-page-num') as HTMLElement;
   const loadingMsg = document.getElementById('loading-msg') as HTMLElement;
   const previewWrap = document.getElementById('preview-wrap') as HTMLElement;
   const previewCanvas = document.getElementById('pdf-preview-canvas') as HTMLCanvasElement;
@@ -243,7 +246,7 @@ const howToSteps = [
     fileNameEl.textContent = f.name; 
     fileInfo.style.display = 'flex'; 
     dropZone.style.display = 'none'; 
-    signOptions.style.display = 'block'; 
+    signOptions.style.display = 'grid'; 
     signActions.style.display = 'flex'; 
     signResult.style.display = 'none'; 
     
@@ -261,15 +264,14 @@ const howToSteps = [
         const opt = document.createElement('option');
         opt.value = String(i);
         opt.textContent = `Page ${i}`;
-        if (i === totalPages) opt.selected = true; // default to last page
         pageSelect.appendChild(opt);
-      totalPageNum.textContent = String(numPages);
+      }
+      totalPageNum.textContent = String(totalPages);
       curPageNum.textContent = "1";
       prevPageBtn.disabled = true;
-      nextPageBtn.disabled = numPages <= 1;
-      }
+      nextPageBtn.disabled = totalPages <= 1;
       
-      await renderPreview(totalPages);
+      await renderPreview(1);
       updateOverlay();
     } catch (e) {
       console.error(e);
@@ -408,8 +410,13 @@ const howToSteps = [
       const { StandardFonts } = await import('pdf-lib');
       const font = await pdf.embedFont(StandardFonts.TimesRomanItalic);
       const text = sigText.value || 'Signature';
-      const fontSize = sigH * 0.6; // Approximate font size
-      page.drawText(text, { x: sigX, y: sigY + (sigH * 0.2), size: fontSize, font, color: rgb(0.05, 0.1, 0.5) });
+      const sizeForWidth = sigW / font.widthOfTextAtSize(text, 1);
+      const fontSize = Math.min(sizeForWidth, sigH) * 0.8;
+      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      // Rough height estimation for descent
+      const startX = sigX + (sigW - textWidth) / 2;
+      const startY = sigY + (sigH - fontSize) / 2 + (fontSize * 0.2);
+      page.drawText(text, { x: startX, y: startY, size: fontSize, font, color: rgb(0.05, 0.1, 0.5) });
     }
 
     progressFill.style.width = '90%';
@@ -418,16 +425,21 @@ const howToSteps = [
     setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
     
     const blob = new Blob([bytes], { type: 'application/pdf' });
-    downloadBtn.href = URL.createObjectURL(blob);
+    if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+    lastObjectUrl = URL.createObjectURL(blob);
+    downloadBtn.href = lastObjectUrl;
     downloadBtn.download = `signed-${currentFile.name}`;
     signResult.style.display = 'flex';
     signActions.style.display = 'none';
     signBtn.disabled = false;
   });
 
+  let lastObjectUrl: string | null = null;
+
   function reset() { 
     currentFile=null; dropZone.style.display='flex'; fileInfo.style.display='none'; 
     signOptions.style.display='none'; signActions.style.display='none'; signResult.style.display='none'; 
+    if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl = null; }
     ctx.clearRect(0,0,canvas.width,canvas.height); sigText.value=''; updateOverlay();
   }
   clearBtn.addEventListener('click', reset);

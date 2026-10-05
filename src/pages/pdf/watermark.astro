@@ -441,7 +441,9 @@ const howToSteps = [
 
       progressFill.style.width = '100%';
       const blob = new Blob([pdfBytes], {type:'application/pdf'});
-      downloadBtn.href = URL.createObjectURL(blob);
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = URL.createObjectURL(blob);
+      downloadBtn.href = lastObjectUrl;
       downloadBtn.download = `watermarked-${currentFile.name}`;
 
       wmMain.style.display = 'none';
@@ -457,8 +459,11 @@ const howToSteps = [
     }
   });
 
+  let lastObjectUrl: string | null = null;
+
   function reset() {
     currentFile=null; numPages=0; pageSelected=[]; currentPage=1; pdfDocProxy=null;
+    if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl=null; }
     dropZone.style.display='flex'; fileInfo.style.display='none';
     wmMain.style.display='none'; wmActions.style.display='none'; wmResult.style.display='none';
     progressEl.style.display='none';

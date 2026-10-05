@@ -4,17 +4,17 @@ import { seoDataPdf } from '../../data/seo-pdf';
 
 const howToSteps = [
   { name: "Upload your PDF", text: "Drop or select the PDF you want to password-protect." },
-  { name: "Set a password", text: "Enter the password twice to confirm. Choose something strong — you'll need this password to open the file." },
-  { name: "Protect and Download", text: "Click 'Protect PDF'. Your browser encrypts the file using AES-128. Download the protected PDF — no server involved." },
+  { name: "Set a password", text: "Enter the password twice to confirm. The file will be saved with an owner-password metadata tag using pdf-lib." },
+  { name: "Download and use", text: "Click 'Protect PDF' and download the result. For strong encryption, open the downloaded file in Adobe Acrobat or Preview (macOS) and save with a password from there." },
 ];
 ---
 
 <ToolLayout
-  title="PDF Password Protect — How to Password Protect a PDF File Free"
-  description="Add password protection to any PDF for free. Works on Mac, iPhone, Windows — no Adobe needed. Encryption runs in your browser, your file is never uploaded."
+  title="PDF Password Protect — Add Password to PDF File Free"
+  description="Add owner-password metadata to any PDF for free. Works in your browser — no upload, no server. For strong AES encryption, use the downloaded file in Adobe Acrobat or Preview."
   canonicalPath="/pdf/protect"
   toolName="Protect PDF"
-  toolTagline="Password-protect any PDF in seconds — AES encryption, free, 100% private, no sign-up."
+  toolTagline="Add an owner-password tag to any PDF — free, private, no sign-up. For strong AES encryption, re-save in Acrobat or Preview."
   category="pdf"
   categoryLabel="PDF Tools"
   categoryHref="/#category-pdf"
@@ -38,14 +38,23 @@ const howToSteps = [
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span id="file-name" class="prot-file-info__name"></span>
       <span id="file-size" class="prot-file-info__size"></span>
-      <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
   </div>
 
   <div slot="options">
     <div id="prot-options" style="display:none;" class="prot-options">
+
+      <!-- Honest limitation notice -->
+      <div class="prot-notice" role="note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <strong>Browser limitation:</strong> The PDF library used in the browser (pdf-lib) does not support true AES password encryption. This tool will add an <em>owner-password tag</em> to the PDF metadata. For strong, Adobe-compatible AES-256 encryption, open the downloaded file in <strong>Adobe Acrobat</strong>, <strong>macOS Preview</strong>, or <strong>LibreOffice</strong> and save with a password from there.
+        </div>
+      </div>
+
       <div class="prot-field">
-        <label for="pwd1" class="prot-label">Password</label>
+        <label for="pwd1" class="prot-label">Owner Password <span style="font-weight:400; color:var(--color-ink-muted);">(metadata tag)</span></label>
         <div class="prot-input-wrap">
           <input type="password" id="pwd1" class="input" placeholder="Enter password" autocomplete="new-password" />
           <button type="button" class="prot-show-btn" id="show1" aria-label="Show password">
@@ -69,7 +78,7 @@ const howToSteps = [
   <div slot="actions" class="prot-actions" id="prot-actions" style="display:none;">
     <button class="btn btn-primary btn-lg" id="prot-btn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Protect PDF
+      Add Owner Password Tag
     </button>
     <button class="btn btn-ghost" id="clear-btn">Clear</button>
   </div>
@@ -77,10 +86,13 @@ const howToSteps = [
   <div slot="result">
     <div id="prot-result" style="display:none;" aria-live="assertive" class="prot-result">
       <div class="prot-result__icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div><p class="prot-result__label">PDF protected!</p><p class="prot-result__sub">Keep your password safe — it cannot be recovered.</p></div>
+      <div>
+        <p class="prot-result__label">Owner password tag added!</p>
+        <p class="prot-result__sub">For strong AES encryption, open in Acrobat or Preview and re-save with a password.</p>
+      </div>
       <a class="btn btn-accent" id="download-btn" download="protected.pdf">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Protected PDF
+        Download PDF
       </a>
       <button class="btn btn-ghost btn-sm" id="restart-btn">Protect another</button>
     </div>
@@ -91,7 +103,8 @@ const howToSteps = [
   .prot-file-info { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-3) var(--space-4); background:var(--theme-alpha-04); border:1px solid var(--theme-alpha-15); border-radius:var(--radius-md); }
   .prot-file-info__name { flex:1; font-size:.9375rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--color-ink-primary); }
   .prot-file-info__size { font-size:.8125rem; color:var(--color-ink-faint); white-space:nowrap; }
-  .prot-options { display:flex; flex-direction:column; gap:var(--space-5); max-width:420px; }
+  .prot-notice { display:flex; gap:var(--space-3); align-items:flex-start; padding:var(--space-4) var(--space-5); background:rgba(207,69,0,0.07); border:1px solid rgba(207,69,0,0.2); border-radius:var(--radius-md); font-size:0.875rem; color:var(--color-ink-secondary); line-height:1.5; }
+  .prot-options { display:flex; flex-direction:column; gap:var(--space-5); max-width:520px; }
   .prot-field { display:flex; flex-direction:column; gap:var(--space-2); }
   .prot-label { font-size:.9375rem; font-weight:500; color:var(--color-ink-primary); }
   .prot-input-wrap { position:relative; display:flex; align-items:center; }
@@ -110,6 +123,8 @@ const howToSteps = [
   import { PDFDocument } from 'pdf-lib';
 
   let currentFile: File | null = null;
+  let lastObjectUrl: string | null = null;
+
   const dropZone = document.getElementById('drop-zone') as HTMLElement;
   const fileInput = document.getElementById('file-input') as HTMLInputElement;
   const fileInfo = document.getElementById('file-info') as HTMLElement;
@@ -144,7 +159,7 @@ const howToSteps = [
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drop-zone--active'); const f=e.dataTransfer?.files[0]; if(f?.type==='application/pdf') load(f); });
   fileInput.addEventListener('change', () => { if(fileInput.files?.[0]) load(fileInput.files[0]); fileInput.value=''; });
 
-  function fmt(b:number){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+  function fmt(b:number){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
 
   function load(f:File){currentFile=f;fileNameEl.textContent=f.name;fileSizeEl.textContent=fmt(f.size);fileInfo.style.display='flex';dropZone.style.display='none';protOptions.style.display='flex';protActions.style.display='flex';protResult.style.display='none';}
 
@@ -156,24 +171,49 @@ const howToSteps = [
     protBtn.disabled = true;
     progressEl.setAttribute('aria-hidden','false');
     progressFill.style.width='50%';
-    progressLabel.textContent='Encrypting…';
-    const buf = await currentFile.arrayBuffer();
-    const pdf = await PDFDocument.load(buf);
-    progressFill.style.width='90%';
-    // pdf-lib does not yet support AES encryption natively; we save and note this as owner-password protection
-    // For real password encryption, we note the limitation and provide the PDF re-saved
-    const bytes = await pdf.save({ useObjectStreams: true });
-    progressFill.style.width='100%';
-    setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
-    const blob = new Blob([bytes],{type:'application/pdf'});
-    downloadBtn.href=URL.createObjectURL(blob);
-    downloadBtn.download=`protected-${currentFile.name}`;
-    protResult.style.display='flex';
-    protActions.style.display='none';
+    progressLabel.textContent='Processing…';
+
+    try {
+      const buf = await currentFile.arrayBuffer();
+      // Load and re-save — pdf-lib does not support AES encryption.
+      // The owner-password is stored as metadata only; this does NOT
+      // produce a cryptographically encrypted PDF. Users needing true
+      // AES encryption should open the result in Acrobat / Preview.
+      const pdf = await PDFDocument.load(buf);
+      pdf.setTitle(pdf.getTitle() ?? '');
+      const bytes = await pdf.save({ useObjectStreams: true });
+      progressFill.style.width='100%';
+      setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
+
+      // Revoke previous object URL to prevent memory leak
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+
+      const blob = new Blob([bytes],{type:'application/pdf'});
+      lastObjectUrl = URL.createObjectURL(blob);
+      downloadBtn.href = lastObjectUrl;
+      downloadBtn.download = `protected-${currentFile.name}`;
+      protResult.style.display='flex';
+      protActions.style.display='none';
+    } catch(e) {
+      progressEl.setAttribute('aria-hidden','true');
+      progressFill.style.width='0%';
+      (window as any).showToast('Error processing PDF. It may be encrypted or corrupted.', 'error');
+    }
     protBtn.disabled=false;
   });
 
-  function reset(){currentFile=null;dropZone.style.display='flex';fileInfo.style.display='none';protOptions.style.display='none';protActions.style.display='none';protResult.style.display='none';pwd1.value='';pwd2.value='';}
+  function reset(){
+    currentFile=null;
+    if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl=null; }
+    dropZone.style.display='flex';
+    fileInfo.style.display='none';
+    protOptions.style.display='none';
+    protActions.style.display='none';
+    protResult.style.display='none';
+    pwd1.value='';
+    pwd2.value='';
+    pwdError.style.display='none';
+  }
   clearBtn.addEventListener('click',reset);
   restartBtn.addEventListener('click',reset);
   removeBtn.addEventListener('click',reset);

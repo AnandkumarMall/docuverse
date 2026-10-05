@@ -350,7 +350,9 @@ const howToSteps = [
       
       const bytes = await pdfDoc.save();
       const blob = new Blob([bytes], { type: 'application/pdf' });
-      downloadBtn.href = URL.createObjectURL(blob);
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = URL.createObjectURL(blob);
+      downloadBtn.href = lastObjectUrl;
       downloadBtn.download = `cropped-${currentFile.name}`;
       
       cropResult.style.display = 'flex';
@@ -364,8 +366,10 @@ const howToSteps = [
     }
   });
 
+  let lastObjectUrl: string | null = null;
   function reset() {
     currentFile = null;
+    if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl = null; }
     pdfDocProxy = null;
     dropZone.style.display = 'flex';
     cropWorkspace.style.display = 'none';

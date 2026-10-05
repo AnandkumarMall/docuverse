@@ -215,14 +215,17 @@ const howToSteps = [
     progressFill.style.width = '100%';
     setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
     const blob = new Blob([bytes],{type:'application/pdf'});
-    downloadBtn.href = URL.createObjectURL(blob);
+    if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+    lastObjectUrl = URL.createObjectURL(blob);
+    downloadBtn.href = lastObjectUrl;
     downloadBtn.download = `organized-${currentFile.name}`;
     orgResult.style.display = 'flex';
     orgActions.style.display = 'none';
     saveBtn.disabled = false;
   });
 
-  function reset(){currentFile=null;pages=[];dropZone.style.display='flex';pageGrid.textContent='';orgActions.style.display='none';orgResult.style.display='none';}
+  let lastObjectUrl: string | null = null;
+  function reset(){currentFile=null;if(lastObjectUrl){URL.revokeObjectURL(lastObjectUrl);lastObjectUrl=null;}pages=[];dropZone.style.display='flex';pageGrid.textContent='';orgActions.style.display='none';orgResult.style.display='none';}
   clearBtn.addEventListener('click', reset);
   restartBtn.addEventListener('click', reset);
 </script>

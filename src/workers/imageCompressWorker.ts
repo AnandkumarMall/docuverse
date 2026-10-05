@@ -55,6 +55,13 @@ self.onmessage = async (e: MessageEvent) => {
 
       // Decode the source image into an ImageBitmap (GPU-backed, no main thread)
       const blob = new Blob([imageBuffer], { type: mimeType });
+      
+      if (typeof OffscreenCanvas === 'undefined') {
+        self.postMessage({ type: 'progress', p: 100, text: 'Browser not supported' });
+        self.postMessage({ type: 'done', buffer: imageBuffer, quality: 100, scale: 1.0 });
+        return;
+      }
+      
       const bitmap = await createImageBitmap(blob);
 
       const scalesToTest = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
@@ -136,15 +143,25 @@ self.onmessage = async (e: MessageEvent) => {
         }
       }
 
+      // Save dimensions before closing the bitmap (accessing width/height after
+      // close() returns 0 in most browsers — use-after-free crash in fallback).
+      const bitmapW = bitmap.width;
+      const bitmapH = bitmap.height;
       bitmap.close();
 
       // Absolute fallback: encode at scale 0.1, quality 5
       if (!bestBuffer) {
-        const w = Math.max(1, Math.floor(bitmap.width * 0.1));
-        const h = Math.max(1, Math.floor(bitmap.height * 0.1));
+        const w = Math.max(1, Math.floor(bitmapW * 0.1));
+        const h = Math.max(1, Math.floor(bitmapH * 0.1));
+        // Re-decode from the original buffer because the bitmap is already closed.
+        const fallbackBlob = new Blob([imageBuffer], { type: mimeType });
+        const fallbackBitmap = await createImageBitmap(fallbackBlob, { resizeWidth: w, resizeHeight: h });
         const canvas = new OffscreenCanvas(w, h);
         const ctx = canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
-        ctx.drawImage(bitmap, 0, 0, w, h);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(fallbackBitmap, 0, 0, w, h);
+        fallbackBitmap.close();
         const imageData = ctx.getImageData(0, 0, w, h);
         bestBuffer = await encodeImageData(imageData, 5, outputFormat === 'image/png' ? 'image/jpeg' : outputFormat);
         bestQuality = 5;

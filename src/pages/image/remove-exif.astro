@@ -261,50 +261,166 @@ const howToSteps = [
     }
   }
 
+  // ── JPEG Binary Metadata Strip ───────────────────────────
+  // Strips ALL metadata from a JPEG by parsing its binary structure
+  // and removing APP0-APP15 marker segments (EXIF, XMP, IPTC, ICC,
+  // JFIF, camera thumbnails, COM comments, etc.).
+  // Falls back to canvas round-trip for non-JPEG (TIFF etc.)
+  function stripJpegMetadata(buffer: ArrayBuffer): ArrayBuffer {
+    const data = new Uint8Array(buffer);
+    // Validate JPEG SOI marker (FF D8)
+    if (data[0] !== 0xFF || data[1] !== 0xD8) {
+      throw new Error('Not a valid JPEG file');
+    }
+
+    const output: Uint8Array[] = [];
+    // Keep SOI marker
+    output.push(new Uint8Array([0xFF, 0xD8]));
+
+    let i = 2;
+    while (i < data.length) {
+      // Find next marker
+      if (data[i] !== 0xFF) {
+        // Raw image data (scan data) — copy remaining bytes as-is
+        output.push(data.slice(i));
+        break;
+      }
+
+      // Skip padding FF bytes
+      while (i < data.length && data[i] === 0xFF) i++;
+      if (i >= data.length) break;
+
+      const marker = data[i];
+      i++;
+
+      // Markers without a length field
+      if (marker === 0xD8 || // SOI
+          marker === 0xD9 || // EOI
+          (marker >= 0xD0 && marker <= 0xD7)) { // RST0-RST7
+        output.push(new Uint8Array([0xFF, marker]));
+        if (marker === 0xD9) break; // EOI — end of image
+        continue;
+      }
+
+      // Read segment length (2 bytes, big-endian, includes the length field itself)
+      if (i + 1 >= data.length) break;
+      const segLength = (data[i] << 8) | data[i + 1];
+      const segEnd = i + segLength;
+
+      // APP0 - APP15 (0xE0 - 0xEF): metadata segments — STRIP all of them
+      // APP0 = JFIF, APP1 = EXIF/XMP, APP2 = ICC profile / FlashPix,
+      // APP3 = Meta/EXIF extra, APP13 = IPTC, APP14 = Adobe, etc.
+      if (marker >= 0xE0 && marker <= 0xEF) {
+        i = segEnd; // Skip this segment
+        continue;
+      }
+
+      // COM (0xFE): Comment segment — strip
+      if (marker === 0xFE) {
+        i = segEnd;
+        continue;
+      }
+
+      // All other markers (SOF0-SOF3, DHT, DQT, SOS, etc.) — keep
+      // SOS (0xDA) starts the image scan data; copy everything after it
+      if (marker === 0xDA) {
+        output.push(new Uint8Array([0xFF, marker]));
+        output.push(data.slice(i, segEnd)); // SOS segment
+        output.push(data.slice(segEnd));    // rest = compressed image data
+        break;
+      }
+
+      output.push(new Uint8Array([0xFF, marker]));
+      output.push(data.slice(i, segEnd));
+      i = segEnd;
+    }
+
+    // Concatenate all parts into a single ArrayBuffer
+    const totalLen = output.reduce((acc, a) => acc + a.byteLength, 0);
+    const result = new Uint8Array(totalLen);
+    let offset = 0;
+    for (const part of output) {
+      result.set(part, offset);
+      offset += part.byteLength;
+    }
+    return result.buffer;
+  }
+
+  let lastSrcUrl: string | null = null;
+  let lastDlUrl: string | null = null;
+
   // ── Action ──────────────────────────────────────────────
-  stripBtn.addEventListener('click', () => {
+  stripBtn.addEventListener('click', async () => {
     if(!currentFile || !hasExif) return;
-    
-    // The easiest reliable client-side way to strip EXIF from a JPG is to render it to canvas and export as blob.
-    const url = URL.createObjectURL(currentFile);
-    const img = new Image();
-    img.onload = () => {
-      const tmp = document.createElement('canvas');
-      tmp.width = img.width;
-      tmp.height = img.height;
-      const ctx = tmp.getContext('2d')!;
-      ctx.drawImage(img, 0, 0);
-      
-      tmp.toBlob(blob => {
-        if(!blob) return;
-        strippedBlob = blob;
-        const dlUrl = URL.createObjectURL(blob);
-        downloadBtn.href = dlUrl;
-        downloadBtn.download = `clean-${currentFile?.name}`;
-        
-        resultSize.textContent = `Original: ${fmt(currentFile!.size)} \u00b7 Clean: ${fmt(blob.size)}`;
-        
-        workspace.style.display = 'none';
-        actionsPanel.style.display = 'none';
-        resultPanel.style.display = 'flex';
-        
-      }, currentFile!.type, 1.0);
-    };
-    img.src = url;
+
+    try {
+      const buffer = await currentFile.arrayBuffer();
+      const mime = currentFile.type;
+      let cleanBuffer: ArrayBuffer;
+
+      if (mime === 'image/jpeg' || mime === 'image/jpg') {
+        // True binary strip — removes EXIF, XMP, IPTC, ICC, JFIF, camera thumbnails
+        cleanBuffer = stripJpegMetadata(buffer);
+      } else {
+        // Fallback for TIFF etc.: canvas round-trip strips EXIF embedded in pixel data
+        // Note: this doesn't strip XMP from TIFF — for TIFF, binary strip would need
+        // a TIFF IFD parser which is beyond scope here.
+        cleanBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+          if (lastSrcUrl) URL.revokeObjectURL(lastSrcUrl);
+          const url = URL.createObjectURL(currentFile!);
+          lastSrcUrl = url;
+          const img = new Image();
+          img.onload = () => {
+            const tmp = document.createElement('canvas');
+            tmp.width = img.width; tmp.height = img.height;
+            tmp.getContext('2d')!.drawImage(img, 0, 0);
+            tmp.toBlob(blob => {
+              if (!blob) { reject(new Error('Canvas export failed')); return; }
+              blob.arrayBuffer().then(resolve).catch(reject);
+            }, 'image/jpeg', 0.97);
+          };
+          img.onerror = reject;
+          img.src = url;
+        });
+      }
+
+      const blob = new Blob([cleanBuffer], { type: mime === 'image/tiff' ? 'image/jpeg' : mime });
+      strippedBlob = blob;
+
+      if (lastDlUrl) URL.revokeObjectURL(lastDlUrl);
+      lastDlUrl = URL.createObjectURL(blob);
+      downloadBtn.href = lastDlUrl;
+      // Ensure output filename is a clean image (TIFF fallback becomes JPEG)
+      const ext = mime === 'image/tiff' ? 'jpg' : (currentFile!.name.split('.').pop() || 'jpg');
+      const baseName = currentFile!.name.replace(/\.[^.]+$/, '');
+      downloadBtn.download = `clean-${baseName}.${ext}`;
+
+      resultSize.textContent = `Original: ${fmt(currentFile!.size)} · Clean: ${fmt(blob.size)} (all metadata stripped)`;
+
+      workspace.style.display = 'none';
+      actionsPanel.style.display = 'none';
+      resultPanel.style.display = 'flex';
+    } catch (err: any) {
+      (window as any).showToast(`Strip failed: ${err.message ?? 'Unknown error'}`, 'error');
+    }
   });
 
   function reset() {
     currentFile = null;
     hasExif = false;
     strippedBlob = null;
-    
+
+    // Revoke object URLs to prevent memory leaks
+    if (lastSrcUrl) { URL.revokeObjectURL(lastSrcUrl); lastSrcUrl = null; }
+    if (lastDlUrl) { URL.revokeObjectURL(lastDlUrl); lastDlUrl = null; }
+
     dropZone.style.display = 'flex';
     fileInfo.style.display = 'none';
     workspace.style.display = 'none';
     actionsPanel.style.display = 'none';
     resultPanel.style.display = 'none';
   }
-  
+
   resetBtn.addEventListener('click', reset);
   removeBtn.addEventListener('click', reset);
   restartBtn.addEventListener('click', reset);

@@ -38,7 +38,7 @@ const faqs = [
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-primary)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span id="file-name" class="tw-file-name"></span>
       <span id="file-size" class="tw-file-size"></span>
-      <button class="file-item__remove" id="remove-file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="file-item__remove" id="remove-file" aria-label="Remove file"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
   </div>
   <div slot="actions" style="display:none;" id="tw-actions" class="tw-actions">
@@ -149,18 +149,29 @@ const faqs = [
       const page = await pdfDoc.getPage(i);
       const textContent = await page.getTextContent();
       
+      const items = textContent.items as any[];
+      items.sort((a, b) => {
+        const yDiff = b.transform[5] - a.transform[5];
+        if (Math.abs(yDiff) > 5) return yDiff;
+        return a.transform[4] - b.transform[4];
+      });
+
       let pageText = '';
       let lastY = -1;
       
-      for (const item of textContent.items as any[]) {
+      for (const item of items) {
         if (lastY !== -1 && Math.abs(item.transform[5] - lastY) > 5) {
            pageText += '\n';
+        } else if (lastY !== -1 && !pageText.endsWith(' ') && !pageText.endsWith('\n')) {
+           pageText += ' ';
         }
         pageText += item.str || '';
         if (item.hasEOL) {
            pageText += '\n';
+           lastY = -1;
+        } else {
+           lastY = item.transform[5];
         }
-        lastY = item.transform[5];
       }
       
       const lines = pageText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -186,7 +197,9 @@ const faqs = [
     progressFill.style.width = '100%';
     setTimeout(()=>{progressEl.setAttribute('aria-hidden','true');progressFill.style.width='0%';},400);
 
-    downloadBtn.href = URL.createObjectURL(blob);
+    if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+    lastObjectUrl = URL.createObjectURL(blob);
+    downloadBtn.href = lastObjectUrl;
     downloadBtn.download = currentFile.name.replace(/\.pdf$/i,'') + '.docx';
     pageCountText.textContent = `${numPages} page${numPages!==1?'s':''} converted`;
     twResult.style.display = 'flex';
@@ -194,7 +207,8 @@ const faqs = [
     convertBtn.disabled = false;
   });
 
-  function reset(){currentFile=null;dropZone.style.display='flex';fileInfo.style.display='none';twActions.style.display='none';twResult.style.display='none';}
+  let lastObjectUrl: string | null = null;
+  function reset(){currentFile=null;if(lastObjectUrl){URL.revokeObjectURL(lastObjectUrl);lastObjectUrl=null;}dropZone.style.display='flex';fileInfo.style.display='none';twActions.style.display='none';twResult.style.display='none';}
   clearBtn.addEventListener('click',reset);
   restartBtn.addEventListener('click',reset);
   removeBtn.addEventListener('click',reset);

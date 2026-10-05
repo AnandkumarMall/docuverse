@@ -34,7 +34,15 @@ const howToSteps = [
   </div>
 
   <div slot="options">
-    <div id="svg-workspace" style="display:none;">
+    <div id="svg-workspace">
+      <div class="svg-preview-section" id="svg-preview-section" style="display:none;">
+        <div class="svg-editor-header" style="margin-bottom: var(--space-2);">
+          <p class="overline-text">Live Preview</p>
+        </div>
+        <div class="svg-preview-box">
+          <img id="svg-preview-img" src="" alt="SVG Preview" />
+        </div>
+      </div>
       <div class="svg-editor-grid">
         <div class="svg-editor-col">
           <div class="svg-editor-header">
@@ -92,7 +100,10 @@ const howToSteps = [
   }
   .svg-textarea:focus { outline: none; border-color: var(--color-brand-primary); }
   .svg-textarea--output { background: var(--color-surface); border-color: var(--color-border-hairline); color: var(--color-ink-secondary); }
-  .svg-savings { padding: var(--space-3) var(--space-4); background: var(--color-success-bg); border: 1px solid rgba(15,123,63,0.15); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--color-accent-green); font-weight: 500; }
+  .svg-savings { padding: var(--space-3) var(--space-4); background: var(--color-success-bg); border: 1px solid rgba(15,123,63,0.15); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--color-accent-green); font-weight: 500; margin-top: var(--space-4); }
+  .svg-preview-section { margin-bottom: var(--space-5); }
+  .svg-preview-box { width: 100%; height: 200px; border: 1.5px dashed var(--color-border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: var(--color-canvas); padding: var(--space-4); }
+  .svg-preview-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
 </style>
 
 <script>
@@ -107,6 +118,11 @@ const howToSteps = [
   const savingsText = document.getElementById('svg-savings-text') as HTMLSpanElement;
   const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
   const downloadBtn = document.getElementById('download-btn') as HTMLAnchorElement;
+  const previewSection = document.getElementById('svg-preview-section') as HTMLDivElement;
+  const previewImg = document.getElementById('svg-preview-img') as HTMLImageElement;
+  
+  let lastObjectUrl: string | null = null;
+  let previewUrl: string | null = null;
 
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
@@ -124,21 +140,31 @@ const howToSteps = [
     reader.onload = e => {
       svgInput.value = (e.target?.result as string) || '';
       showWorkspace();
+      updatePreview(svgInput.value);
     };
     reader.readAsText(file);
   }
 
   svgInput.addEventListener('input', () => {
-    const bytes = new TextEncoder().encode(svgInput.value).length;
-    inputSize.textContent = `${(bytes / 1024).toFixed(1)} KB`;
-    workspace.style.display = 'block';
+    showWorkspace();
+    updatePreview(svgInput.value);
   });
 
   function showWorkspace() {
-    workspace.style.display = 'block';
-    dropZone.style.display = 'none';
     const bytes = new TextEncoder().encode(svgInput.value).length;
     inputSize.textContent = `${(bytes / 1024).toFixed(1)} KB`;
+  }
+  
+  function updatePreview(code: string) {
+    if (!code.trim()) {
+      previewSection.style.display = 'none';
+      return;
+    }
+    previewSection.style.display = 'block';
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const blob = new Blob([code], { type: 'image/svg+xml' });
+    previewUrl = URL.createObjectURL(blob);
+    previewImg.src = previewUrl;
   }
 
   (document.getElementById('optimize-btn') as HTMLButtonElement).addEventListener('click', () => {
@@ -147,6 +173,7 @@ const howToSteps = [
     showWorkspace();
     const optimized = optimizeSvg(input);
     svgOutput.value = optimized;
+    updatePreview(optimized);
     const inBytes = new TextEncoder().encode(input).length;
     const outBytes = new TextEncoder().encode(optimized).length;
     outputSize.textContent = `${(outBytes / 1024).toFixed(1)} KB`;
@@ -155,7 +182,9 @@ const howToSteps = [
     savings.style.display = 'block';
 
     const blob = new Blob([optimized], { type: 'image/svg+xml' });
-    downloadBtn.href = URL.createObjectURL(blob);
+    if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+    lastObjectUrl = URL.createObjectURL(blob);
+    downloadBtn.href = lastObjectUrl;
     copyBtn.style.display = 'inline-flex';
     downloadBtn.style.display = 'inline-flex';
   });

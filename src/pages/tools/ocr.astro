@@ -168,7 +168,9 @@ const howToSteps = [
 
       output.value = text.trim() || '(No text detected. Try a clearer, higher-contrast image.)';
       const blob = new Blob([output.value], { type: 'text/plain' });
-      downloadTxt.href = URL.createObjectURL(blob);
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = URL.createObjectURL(blob);
+      downloadTxt.href = lastObjectUrl;
       result.style.display = 'block';
       actions.style.display = 'none';
     } catch (err) {
@@ -188,7 +190,8 @@ const howToSteps = [
   document.getElementById('remove-file')!.addEventListener('click', reset);
   document.getElementById('reset-btn')!.addEventListener('click', reset);
   document.getElementById('extract-again-btn')!.addEventListener('click', reset);
-  function reset() { currentFile = null; fileInfo.style.display = 'none'; options.style.display = 'none'; actions.style.display = 'none'; result.style.display = 'none'; dropZone.style.display = ''; }
+  let lastObjectUrl: string | null = null;
+  function reset() { currentFile = null; if(lastObjectUrl){URL.revokeObjectURL(lastObjectUrl);lastObjectUrl=null;} fileInfo.style.display = 'none'; options.style.display = 'none'; actions.style.display = 'none'; result.style.display = 'none'; dropZone.style.display = ''; }
 
   function showProgress(pct: number, label: string) { progressEl.setAttribute('aria-hidden', 'false'); progressFill.style.width = `${pct}%`; progressLabel.textContent = label; }
   function hideProgress() { progressEl.setAttribute('aria-hidden', 'true'); progressFill.style.width = '0%'; }

@@ -281,8 +281,9 @@ const howToSteps = [
     workspace.style.display = 'flex';
     actionsPanel.style.display = 'flex';
     resultPanel.style.display = 'none';
-
+    if (lastSrcUrl) URL.revokeObjectURL(lastSrcUrl);
     const url = URL.createObjectURL(f);
+    lastSrcUrl = url;
     currentImg = new Image();
     currentImg.onload = () => {
       origW = currentImg!.width;
@@ -490,8 +491,9 @@ const howToSteps = [
     if (targetFormat === 'original') ext = currentFile.name.split('.').pop() || 'jpg';
     
     const finalize = (blob: Blob) => {
-      const url = URL.createObjectURL(blob);
-      downloadBtn.href = url;
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = URL.createObjectURL(blob);
+      downloadBtn.href = lastObjectUrl;
       downloadBtn.download = `resized-${currentFile?.name.split('.')[0]}.${ext}`;
       
       resultSize.textContent = `${w}×${h} \u00b7 ${fmt(blob.size)}`;
@@ -539,7 +541,12 @@ const howToSteps = [
     }
   });
 
+  let lastObjectUrl: string | null = null;
+  let lastSrcUrl: string | null = null;
+
   function reset() {
+    if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl = null; }
+    if (lastSrcUrl) { URL.revokeObjectURL(lastSrcUrl); lastSrcUrl = null; }
     currentFile = null;
     currentImg = null;
     dropZone.style.display = 'flex';

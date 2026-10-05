@@ -86,7 +86,9 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
     downloadBtn.addEventListener('click', () => {
       if (!pdfBytes) return;
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = URL.createObjectURL(blob);
+      const url = lastObjectUrl;
       const a = document.createElement('a');
       a.href = url;
       a.download = fileName;
@@ -111,14 +113,13 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
         
         const fontSize = 12;
         const margin = 50;
-        const charWidth = 7.2; // approx width of Courier at 12pt
         const lineHeight = fontSize * 1.2;
         
         // Split text by actual newlines first
         const rawLines = text.split(/\r?\n/);
         const wrappedLines = [];
         
-        const maxCharsPerLine = Math.floor((595 - (margin * 2)) / charWidth);
+        const maxWidth = 595 - (margin * 2);
         
         // Wrap lines
         rawLines.forEach(line => {
@@ -131,11 +132,17 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
           const words = line.split(" ");
           
           words.forEach(word => {
-            if ((currentLine + " " + word).length > maxCharsPerLine) {
-              wrappedLines.push(currentLine);
-              currentLine = word;
+            const testLine = currentLine ? currentLine + " " + word : word;
+            if (font.widthOfTextAtSize(testLine, fontSize) > maxWidth) {
+              if (currentLine) {
+                wrappedLines.push(currentLine);
+                currentLine = word;
+              } else {
+                wrappedLines.push(word);
+                currentLine = "";
+              }
             } else {
-              currentLine = currentLine ? currentLine + " " + word : word;
+              currentLine = testLine;
             }
           });
           if (currentLine) wrappedLines.push(currentLine);

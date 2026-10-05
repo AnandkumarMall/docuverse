@@ -115,7 +115,19 @@ const howToSteps = [
       dataUri = e.target?.result as string;
       rawBase64 = dataUri.split(',')[1] || '';
       preview.src = dataUri;
-      fileMeta.innerHTML = `<strong>${file.name}</strong><span>${(file.size / 1024).toFixed(1)} KB original</span><span>${(dataUri.length / 1024).toFixed(1)} KB as Base64</span>`;
+
+      // Build file-meta using safe DOM APIs — no innerHTML with user-controlled data
+      fileMeta.textContent = '';
+      const nameEl = document.createElement('strong');
+      nameEl.textContent = file.name;           // safe: textContent never executes HTML
+      const origEl = document.createElement('span');
+      origEl.textContent = `${(file.size / 1024).toFixed(1)} KB original`;
+      const b64El = document.createElement('span');
+      b64El.textContent = `${(dataUri.length / 1024).toFixed(1)} KB as Base64`;
+      fileMeta.appendChild(nameEl);
+      fileMeta.appendChild(origEl);
+      fileMeta.appendChild(b64El);
+
       output.value = dataUri;
       htmlCode.textContent = `<img src="${dataUri.substring(0, 80)}..." alt="Image" />`;
       cssCode.textContent = `.element {\n  background-image: url("${dataUri.substring(0, 60)}...");\n}`;

@@ -1,6 +1,7 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import { seoDataImage } from '../../data/seo-image';
+import '@fontsource/dancing-script/600.css';
 
 const howToSteps = [
   { name: "Upload your image(s)", text: "Drop or browse to select JPG, PNG, or WebP images. You can upload multiple images for batch watermarking." },
@@ -171,9 +172,7 @@ const howToSteps = [
 
 </ToolLayout>
 
-<!-- Dancing Script font for the script option -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+<!-- Dancing Script font is imported in frontmatter -->
 
 <script is:inline>
 (function() {

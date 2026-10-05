@@ -177,14 +177,13 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
         const font = await pdfDoc.embedFont(StandardFonts.Courier);
         const fontSize = 12;
         const margin = 50;
-        const charWidth = 7.2;
         const lineHeight = fontSize * 1.2;
         
         const rawLines = fullText.split(/\r?\n/);
         const wrappedLines = [];
-        const maxCharsPerLine = Math.floor((595 - (margin * 2)) / charWidth);
+        const maxWidth = 595 - (margin * 2);
         
-        rawLines.forEach(line => {
+          rawLines.forEach(line => {
           if (line.length === 0) {
             wrappedLines.push("");
             return;
@@ -192,11 +191,17 @@ import ToolLayout from '../../layouts/ToolLayout.astro';
           let currentLine = "";
           const words = line.split(" ");
           words.forEach(word => {
-            if ((currentLine + " " + word).length > maxCharsPerLine) {
-              wrappedLines.push(currentLine);
-              currentLine = word;
+            const testLine = currentLine ? currentLine + " " + word : word;
+            if (font.widthOfTextAtSize(testLine, fontSize) > maxWidth) {
+              if (currentLine) {
+                wrappedLines.push(currentLine);
+                currentLine = word;
+              } else {
+                wrappedLines.push(word);
+                currentLine = "";
+              }
             } else {
-              currentLine = currentLine ? currentLine + " " + word : word;
+              currentLine = testLine;
             }
           });
           if (currentLine) wrappedLines.push(currentLine);
