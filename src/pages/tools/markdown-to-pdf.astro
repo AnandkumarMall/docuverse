@@ -272,34 +272,42 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
   const orient = orientSelect ? orientSelect.value : 'portrait';
   const theme = themeSelect ? themeSelect.value : 'github';
 
-  const clone = document.createElement('div');
-  clone.className = 'md-preview__content theme-' + theme;
-  Array.from(preview.childNodes).forEach(node => {
-    clone.appendChild(node.cloneNode(true));
-  });
-  // We place it at top:0 left:0 so html2canvas can capture it properly.
-  // z-index: -9999 hides it behind the main page content.
-  clone.style.cssText = 'padding:32px;box-sizing:border-box;width:800px;position:absolute;top:0;left:0;z-index:-9999;';
-  document.body.appendChild(clone);
-
   const opt = {
     margin: [15,15,15,15],
     filename: 'document.pdf',
     image: { type:'jpeg', quality:0.98 },
-    html2canvas: { scale:2, useCORS:true, letterRendering:true },
+    html2canvas: { 
+      scale: 2, 
+      useCORS: true, 
+      letterRendering: true,
+      windowWidth: 1024,
+      onclone: (clonedDoc) => {
+        const el = clonedDoc.getElementById('md-preview');
+        if (el) {
+          el.style.width = '800px';
+          el.style.maxWidth = 'none';
+          let parent = el.parentElement;
+          while (parent && parent !== clonedDoc.body) {
+            parent.style.overflow = 'visible';
+            parent.style.height = 'auto';
+            parent.style.maxHeight = 'none';
+            parent = parent.parentElement;
+          }
+        }
+      }
+    },
     jsPDF: { unit:'mm', format:paper, orientation:orient },
     pagebreak: { mode:['avoid-all','css','legacy'] }
   };
 
   try {
-    await html2pdf().set(opt).from(clone).save();
+    await html2pdf().set(opt).from(preview).save();
     if (pdfStatus) pdfStatus.textContent = '✅ PDF downloaded!';
     if (statusMsg) statusMsg.textContent = 'PDF saved successfully.';
   } catch(e) {
     if (pdfStatus) pdfStatus.textContent = '❌ Error';
     if (statusMsg) statusMsg.textContent = 'PDF error: ' + e.message;
   }
-  document.body.removeChild(clone);
   downloadBtn.disabled = false;
   downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
   setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
