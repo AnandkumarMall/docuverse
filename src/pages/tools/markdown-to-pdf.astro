@@ -260,6 +260,14 @@ fileInput && fileInput.addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
+// Theme CSS map — inlined so html2pdf gets styles regardless of DOM capture
+const THEME_CSS = {
+  github: `body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#24292f;background:#fff;padding:0;margin:0;}h1,h2{border-bottom:1px solid #d0d7de;padding-bottom:.3em;}h1{font-size:2em;margin:0 0 16px;}h2{font-size:1.5em;margin:24px 0 16px;}h3{font-size:1.25em;margin:20px 0 12px;}p{margin:0 0 16px;}ul,ol{padding-left:2em;margin:0 0 16px;}code{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:.2em .4em;font-family:'SFMono-Regular',Consolas,monospace;font-size:85%;}pre{background:#f6f8fa;border:1px solid #d0d7de;border-radius:6px;padding:16px;overflow:auto;margin:0 0 16px;}pre code{background:none;border:none;padding:0;}blockquote{color:#57606a;border-left:4px solid #d0d7de;padding:0 1em;margin:0 0 16px;}table{border-collapse:collapse;width:100%;margin:0 0 16px;}th,td{border:1px solid #d0d7de;padding:6px 13px;}th{background:#f6f8fa;font-weight:600;}tr:nth-child(even){background:#f6f8fa;}`,
+  plain: `body{font-family:Georgia,serif;font-size:16px;line-height:1.6;color:#222;background:#fff;padding:0;margin:0;}h1,h2,h3{font-weight:bold;margin:20px 0 12px;}p{margin:0 0 14px;}ul,ol{padding-left:1.5em;margin:0 0 14px;}code{font-family:monospace;background:#f4f4f4;border-radius:4px;padding:.1em .3em;}pre{font-family:monospace;background:#f4f4f4;border-radius:4px;padding:12px;overflow:auto;margin:0 0 14px;}table{border-collapse:collapse;width:100%;margin:0 0 14px;}th,td{border:1px solid #ccc;padding:6px 10px;}blockquote{border-left:3px solid #888;padding:0 1em;margin:0 0 14px;color:#555;}`,
+  academic: `body{font-family:'Times New Roman',Times,serif;font-size:17px;line-height:1.8;color:#111;background:#fff;max-width:680px;margin:0 auto;padding:0;}h1{text-align:center;font-size:1.6em;margin-bottom:.3em;}h2{font-size:1.25em;margin:28px 0 12px;}h3{font-size:1.1em;margin:20px 0 8px;}p{margin:0 0 1em;text-align:justify;}ul,ol{padding-left:2em;margin:0 0 1em;}code{font-family:'Courier New',monospace;font-size:.9em;background:#f8f8f8;padding:.1em .3em;border-radius:2px;}pre{background:#f8f8f8;padding:14px;border-radius:4px;margin:0 0 1em;overflow:auto;}blockquote{font-style:italic;border-left:3px solid #999;padding:0 1em;margin:0 0 1em;color:#444;}table{border-collapse:collapse;width:100%;margin:0 0 1em;font-size:.95em;}th,td{border:1px solid #999;padding:5px 10px;}`,
+  'dark-print': `body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.6;color:#e8eaf0;background:#1a1b26;padding:0;margin:0;}h1,h2,h3{color:#c0c8ff;margin:20px 0 12px;}h1{font-size:1.8em;border-bottom:1px solid #2e3048;padding-bottom:.3em;}h2{font-size:1.3em;border-bottom:1px solid #2e3048;padding-bottom:.3em;}p{margin:0 0 14px;}ul,ol{padding-left:1.5em;margin:0 0 14px;}code{background:#2e3048;border-radius:4px;padding:.2em .4em;font-family:monospace;font-size:.88em;color:#a5d6ff;}pre{background:#2e3048;border-radius:6px;padding:16px;margin:0 0 14px;overflow:auto;}pre code{background:none;padding:0;color:#e8eaf0;}blockquote{border-left:4px solid #4a5080;padding:0 1em;margin:0 0 14px;color:#8892b0;}table{border-collapse:collapse;width:100%;margin:0 0 14px;}th,td{border:1px solid #2e3048;padding:6px 12px;}th{background:#2e3048;color:#c0c8ff;}`
+};
+
 downloadBtn && downloadBtn.addEventListener('click', async () => {
   if (!window.html2pdf) { alert('PDF library not loaded yet. Please wait a moment and try again.'); return; }
   const content = editor ? editor.value.trim() : '';
@@ -272,33 +280,30 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
   const orient = orientSelect ? orientSelect.value : 'portrait';
   const theme = themeSelect ? themeSelect.value : 'github';
 
-  // CRITICAL: html2canvas requires the element to be physically in the DOM.
-  // top:-9999px keeps it off-screen but still rendered (left:-9999px is ignored by Chrome).
-  const wrapper = document.createElement('div');
-  wrapper.className = 'md-preview__content theme-' + theme;
-  wrapper.style.cssText = 'position:absolute;top:-9999px;left:0;width:794px;padding:32px;box-sizing:border-box;background:#fff;';
-  wrapper.innerHTML = preview.innerHTML;
-  document.body.appendChild(wrapper); // Must be in DOM before html2pdf runs
+  // Build a fully self-contained HTML string with styles inlined.
+  // This avoids all html2canvas DOM-capture issues (scroll containers,
+  // off-screen elements, detached nodes, flexbox clipping).
+  const bodyHtml = preview.innerHTML;
+  const css = THEME_CSS[theme] || THEME_CSS.github;
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${bodyHtml}</body></html>`;
 
   const opt = {
-    margin: [15,15,15,15],
+    margin: [15, 15, 15, 15],
     filename: 'document.pdf',
-    image: { type:'jpeg', quality:0.98 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 794 },
-    jsPDF: { unit:'mm', format:paper, orientation:orient },
-    pagebreak: { mode:['avoid-all','css','legacy'] }
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+    jsPDF: { unit: 'mm', format: paper, orientation: orient }
   };
 
   try {
-    await html2pdf().set(opt).from(wrapper).save();
+    await html2pdf().set(opt).from(fullHtml, 'string').save();
     if (pdfStatus) pdfStatus.textContent = '✅ PDF downloaded!';
     if (statusMsg) statusMsg.textContent = 'PDF saved successfully.';
-  } catch(e) {
-    if (pdfStatus) pdfStatus.textContent = '❌ Error';
+  } catch (e) {
+    if (pdfStatus) pdfStatus.textContent = '❌ Error: ' + e.message;
     if (statusMsg) statusMsg.textContent = 'PDF error: ' + e.message;
+    console.error('PDF generation error:', e);
   } finally {
-    // Always clean up — regardless of success or failure
-    if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
     downloadBtn.disabled = false;
     downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
     setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
