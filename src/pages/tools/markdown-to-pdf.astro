@@ -272,16 +272,19 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
   const orient = orientSelect ? orientSelect.value : 'portrait';
   const theme = themeSelect ? themeSelect.value : 'github';
 
+  // CRITICAL: html2canvas requires the element to be physically in the DOM.
+  // top:-9999px keeps it off-screen but still rendered (left:-9999px is ignored by Chrome).
   const wrapper = document.createElement('div');
   wrapper.className = 'md-preview__content theme-' + theme;
-  wrapper.style.cssText = 'padding:32px; box-sizing:border-box; width:800px;';
+  wrapper.style.cssText = 'position:absolute;top:-9999px;left:0;width:794px;padding:32px;box-sizing:border-box;background:#fff;';
   wrapper.innerHTML = preview.innerHTML;
+  document.body.appendChild(wrapper); // Must be in DOM before html2pdf runs
 
   const opt = {
     margin: [15,15,15,15],
     filename: 'document.pdf',
     image: { type:'jpeg', quality:0.98 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1024 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 794 },
     jsPDF: { unit:'mm', format:paper, orientation:orient },
     pagebreak: { mode:['avoid-all','css','legacy'] }
   };
@@ -293,10 +296,13 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
   } catch(e) {
     if (pdfStatus) pdfStatus.textContent = '❌ Error';
     if (statusMsg) statusMsg.textContent = 'PDF error: ' + e.message;
+  } finally {
+    // Always clean up — regardless of success or failure
+    if (document.body.contains(wrapper)) document.body.removeChild(wrapper);
+    downloadBtn.disabled = false;
+    downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
+    setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
   }
-  downloadBtn.disabled = false;
-  downloadBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download PDF';
-  setTimeout(() => { if (pdfStatus) pdfStatus.style.display = 'none'; }, 5000);
 });
 
 // Resizable divider
