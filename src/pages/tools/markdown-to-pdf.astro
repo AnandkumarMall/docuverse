@@ -277,10 +277,8 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
   Array.from(preview.childNodes).forEach(node => {
     clone.appendChild(node.cloneNode(true));
   });
-  clone.style.cssText = 'padding:32px;box-sizing:border-box;width:100%;';
+  clone.style.cssText = 'padding:32px;box-sizing:border-box;width:800px;position:absolute;top:0;left:0;z-index:-9999;';
   document.body.appendChild(clone);
-  clone.style.position = 'absolute';
-  clone.style.left = '-9999px';
 
   const opt = {
     margin: [15,15,15,15],
