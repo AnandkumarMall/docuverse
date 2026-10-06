@@ -272,36 +272,22 @@ downloadBtn && downloadBtn.addEventListener('click', async () => {
   const orient = orientSelect ? orientSelect.value : 'portrait';
   const theme = themeSelect ? themeSelect.value : 'github';
 
+  const wrapper = document.createElement('div');
+  wrapper.className = 'md-preview__content theme-' + theme;
+  wrapper.style.cssText = 'padding:32px; box-sizing:border-box; width:800px;';
+  wrapper.innerHTML = preview.innerHTML;
+
   const opt = {
     margin: [15,15,15,15],
     filename: 'document.pdf',
     image: { type:'jpeg', quality:0.98 },
-    html2canvas: { 
-      scale: 2, 
-      useCORS: true, 
-      letterRendering: true,
-      windowWidth: 1024,
-      onclone: (clonedDoc) => {
-        const el = clonedDoc.getElementById('md-preview');
-        if (el) {
-          el.style.width = '800px';
-          el.style.maxWidth = 'none';
-          let parent = el.parentElement;
-          while (parent && parent !== clonedDoc.body) {
-            parent.style.overflow = 'visible';
-            parent.style.height = 'auto';
-            parent.style.maxHeight = 'none';
-            parent = parent.parentElement;
-          }
-        }
-      }
-    },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1024 },
     jsPDF: { unit:'mm', format:paper, orientation:orient },
     pagebreak: { mode:['avoid-all','css','legacy'] }
   };
 
   try {
-    await html2pdf().set(opt).from(preview).save();
+    await html2pdf().set(opt).from(wrapper).save();
     if (pdfStatus) pdfStatus.textContent = '✅ PDF downloaded!';
     if (statusMsg) statusMsg.textContent = 'PDF saved successfully.';
   } catch(e) {
